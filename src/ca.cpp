@@ -166,6 +166,26 @@ void CellularPotts::AllocateSigma(int sx, int sy) {
 
 }
 
+//this function is used in ReadBackup in Dish to fill the ca plane
+int CellularPotts::SetNextSigma(int sig) {
+  //the plane has a 1 px boundary on all size, therefore we place the pixels
+  //within that
+  static int xcount=1, ycount=1;
+  
+  if(xcount>=sizex-1 ||ycount>=sizey-1){
+    return 1;
+  }
+  
+  sigma[xcount][ycount]=pos;
+  ycount++;
+  if(ycount==sizey-1){
+    ycount=1;
+    xcount++;
+  }
+  return 0;
+  
+}
+
 void CellularPotts::IndexShuffle() {
 
   int i;
