@@ -188,7 +188,7 @@ void IntPlane::PeriodicBoundaries(void) {
 }
 
 //copy of this function in ca.cpp
-void IntPlane::SetNextVal(int pos){
+int IntPlane::SetNextVal(int pos){
   //the plane has a 1 px boundary on all size, therefore we place the pixels
   //within that boundary 
   static int xcount=1, ycount=1;

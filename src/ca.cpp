@@ -46,12 +46,12 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 /* define default zygote */
 /* NOTE: ZYGOTE is normally defined in Makefile!!!!!! */
-#ifndef ZYGOTE
-#define ZYGOTE init
-#include "init.xpm"
-#else
-#include ZYGFILE(ZYGOTE)
-#endif
+// #ifndef ZYGOTE
+// #define ZYGOTE init
+// //#include "init.xpm"
+// #else
+// #include ZYGFILE(ZYGOTE)
+// #endif
 
 /* STATIC DATA MEMBER INITIALISATION */
 double copyprob[BOLTZMANN];
@@ -176,7 +176,7 @@ int CellularPotts::SetNextSigma(int sig) {
     return 1;
   }
   
-  sigma[xcount][ycount]=pos;
+  sigma[xcount][ycount]=sig;
   ycount++;
   if(ycount==sizey-1){
     ycount=1;
@@ -1166,68 +1166,68 @@ int **CellularPotts::SearchNandPlot(Graphics *g, bool get_neighbours)
 }
 
 
-void CellularPotts::ReadZygotePicture(void) {
-
-
-
-  int pix,cells,i,j,c,p,checkx,checky;
-  char **pixelmap;
-  char pixel[3];
-
-  sscanf(ZYGXPM(ZYGOTE)[0],"%d %d %d %d",&checkx,&checky,&cells,&pix);
-
-  if ((checkx>sizex)||(checky>sizey)) {
-    std::cerr <<  "ReadZygote: The included xpm picture is smaller than the grid!\n";
-    std::cerr << "\n Please adjust either the grid size or the picture size.\n";
-    std::cerr << sizex << "," << sizey << "," << checkx << "," << checky << "\n";
-    exit(1);
-  }
-
-  pixelmap=(char **)malloc(cells*sizeof(char *));
-  if (pixelmap==NULL) MemoryWarning();
-
-  pixelmap[0]=(char *)malloc(cells*3*sizeof(char));
-  if (pixelmap[0]==NULL) MemoryWarning();
-
-  for(i=1;i<cells;i++)
-    pixelmap[i]=pixelmap[i-1]+3;
-
-  for (i=0;i<cells;i++) {
-    for (j=0;j<pix;j++)
-      pixelmap[i][j]=ZYGXPM(ZYGOTE)[i+1][j];
-    pixelmap[i][pix]='\0';
-  }
-
-  for (i=0;i<sizex*sizey;i++) sigma[0][i]=0;
-  fprintf(stderr,"[%d %d]\n",checkx,checky);
-
-  int offs_x, offs_y;
-  offs_x=(sizex-checkx)/2;
-  offs_y=(sizey-checky)/2;
-
-  for (i=0;i<checkx;i++)
-    for (j=0;j<checky;j++) {
-      for (p=0;p<pix;p++)
-        pixel[p]=ZYGXPM(ZYGOTE)[cells+1+j][i*pix+p];
-
-      pixel[pix]='\0';
-
-      for (c=0;c<cells;c++) {
-	if (!(strcmp(pixelmap[c],pixel))) {
-	  if ( (sigma[offs_x+i][offs_y+j]=c) ) {
-
-	    // if c is _NOT_ medium (then c=0)
-	    // assign pixel values from "sigmamax"
-	    sigma[offs_x+i][offs_y+j]+=(Cell::MaxSigma()-1);
-	  }
-	}
-
-      }
-    }
-
-  free(pixelmap[0]);
-  free(pixelmap);
-}
+// void CellularPotts::ReadZygotePicture(void) {
+// 
+// 
+// 
+//   int pix,cells,i,j,c,p,checkx,checky;
+//   char **pixelmap;
+//   char pixel[3];
+// 
+//   sscanf(ZYGXPM(ZYGOTE)[0],"%d %d %d %d",&checkx,&checky,&cells,&pix);
+// 
+//   if ((checkx>sizex)||(checky>sizey)) {
+//     std::cerr <<  "ReadZygote: The included xpm picture is smaller than the grid!\n";
+//     std::cerr << "\n Please adjust either the grid size or the picture size.\n";
+//     std::cerr << sizex << "," << sizey << "," << checkx << "," << checky << "\n";
+//     exit(1);
+//   }
+// 
+//   pixelmap=(char **)malloc(cells*sizeof(char *));
+//   if (pixelmap==NULL) MemoryWarning();
+// 
+//   pixelmap[0]=(char *)malloc(cells*3*sizeof(char));
+//   if (pixelmap[0]==NULL) MemoryWarning();
+// 
+//   for(i=1;i<cells;i++)
+//     pixelmap[i]=pixelmap[i-1]+3;
+// 
+//   for (i=0;i<cells;i++) {
+//     for (j=0;j<pix;j++)
+//       pixelmap[i][j]=ZYGXPM(ZYGOTE)[i+1][j];
+//     pixelmap[i][pix]='\0';
+//   }
+// 
+//   for (i=0;i<sizex*sizey;i++) sigma[0][i]=0;
+//   fprintf(stderr,"[%d %d]\n",checkx,checky);
+// 
+//   int offs_x, offs_y;
+//   offs_x=(sizex-checkx)/2;
+//   offs_y=(sizey-checky)/2;
+// 
+//   for (i=0;i<checkx;i++)
+//     for (j=0;j<checky;j++) {
+//       for (p=0;p<pix;p++)
+//         pixel[p]=ZYGXPM(ZYGOTE)[cells+1+j][i*pix+p];
+// 
+//       pixel[pix]='\0';
+// 
+//       for (c=0;c<cells;c++) {
+// 	if (!(strcmp(pixelmap[c],pixel))) {
+// 	  if ( (sigma[offs_x+i][offs_y+j]=c) ) {
+// 
+// 	    // if c is _NOT_ medium (then c=0)
+// 	    // assign pixel values from "sigmamax"
+// 	    sigma[offs_x+i][offs_y+j]+=(Cell::MaxSigma()-1);
+// 	  }
+// 	}
+// 
+//       }
+//     }
+// 
+//   free(pixelmap[0]);
+//   free(pixelmap);
+// }
 
 
 void CellularPotts::ConstructInitCells(Dish &beast){

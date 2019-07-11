@@ -28,6 +28,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include <algorithm>
 #include <fstream>
 #include <string.h>
+#include <sstream>
 #include <errno.h>
 #include <math.h>
 #include "dish.h"
@@ -797,7 +798,7 @@ void Dish::InitCellMigration(void)
 //function to have cells update their persistence time (perstime);
 //In the future perhaps also their persistence duration (persdur), or how long they remember their preferred direction;
 //and force of migration (mu)
-void Dish::CellMigration(void)ConstructInit
+void Dish::CellMigration(void)
 {
   auto icell = std::begin(cell);
   ++icell;  //discard first element of vector cell, which is medium
@@ -1199,12 +1200,13 @@ int Dish::ReadBackup(char *filename){
  if (ifs.is_open()){
    //first read the time stamp
    getline(ifs, line);
-   ifs>>time;
+   stringstream strstr(line);
+   strstr >> starttime;
    
    //now read all the cell variables
    getline(ifs, line);
    while (line.length()){
-     rc=new Cell(&this); //temporary pointer to cell object
+     rc=new Cell(*this); //temporary pointer to cell object
      stringstream strstr(line);
      //read the straightforward cell variables from the line
      strstr>>rc->sigma>>rc->tau>>rc->alive>>rc->tvecx>>rc->tvecy>>rc->prevx>>rc->prevy>>rc->persdur
@@ -1216,7 +1218,7 @@ int Dish::ReadBackup(char *filename){
      for (char& c : jlock){
        rc->jlock.push_back(c - '0');
      }            
-     cell->push_back(*readcell);
+     cell.push_back(*rc);
     
      //read the next line
      getline(ifs, line); 
@@ -1256,6 +1258,7 @@ int Dish::ReadBackup(char *filename){
    cerr<<"ReadBackup error: could not open file. exiting..."<<endl;
    exit(1);
  }
+ return starttime;
  
 }
 
