@@ -471,7 +471,6 @@ double Cell::CalculateMaintenance_or_ExtProtExpr_Fraction(double k0,double kA,do
   double fraction=k0;
   fraction += kA * area / (double)half_div_area;
   fraction += kP * particles / 50.; // <-a reasonable scaling factor :P
-  
   //next bit averages over non zero contacts: 
   // I should get the Jvalues from the sigma in contact with this cell
   // and the length
@@ -486,7 +485,7 @@ double Cell::CalculateMaintenance_or_ExtProtExpr_Fraction(double k0,double kA,do
     contlen_total += contlen_nei;
     sum_J_times_contlen += vJ[sigma_nei]*contlen_nei; //
   }
-  
+    
   //no contribution from contacts if this cell is in contact with no one
   double toadd_avrgJ = (contlen_total>0)? sum_J_times_contlen/(double)(contlen_total*43.): 0.;
   fraction += kC * toadd_avrgJ;

@@ -689,7 +689,7 @@ private:
 
     // Add a site to the raw moments, then update and return the
     // length of the cell
-
+    //cout<<"area now: "<<area<<"x: "<<x<<"y: "<<y<<endl;
     // sum_x, sum_y, sum_xx, sum_xy and sum_yy are adjusted
     // Eventually this function may be used to carry
     // out all necessary adminstration at once

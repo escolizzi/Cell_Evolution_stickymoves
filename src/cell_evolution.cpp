@@ -28,6 +28,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include <cstdlib>
 #include <algorithm>
 #include <fstream>
+#include <cstring>
 #include <math.h>
 #include "dish.h"
 #include "random.h"
@@ -55,9 +56,11 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 using namespace std;
 
 INIT {
-
+  
+  
+  
   try {
-
+    
     // Define initial distribution of cells
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
@@ -71,65 +74,77 @@ INIT {
     //CPM->PlaceOneCellsAtXY(par.sizey/3 , par.sizex-3-(int)(sqrt(par.size_init_cells/3.14)), par.size_init_cells , 2);
     //CPM->PlaceOneCellsAtXY((int)(sqrt(par.size_init_cells/3.14))+3,(2/3.)*par.sizey, par.size_init_cells, 3);
     //CPM->PlaceOneCellsAtXY((2/3.)*par.sizey, (int)(sqrt(par.size_init_cells/3.14))+3, par.size_init_cells, 4);
+    
+    
+    if (! strlen(par.backupfile)) {
+      //THIS IS TO USE FOR NORMAL INITIALISATION
+      CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
+      CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
 
-    //THIS IS TO USE FOR NORMAL INITIALISATION
-    CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
-    CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
+      // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
+      CPM->SetRandomTypes();
+      //cerr<<"Hello bla 0"<<endl;
+      //Initialise key-lock pairs - we do it after types, because we need the information
+      InitKeyLock();
+     // cerr<<"Hello bla 1"<<endl;
+      //Initialise vector of J values for each cell
+      InitVectorJ();
+      //cerr<<"Hello bla 2"<<endl;
+      //Initialise the contactlength bookkeeping now that the cells are placed
+      // at this stage, cells are only surrounded by medium
+      InitContactLength();  // see dish.cpp - you don't need dish->InitContactLength because this part IS in dish
+      //cerr<<"Hello bla 2.5"<<endl;
+      InitMaintenanceFraction();
+      
+      // If we have only one big cell and divide it a few times
+      // we start with a nice initial clump of cells.
+      //
+      //The behavior can be changed in the parameter file using
+      //parameters n_init_cells, size_init_cells and divisions
+      for(int howmanydivisions=0;howmanydivisions<par.divisions;howmanydivisions++){
+        vector<int> sigma_newcells = CPM->DivideCells();
+        UpdateVectorJ(sigma_newcells);
+        cerr<<"dividing again: "<<howmanydivisions<<endl;
+      }
+      InitTargetArea();
 
-    // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
-    CPM->SetRandomTypes();
-    //cerr<<"Hello bla 0"<<endl;
-    //Initialise key-lock pairs - we do it after types, because we need the information
-   InitKeyLock();
-   // cerr<<"Hello bla 1"<<endl;
-    //Initialise vector of J values for each cell
-   InitVectorJ();
-    //cerr<<"Hello bla 2"<<endl;
-    //Initialise the contactlength bookkeeping now that the cells are placed
-    // at this stage, cells are only surrounded by medium
-    InitContactLength();  // see dish.cpp - you don't need dish->InitContactLength because this part IS in dish
-    //cerr<<"Hello bla 2.5"<<endl;
-    InitMaintenanceFraction();
-    // If we have only one big cell and divide it a few times
-    // we start with a nice initial clump of cells.
-    //
-    //The behavior can be changed in the parameter file using
-    //parameters n_init_cells, size_init_cells and divisions
-    for(int howmanydivisions=0;howmanydivisions<par.divisions;howmanydivisions++){
-      vector<int> sigma_newcells = CPM->DivideCells();
-      UpdateVectorJ(sigma_newcells);
-      cerr<<"dividing again: "<<howmanydivisions<<endl;
+      //PrintContactList();
+
+      //Set function pointer for food update, depending on parameters
+      Food->InitIncreaseVal(CPM); //a pointer to CPM is an argument to InitIncreaseVal
+                                   // but NOT to IncreaseVal if it points to IncreaseValEverywhere
+
+      // Initialises food plane
+      for(int i=0;i<par.sizex;i++)
+        for(int j=0;j<par.sizey;j++)
+          Food->addtoValue(i,j,par.initial_food_amount);  //add initial amount of food for preys
+
+       //cout<<"Hello bla 3"<<endl;
+       par.starttime=0;
     }
+    else {
+      par.starttime=ReadBackup(par.backupfile);
+      InitContactLength();
+      InitVectorJ();
+      Food->InitIncreaseVal(CPM); 
 
-    //PrintContactList();
-
-    //Set function pointer for food update, depending on parameters
-    Food->InitIncreaseVal(CPM); //a pointer to CPM is an argument to InitIncreaseVal
-                                 // but NOT to IncreaseVal if it points to IncreaseValEverywhere
-
-    // Initialises food plane
-    for(int i=0;i<par.sizex;i++)
-      for(int j=0;j<par.sizey;j++)
-        Food->addtoValue(i,j,par.initial_food_amount);  //add initial amount of food for preys
-
-     //cout<<"Hello bla 3"<<endl;
-
+    }
   } catch(const char* error) {
     cerr << "Caught exception\n";
     std::cerr << error << "\n";
     exit(1);
-  }
+  }  
 
 }
 
 TIMESTEP {
 
   try {
-    static int i=0;
-
     static Dish *dish=new Dish(); //here ca planes and cells are constructed
     static Info *info=new Info(*dish, *this);
-
+    static int i=par.starttime; //starttime is set in Dish. Not the prettiest solution, but let's hope it works.
+    
+    //cout << "running... "<< i<<endl;
     if( !(i%100000) ) cerr<<"TIME: "<<i<<endl;
 
 //     cerr<<"target areas before step"<<endl;
@@ -147,9 +162,11 @@ TIMESTEP {
       //dish->Food->IncreaseValIfEmpty(dish->CPM);
 
     // TIME SCALING IS DONE INSIDE FUNCTIONS
+  //  cout <<"hello1"<<endl;
 
     dish->Food->IncreaseVal(*(dish->Food)); // SCALED
 
+    
 //       // testing //
 //
 //       // Initialises food plane
@@ -161,14 +178,16 @@ TIMESTEP {
 //       //   testing    //
 //
       dish->CellsEat(); // SCALED // HERE MAX PARTICLES IS DEFINED, should be a parameter
+      
       dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
+          
       dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
       //Recalculate the all vs. all J table.
       //this can be optimised by having some intelligent return flags from dish->CellGrowthAndDivision2();
       // for now it's every one vs everyone all the times.
    // }
 
-
+     
     //deal with cell migration
     if(i==100){
       dish->InitCellMigration();
@@ -177,12 +196,15 @@ TIMESTEP {
     if(i>100){
      dish->CellMigration();//updates persistence time and targetvectors
     }
+    
+    
 
     //dish->CPM->AmoebaeMove(dish->PDEfield);  //this changes neighs
     dish->CPM->AmoebaeMove2(dish->PDEfield);  //this changes neighs
+    //cout <<"hello2"<<endl;
     //cerr<<"Hello 1"<<endl;
     dish->UpdateNeighDuration();
-
+  //  cout <<"hello3"<<endl;
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
     
@@ -206,7 +228,7 @@ TIMESTEP {
       EndScene();
       info->Menu();
     }
-
+//cout <<"hello4"<<endl;
     // TO FILE FOR MOVIE
     if (par.store && !(i%par.storage_stride)) {
       char fname[300];
@@ -218,6 +240,7 @@ TIMESTEP {
       EndScene();
       Write(fname);
     }
+  //  cout <<"hello5"<<endl;
     //exit(1);
     // TO FILE FOR TEXT
     if( !(i%par.save_text_file_period) ){
@@ -227,7 +250,7 @@ TIMESTEP {
         exit(0);
       }
     }
-
+  //  cout <<"hello2"<<endl;
     // TO FILE FOR BACKUP
     if( !(i%par.save_backup_period) ){
       dish->MakeBackup(i); //saves all permanent data

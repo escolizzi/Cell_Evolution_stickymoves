@@ -28,6 +28,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include <algorithm>
 #include <fstream>
 #include <string.h>
+#include <sstream>
 #include <errno.h>
 #include <math.h>
 #include "dish.h"
@@ -54,13 +55,11 @@ Dish::Dish(void) {
   if (par.n_chem)
     PDEfield=new PDE(par.n_chem,par.sizex, par.sizey);
 
+  cout<<"Starting the dish. Initialising..."<<endl;
   // Initial cell distribution is defined by user in INIT {} block
   Init();
 
-  if (par.target_area>0)
-    for(std::vector<Cell>::iterator c=cell.begin();c!=cell.end();c++) {
-      c->SetTargetArea(par.target_area);
-    }
+  
 
   //cout<<cell[1].neighbours[0].first<<endl;
   //cout<<cell[1].TargetArea()<<endl;
@@ -73,6 +72,14 @@ Dish::~Dish() {
 
   delete CPM;
   delete Food;
+}
+
+void Dish::InitTargetArea(void)
+{
+  if (par.target_area>0)
+    for(std::vector<Cell>::iterator c=cell.begin();c!=cell.end();c++) {
+      c->SetTargetArea(par.target_area);
+    }
 }
 
 void Dish::InitKeyLock(void)
@@ -844,7 +851,7 @@ void Dish::CellGrowthAndDivision2(void)
         // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length 
         // and bounded inside [0,1]
         c->maintenance_fraction = c->CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_mf_0,c->k_mf_A,c->k_mf_P,c->k_mf_C);
-        
+      
         //Next, also Js should be a function of that, bounded between [reasonably high, actual J values]
         // this is just a number that is going to be multiplied to the J values of this cell...
         // ... how? maybe directly in amoebamove? (it'd be easier than updating all J values for this guy 
@@ -1130,40 +1137,24 @@ void Dish::MakeBackup(int Time){
   sprintf(filename,"%s/backup_t%07d.txt",par.backupdir,Time);
 
   ofs.open ( filename , std::ofstream::out | std::ofstream::app);
-  ofs<<"Time: "<<Time<<" "<<"size_xy: "<<par.sizex<<" "<<par.sizey<<endl;
+  ofs<<Time<<endl;
+  //each cell's variables are written on a single line.
+  //don't store area or neighbours: can be inferred from the stored plane
   for(auto c: cell){
     if(c.sigma==0) continue;
-    ofs<<"sigma: "<< c.sigma <<endl;
-    ofs<<"tau: "<< c.tau <<endl;
-    ofs<<"alive: "<< c.alive <<endl;
-
-    ofs<<"tvecx: "<< c.tvecx <<endl;
-    ofs<<"tvecy: "<< c.tvecy <<endl;
-    ofs<<"prevx: "<< c.prevx <<endl;
-    ofs<<"prevy: "<< c.prevy <<endl;
-    ofs<<"persdur: "<< c.persdur <<endl;
-    ofs<<"perstime: "<< c.perstime <<endl;
-    ofs<<"mu: "<< c.mu <<endl;
-    ofs<<"keylock: ";
+    ofs<<c.sigma<<" "<< c.tau<<" "<< c.alive<<" "<< c.tvecx<<" "<<c.tvecy<<" "<< c.prevx<<" "<< c.prevy<<" "
+    << c.persdur<<" "<< c.perstime<<" "<< c.mu<<" "<< c.target_area<<" "<< c.half_div_area<<" "<< c.eatprob<<" "<<c.particles<<" "<< c.growth<<" "
+    <<c.k_mf_0<<" "<<c.k_mf_A<<" "<<c.k_mf_P<<" "<<c.k_mf_C<<" "<<c.k_ext_0<<" "<<c.k_ext_A<<" "<<c.k_ext_P<<" "<<c.k_ext_C<<" ";
     for( auto x: c.jkey ) ofs<<x; //key
     ofs << " ";
     for( auto x: c.jlock ) ofs<<x; //lock
     ofs << endl;
-
-    // area is calculated from the CA
-    ofs<<"target_area: "<< c.target_area <<endl;
-    ofs<<"half_div_area: "<< c.half_div_area <<endl;
-
-    ofs<<"eatprob: "<< c.eatprob <<endl;
-    ofs<<"particles: "<< c.particles <<endl;
-    ofs<<"growth: "<< c.growth <<endl;
-    ofs<<endl;
   }
-
+  
   // particle plane
   // ca plane
   // posix files can be at most 2048 characters long on this laptop (LINE_MAX)
-  // so a big field cannot be represented in an obvious way,
+  // so a big field cannot be represented in );an obvious way,
   // however we can save some lines if we print a few sigmas in the same line
   //(anyway, field size is already specified above)... but howmany?
   // well, conceivably I will never run anything larger than in the thousands by thousands pixels
@@ -1172,7 +1163,7 @@ void Dish::MakeBackup(int Time){
   // ok!
   int counter=0;
   int maxperline=100;
-  ofs<<"CA: "<<endl;
+  ofs<<endl;
   for(int x=1; x<par.sizex-1; x++){
     for(int y=1; y<par.sizey-1; y++){
       int isigma=CPM->Sigma(x,y);
@@ -1187,7 +1178,7 @@ void Dish::MakeBackup(int Time){
   ofs<<endl;
 
   counter=0;
-  ofs<<"IntPlane: "<<endl;
+  ofs<<endl;
   for(int x=1; x<par.sizex-1; x++){
     for(int y=1; y<par.sizey-1; y++){
       int isigma=Food->Sigma(x,y);
@@ -1199,6 +1190,90 @@ void Dish::MakeBackup(int Time){
       }
     }
   }
+  ofs<<endl;
+}
+
+int Dish::ReadBackup(char *filename){
+  //for file reading
+  std::ifstream ifs;
+  string line;
+  Cell *rc;
+  //return value: time at which the simulation restarts
+  int starttime;
+  
+  string jkey, jlock; //read them first as a string, then put into vector?
+  int pos;
+  
+  ifs.open ( filename , std::ifstream::in);
+   
+ if (ifs.is_open()){
+   //first read the time stamp
+   getline(ifs, line);
+   stringstream strstr(line);
+   strstr >> starttime;
+   
+   //now read all the cell variables
+   getline(ifs, line);
+   while (line.length()){
+     rc=new Cell(*this); //temporary pointer to cell object
+     stringstream strstr(line);
+     //read the straightforward cell variables from the line
+     strstr>>rc->sigma>>rc->tau>>rc->alive>>rc->tvecx>>rc->tvecy>>rc->prevx>>rc->prevy>>rc->persdur
+     >>rc->perstime>>rc->mu>>rc->target_area>>rc->half_div_area>>rc->eatprob>>rc->particles>>rc->growth
+     >>rc->k_mf_0>>rc->k_mf_A>>rc->k_mf_P>>rc->k_mf_C>>rc->k_ext_0>>rc->k_ext_A>>rc->k_ext_P>>rc->k_ext_C>>jkey>>jlock;
+     //read the key and lock into the cell
+     for (char& c : jkey){
+       rc->jkey.push_back(c - '0');
+     }
+     for (char& c : jlock){
+       rc->jlock.push_back(c - '0');
+     }            
+     rc->meanx=0.5*par.sizex;
+     rc->meany=0.5*par.sizey;
+     cell.push_back(*rc);
+    
+     //read the next line
+     getline(ifs, line); 
+   }
+    
+   //now read the planes    
+   //hopefully, plane allocation already happened during dish creation
+   //this does assume size parameters match, so be careful!
+   getline(ifs, line);
+   while (line.length()){ 
+    stringstream ss(line);
+    while(ss>>pos){
+      int wrong=CPM->SetNextSigma(pos);
+      if (wrong){
+        cerr<<"ReadBackup error in reading CA plane. more values than fit in plane."<<endl;
+        exit(1);
+      }
+    }
+    getline(ifs, line);
+  }
+  
+  //read the food intplane
+  getline(ifs, line);
+  while (line.length()){ 
+   stringstream ss(line);
+   while(ss>>pos){
+    int wrong=Food->SetNextVal(pos);
+    if (wrong){
+      cerr<<"ReadBackup error in reading Food plane. more values than fit in plane."<<endl;
+      exit(1);
+    }
+   }
+   getline(ifs, line);
+  }
+ }
+ else{
+   cerr<<"ReadBackup error: could not open file. exiting..."<<endl;
+   exit(1);
+ }
+ 
+ 
+ return starttime;
+ 
 }
 
 void Dish::SetCellOwner(Cell &which_cell){

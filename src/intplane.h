@@ -129,6 +129,7 @@ class IntPlane {
   my_fun_t IncreaseVal;
   
   // Add values to random positions in plane (e.g. food influx)
+  int SetNextVal(int sig);
   void IncreaseValEverywhere(void);
   // Add values to random positions in plane if not occupied (e.g. food influx)
   void IncreaseValIfEmpty(CellularPotts *cpm); //set if notonprey parameter
