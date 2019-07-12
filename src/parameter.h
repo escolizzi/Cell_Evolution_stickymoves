@@ -97,6 +97,8 @@ class Parameter {
   int persduration;
   int scaling_cell_to_ca_time;
   char * backupdir;
+  char * backupfile;
+  int starttime;
   int save_backup_period;
   double init_maintenance_fraction;
   double init_k_mf_0;

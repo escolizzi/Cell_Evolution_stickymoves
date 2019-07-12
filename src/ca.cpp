@@ -167,6 +167,7 @@ void CellularPotts::AllocateSigma(int sx, int sy) {
 }
 
 //this function is used in ReadBackup in Dish to fill the ca plane
+//AND to set the cell's moments (assumes cells have been initialised!)
 int CellularPotts::SetNextSigma(int sig) {
   //the plane has a 1 px boundary on all size, therefore we place the pixels
   //within that
@@ -177,6 +178,11 @@ int CellularPotts::SetNextSigma(int sig) {
   }
   
   sigma[xcount][ycount]=sig;
+  if (sig){
+    (*cell)[sig].area++;
+    (*cell)[sig].AddSiteToMoments(xcount, ycount);
+  }
+    
   ycount++;
   if(ycount==sizey-1){
     ycount=1;
@@ -888,7 +894,6 @@ int CellularPotts::AmoebaeMove2(PDE *PDEfield)
         kp=sigma[xp][yp];
     }
 
-
     // test for border state (relevant only if we do not use periodic boundaries)
     // test always passed with periodic boundaries
     if (kp!=-1) {
@@ -920,16 +925,19 @@ int CellularPotts::AmoebaeMove2(PDE *PDEfield)
 //           }
 
           int D_H=DeltaH(x,y,xp,yp,PDEfield);
+
           //cerr<<"Hello AmoebaeMove2: D_H = "<<D_H<<endl;
           if( (p=CopyvProb(D_H,H_diss))>0 ){
             //cerr<<"Hello before ConvertSpin"<<endl;
             ConvertSpin( x,y,xp,yp );
+
             //cerr<<"Hello after ConvertSpin"<<endl;
             SumDH+=D_H;
           }
         }else{
 //           cerr<<"Hello AmoebaeMove2: medium flag activated"<<endl;
           int D_H=DeltaHWithMedium(x,y,PDEfield);
+
 //           cerr<<"Hello AmoebaeMove2 0.4"<<endl;
           if ((p=CopyvProb(D_H,H_diss))>0) {
             //cerr<<"this shouldn't happen if chanceofmedium =0 "<<endl;
@@ -1414,7 +1422,7 @@ Dir *CellularPotts::FindCellDirections3(void) const
 
         double tmpx=x; //because we may change them if wrapped
         double tmpy=y;
-
+        
         double meanx = (*cell)[isigma].meanx;
         double meany = (*cell)[isigma].meany;
 
@@ -1462,7 +1470,8 @@ Dir *CellularPotts::FindCellDirections3(void) const
   // C = <          >
   //     ( sxy syy )
   // We diagonalise this and find eigenvalues lb1 and lb2
-
+  //recalculate the means while we're at it
+  
 
   double small_number = 0.0000001;
   double large_enough_number = 1./small_number;

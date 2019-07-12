@@ -99,7 +99,8 @@ Parameter::Parameter() {
   backupdir=strdup("backup");
   save_backup_period=0;
   init_maintenance_fraction = 0.85;
-  
+  backupfile=strdup("");
+  starttime=0;
   init_k_mf_0 = 0.5;
   init_k_mf_A = 0.;
   init_k_mf_P = 0.;
@@ -132,6 +133,10 @@ void Parameter::CleanUp(void) {
      free(secr_rate);
   if (datadir) 
      free(datadir);
+  if (backupdir)
+     free(backupdir);
+  if (backupfile)
+        free(backupfile);
 
 }
 void Parameter::PrintWelcomeStatement(void)
@@ -241,6 +246,16 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       persduration = atoi( argv[i] );
       cerr<<"New value for persistence of movement: "<<persduration<<endl;
+    }else if( 0==strcmp(argv[i],"-backupfile") ){
+      i++; if(i==argc){ 
+        cerr<<"Something odd in backupfile?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      free(backupfile);
+      backupfile = (char *)malloc( 5+strlen(argv[i])*sizeof(char) )  ; //strlen(argv[i]) is ok because argv[i] is null terminated
+      backupfile = strdup(argv[i]);
+      
+      cerr<<"New value for backupfile: "<<backupfile<<endl;
     }else 
       return 1;
   }

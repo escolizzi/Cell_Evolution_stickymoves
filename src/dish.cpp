@@ -55,13 +55,11 @@ Dish::Dish(void) {
   if (par.n_chem)
     PDEfield=new PDE(par.n_chem,par.sizex, par.sizey);
 
+  cout<<"Starting the dish. Initialising..."<<endl;
   // Initial cell distribution is defined by user in INIT {} block
   Init();
 
-  if (par.target_area>0)
-    for(std::vector<Cell>::iterator c=cell.begin();c!=cell.end();c++) {
-      c->SetTargetArea(par.target_area);
-    }
+  
 
   //cout<<cell[1].neighbours[0].first<<endl;
   //cout<<cell[1].TargetArea()<<endl;
@@ -74,6 +72,14 @@ Dish::~Dish() {
 
   delete CPM;
   delete Food;
+}
+
+void Dish::InitTargetArea(void)
+{
+  if (par.target_area>0)
+    for(std::vector<Cell>::iterator c=cell.begin();c!=cell.end();c++) {
+      c->SetTargetArea(par.target_area);
+    }
 }
 
 void Dish::InitKeyLock(void)
@@ -845,7 +851,7 @@ void Dish::CellGrowthAndDivision2(void)
         // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length 
         // and bounded inside [0,1]
         c->maintenance_fraction = c->CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_mf_0,c->k_mf_A,c->k_mf_P,c->k_mf_C);
-        
+      
         //Next, also Js should be a function of that, bounded between [reasonably high, actual J values]
         // this is just a number that is going to be multiplied to the J values of this cell...
         // ... how? maybe directly in amoebamove? (it'd be easier than updating all J values for this guy 
@@ -1141,7 +1147,10 @@ void Dish::MakeBackup(int Time){
     for( auto x: c.jlock ) ofs<<x; //lock
     ofs << endl;
   }
-
+  cout<<"Cells: "<<endl;
+  for (auto c: cell){
+    if(c.area) cout<<"cell: "<<c.sigma<<" meanx: "<<c.meanx<<" meany: "<<c.meany<<endl;
+  }
   // particle plane
   // ca plane
   // posix files can be at most 2048 characters long on this laptop (LINE_MAX)
@@ -1218,6 +1227,8 @@ int Dish::ReadBackup(char *filename){
      for (char& c : jlock){
        rc->jlock.push_back(c - '0');
      }            
+     rc->meanx=0.5*par.sizex;
+     rc->meany=0.5*par.sizey;
      cell.push_back(*rc);
     
      //read the next line
@@ -1258,6 +1269,8 @@ int Dish::ReadBackup(char *filename){
    cerr<<"ReadBackup error: could not open file. exiting..."<<endl;
    exit(1);
  }
+ 
+ 
  return starttime;
  
 }

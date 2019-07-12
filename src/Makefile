@@ -11,7 +11,7 @@
 CC            = gcc
 CXX           = g++
 DEFINES       = 
-CFLAGS        = -m64 -pipe -O2 -Wall -W $(DEFINES)
+CFLAGS        = -m64 -pipe -g -Wall -W $(DEFINES)
 CXXFLAGS      = -m64 -pipe -std=c++11 -O2 -DX11GRAPHICS -Wall -W -Wno-unused-parameter -Wno-unused-variable -Wno-ignored-qualifiers -Wno-unused-result -Wno-write-strings -Wno-misleading-indentation $(DEFINES)
 INCPATH       = -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/X11R6/include
 LINK          = g++

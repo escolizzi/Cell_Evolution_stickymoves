@@ -49,7 +49,7 @@ class Dish {
   friend class Info;
 
 public:
-  Dish(void);
+  Dish();
   
   /*! \brief Init defines the initial state of the virtual
     cell culture.
@@ -73,6 +73,7 @@ public:
   void Plot(Graphics *g);
   
   void InitKeyLock(void);
+  void InitTargetArea(void);
   int CalculateJwithMedium( vector<int> key );
   int CalculateJfromKeyLock( vector<int> key1, vector<int> lock1, vector<int> key2, vector<int> lock2 );
   void InitVectorJ(void); //Initialise vector of J values for each cell
