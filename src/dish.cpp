@@ -1138,19 +1138,19 @@ void Dish::MakeBackup(int Time){
 
   ofs.open ( filename , std::ofstream::out | std::ofstream::app);
   ofs<<Time<<endl;
+  //each cell's variables are written on a single line.
+  //don't store area or neighbours: can be inferred from the stored plane
   for(auto c: cell){
     if(c.sigma==0) continue;
     ofs<<c.sigma<<" "<< c.tau<<" "<< c.alive<<" "<< c.tvecx<<" "<<c.tvecy<<" "<< c.prevx<<" "<< c.prevy<<" "
-    << c.persdur<<" "<< c.perstime<<" "<< c.mu<<" "<< c.target_area<<" "<< c.half_div_area<<" "<< c.eatprob<<" "<<c.particles<<" "<< c.growth<<" ";
+    << c.persdur<<" "<< c.perstime<<" "<< c.mu<<" "<< c.target_area<<" "<< c.half_div_area<<" "<< c.eatprob<<" "<<c.particles<<" "<< c.growth<<" "
+    <<c.k_mf_0<<" "<<c.k_mf_A<<" "<<c.k_mf_P<<" "<<c.k_mf_C<<" "<<c.k_ext_0<<" "<<c.k_ext_A<<" "<<c.k_ext_P<<" "<<c.k_ext_C<<" ";
     for( auto x: c.jkey ) ofs<<x; //key
     ofs << " ";
     for( auto x: c.jlock ) ofs<<x; //lock
     ofs << endl;
   }
-  cout<<"Cells: "<<endl;
-  for (auto c: cell){
-    if(c.area) cout<<"cell: "<<c.sigma<<" meanx: "<<c.meanx<<" meany: "<<c.meany<<endl;
-  }
+  
   // particle plane
   // ca plane
   // posix files can be at most 2048 characters long on this laptop (LINE_MAX)
@@ -1219,7 +1219,8 @@ int Dish::ReadBackup(char *filename){
      stringstream strstr(line);
      //read the straightforward cell variables from the line
      strstr>>rc->sigma>>rc->tau>>rc->alive>>rc->tvecx>>rc->tvecy>>rc->prevx>>rc->prevy>>rc->persdur
-     >>rc->perstime>>rc->mu>>rc->target_area>>rc->half_div_area>>rc->eatprob>>rc->particles>>rc->growth>>jkey>>jlock;
+     >>rc->perstime>>rc->mu>>rc->target_area>>rc->half_div_area>>rc->eatprob>>rc->particles>>rc->growth
+     >>rc->k_mf_0>>rc->k_mf_A>>rc->k_mf_P>>rc->k_mf_C>>rc->k_ext_0>>rc->k_ext_A>>rc->k_ext_P>>rc->k_ext_C>>jkey>>jlock;
      //read the key and lock into the cell
      for (char& c : jkey){
        rc->jkey.push_back(c - '0');

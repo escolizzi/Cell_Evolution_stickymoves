@@ -126,11 +126,8 @@ INIT {
       par.starttime=ReadBackup(par.backupfile);
       InitContactLength();
       InitVectorJ();
-      for (auto c: cell){
-        if(c.area) cout<<"meanx: "<<c.meanx<<" meany: "<<c.meany<<endl;
-      }
       Food->InitIncreaseVal(CPM); 
-      
+
     }
   } catch(const char* error) {
     cerr << "Caught exception\n";
