@@ -62,7 +62,7 @@ INIT {
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
     // THIS IS JUST FOR EXPERIMENTS
-    //CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2, par.size_init_cells, 1);
+    CPM->PlaceOneCellsAtXY(par.sizex/2,9.*par.sizey/10., par.size_init_cells, 1);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,par.sizey/4, par.size_init_cells, 2);
     //CPM->PlaceOneCellsAtXY(3*par.sizex/4,3*par.sizey/4, par.size_init_cells, 3);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,3*par.sizey/4, par.size_init_cells, 4);
@@ -73,7 +73,8 @@ INIT {
     //CPM->PlaceOneCellsAtXY((2/3.)*par.sizey, (int)(sqrt(par.size_init_cells/3.14))+3, par.size_init_cells, 4);
 
     //THIS IS TO USE FOR NORMAL INITIALISATION
-    CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
+    //CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
+    
     CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
 
     // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
@@ -119,7 +120,11 @@ INIT {
     std::cerr << error << "\n";
     exit(1);
   }
-
+  
+  for(int init_time=0;init_time<100;init_time++){
+    CPM->AmoebaeMove2(PDEfield);  //this changes neighs
+  }
+  InitCellMigration();
 }
 
 TIMESTEP {
@@ -160,7 +165,9 @@ TIMESTEP {
 //
 //       //   testing    //
 //
-      dish->CellsEat(); // SCALED // HERE MAX PARTICLES IS DEFINED, should be a parameter
+      // dish->CellsEat(); // SCALED // HERE MAX PARTICLES IS DEFINED, should be a parameter
+      dish->CellsEat2();
+      
       dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
       dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
       //Recalculate the all vs. all J table.
@@ -170,13 +177,13 @@ TIMESTEP {
 
 
     //deal with cell migration
-    if(i==100){
-      dish->InitCellMigration();
-    }
+    // if(i==100){
+    //   dish->InitCellMigration();
+    // } done at initialisation
 
-    if(i>100){
+    // if(i>100){
      dish->CellMigration();//updates persistence time and targetvectors
-    }
+    // }
 
     //dish->CPM->AmoebaeMove(dish->PDEfield);  //this changes neighs
     dish->CPM->AmoebaeMove2(dish->PDEfield);  //this changes neighs

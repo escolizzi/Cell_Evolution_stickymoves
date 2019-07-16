@@ -139,6 +139,7 @@ class IntPlane {
   void IncreaseValPatchyRandom(CellularPotts *cpm); // food increases in random patches that are depleted
   void IncreaseValPatchyRandomPersistence(CellularPotts *cpm);
   void IncreaseValSelfGrowth(CellularPotts *cpm);
+  void IncreaseValSpecifiedExp(CellularPotts *cpm);
   void InitIncreaseVal(CellularPotts *cpm);// set if everywhere parameter
                                            //Set function pointer for food update,
                                            // pointer to cpm is not used if IncreaseVal
@@ -185,7 +186,9 @@ class IntPlane {
 
   */
   void Diffuse(int repeat);
-
+  
+  void DiffuseParticles(void);
+  
   /*! \brief Implementation of no-flux boundaries.
     
   Called internally (optionally) by Diffuse(). */

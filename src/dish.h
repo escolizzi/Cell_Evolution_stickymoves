@@ -103,6 +103,7 @@ public:
   Find enlarged cells, and divide them.*/
   void CellGrowthAndDivision(void);
   void CellsEat(void);
+  void CellsEat2(void); //chenges cells direction vector based on where more food is
   void Predate(void);
   
   void InitCellMigration(void);

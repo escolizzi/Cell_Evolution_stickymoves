@@ -187,6 +187,47 @@ void IntPlane::PeriodicBoundaries(void) {
   
 }
 
+void IntPlane::DiffuseParticles(void) 
+{
+  double diff_const=0.01;
+  std::vector<std::vector<int>> diff( sizex , std::vector<int>(sizey, 0));
+  
+  diff_const /= double(par.scaling_cell_to_ca_time);
+  
+  for(int i=1;i<sizex;i++)for(int j=1;j<sizey;j++){
+    if(sigma[i][j]!=0){
+      int foodtomove = BinomialDeviate( sigma[i][j] , diff_const );
+      diff[i][j] -= foodtomove;
+      while(foodtomove>0){
+        //where does it move? randomly in the 8 neighbourhood (excl. self)
+        int xpos = -1 + (int)( 3.*RANDOM() ); // int number in [-1,1]
+        int ypos = -1 + (int)( 3.*RANDOM() ); // int number in [-1,1]
+        xpos+=i;
+        ypos+=j;
+        if(par.periodic_boundaries){
+          if(xpos>=sizex-1) xpos -= sizex-2;
+          if(xpos<=0) xpos += sizex-2;
+          if(ypos>=sizey-1) ypos -= sizey-2;
+          if(ypos<=0) ypos += sizey-2;
+          //std::cerr << "Hello3" << '\n';
+          //std::cerr << "Hello4" << '\n';
+        }else{
+          // if fixed boundaries diffusion of particles on boundaries does not happen
+          if(xpos>=sizex-1 || xpos<=0 || ypos>=sizey-1 || ypos<=0){
+            xpos=i;
+            ypos=j;
+          }
+        }
+        diff[xpos][ypos]++;  
+        foodtomove--;
+      }
+    }
+  }
+  for(int i=1;i<sizex;i++)for(int j=1;j<sizey;j++){
+    sigma[i][j]+=diff[i][j];
+  }
+  
+}
 
 // This function initialises a functional (from <function>) 
 // depending on parameters. The function is responsible for updating the field
@@ -239,6 +280,11 @@ void IntPlane::InitIncreaseVal(CellularPotts *cpm) {
   }else if(strcmp(par.food_influx_location,"food_growth") == 0){
     cerr<<"Hello, got food influx location: "<<par.food_influx_location<<endl;
     IncreaseVal = std::bind(&IntPlane::IncreaseValSelfGrowth, this, cpm);
+    //     exit(1);
+    ;
+  }else if(strcmp(par.food_influx_location,"specified_experiment") == 0){
+    cerr<<"Hello, got food influx location: "<<par.food_influx_location<<endl;
+    IncreaseVal = std::bind(&IntPlane::IncreaseValSpecifiedExp, this, cpm);
     //     exit(1);
     ;
   }
@@ -386,9 +432,11 @@ void IntPlane::IncreaseValPatchyRandom(CellularPotts *cpm){
     int posi = RandomNumber(sizex-2); //in the interval [1,sizex-1] both included
     int posj = RandomNumber(sizey-2);
     if(sigma[posi][posj]<10) sigma[posi][posj]++;
-  }  
+  }
   
-  double food_patch_frequency = 0.025;
+  DiffuseParticles();
+  
+  double food_patch_frequency = 0.002;
   
   if( RANDOM() < food_patch_frequency/double(par.scaling_cell_to_ca_time) ){
     int mpx = RandomNumber(sizex-2); //mean position x of patch
@@ -561,6 +609,43 @@ void IntPlane::IncreaseValSelfGrowth(CellularPotts *cpm)
   }
   // return;
 }
+
+void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
+{
+  static int first_time=1;
+  if(!first_time) return;
+  first_time=0;
+  
+  //we go from right border to left
+  for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
+    //center point is at coordinates (sizex/2, sizey)
+    double dist_from_peak;
+    dist_from_peak= sqrt( (sizey-j)*(sizey-j) + (sizex/2-i)*(sizex/2-i) );
+    int maxfood = 1+3.* (1 - dist_from_peak/(double)sizey);
+    double pfood_j = 0.5+ 0.5* (1 - dist_from_peak/(double)sizey);
+    if(RANDOM() < pfood_j) sigma[sizex-i][sizey-j]=maxfood;
+    else sigma[sizex-i][sizey-j]=0;
+    
+    
+    // if(i>sizex/2+25 || i<sizex/2-25) {
+    //    sigma[i][j]=0;
+    //    continue;
+    // }
+    // //int foodhere;
+    // double dist_from_peak;
+    // dist_from_peak= (sizey-j)/(double)(sizey); //linear gradient
+    // // dist_from_peak= sqrt( (sizey-j)*(sizey-j) + (sizex/2-i)*(sizex/2-i) );
+    // int maxfood = 3+7.* dist_from_peak/sizey;
+    // double pfood_j = 0.5+ 0.5* (sizey-j)/(double)(sizey);
+    // if(RANDOM() < pfood_j) sigma[i][j]=maxfood;
+    // else sigma[i][j]=0;
+
+  }
+  
+  return;
+  
+}
+
 
 void IntPlane::IncreaseValSomewhereIfEmpty(CellularPotts *cpm){
   

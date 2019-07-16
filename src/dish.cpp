@@ -775,6 +775,68 @@ void Dish::CellsEat(void)
     }
 }
 
+//changes cells direction vector based on where more food is
+void Dish::CellsEat2(void) 
+{
+  // if(par.periodic_boundaries)
+  // {
+  //   std::cerr << "CellsEat2: does not work with wrapped boundaries" << '\n';
+  //   exit(1);
+  // }
+  
+  int MAX_PARTICLES=1000000; //max particles that a cell can have inside it
+  std::vector<int> fsumx(cell.size(),0), fsumy(cell.size(),0),ftotal(cell.size(),0);
+  int foodload;
+  for(int x=1; x<par.sizex-1;x++){
+      for(int y=1; y<par.sizey-1;y++){
+        if(CPM->Sigma(x,y) && cell[CPM->Sigma(x,y)].AliveP() && cell[CPM->Sigma(x,y)].getTau() == PREY && Food->Sigma(x,y)){
+          //determine the mean position of the food that the cell sees
+          int cell_sigma=CPM->Sigma(x,y);
+          int fx=x, fy=y;
+          
+          if(par.periodic_boundaries){
+            double meanx = cell[cell_sigma].getXpos();
+            double meany = cell[cell_sigma].getYpos();
+            if( (fx-meanx)>0 && (fx-meanx)>(meanx-(fx-(par.sizex-2))) ) fx-=(par.sizex-2);
+            else if( (meanx-fx)>0 && (meanx-fx)>(fx+(par.sizex-2)-meanx)) fx+=(par.sizex-2);
+            if( (fy-meany)>0 && (fy-meany)> (meany - (fy - (par.sizey-2))) ) fy-=(par.sizey-2);
+            else if( (meany-fy>0) && (meany-fy)>(fy+(par.sizey-2)-meany)) fy+=(par.sizey-2);
+          }
+           
+          fsumx[cell_sigma]+=fx*Food->Sigma(x,y);
+          fsumy[cell_sigma]+=fy*Food->Sigma(x,y);
+          ftotal[cell_sigma]+=Food->Sigma(x,y);
+          
+          int howmuchfood = BinomialDeviate( Food->Sigma(x,y) , cell[cell_sigma].GetEatProb()/(double)par.scaling_cell_to_ca_time );
+          Food->addtoValue(x,y,-howmuchfood);
+
+          // we cannot add all the particles endlessly, otherwise it overflows
+          int current_particles = cell[cell_sigma].particles;
+          int added_particles = ( current_particles <= (MAX_PARTICLES-howmuchfood) )?howmuchfood:(MAX_PARTICLES-current_particles);
+          cell[cell_sigma].particles += added_particles;
+
+        }
+      }
+    }
+    
+    //update the cell's movement vector with respect to the location of food
+    int count=0;
+    double fvecx, fvecy;
+    for(auto &c: cell){
+      if(c.sigma && ftotal[c.sigma]){
+        //calculate "food" vector with respect to cell mean pos
+        fvecx=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx; 
+        fvecy=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
+        c.tvecx=(fvecx+c.tvecx)/2.;
+        c.tvecy=(fvecy+c.tvecy)/2.;
+        double hyphyp=hypot(c.tvecx,c.tvecy);
+        c.tvecx/=hyphyp;
+        c.tvecy/=hyphyp;
+      }
+      
+    }
+}
+
 //to initialise cells' mu, perstime and persdur
 void Dish::InitCellMigration(void)
 {
@@ -859,7 +921,10 @@ void Dish::CellGrowthAndDivision2(void)
           //the other should be used for movement
           particles_metabolised = c->maintenance_fraction* c->particles/(double)par.scaling_cell_to_ca_time;
           particles_for_movement = (1. - c->maintenance_fraction) * c->particles/(double)par.scaling_cell_to_ca_time;
-          newar+= c->growth*particles_metabolised/double(area);
+          
+          //newar+= c->growth*particles_metabolised/double(area);
+          newar+= c->growth*particles_metabolised;
+          
           if(RANDOM() < par.ardecay/(double)par.scaling_cell_to_ca_time )
             newar -= 1; //area decays of the same amount per time step, on average.
             //newar=double(area) - double(area)*par.ardecay + c->growth*double(c->particles)/double(area);
@@ -890,12 +955,15 @@ void Dish::CellGrowthAndDivision2(void)
         //cerr<<"particles for movement: "<< particles_for_movement <<",thus mu: ";
         double newmu;
         if(particles_for_movement > 1. ){
-          newmu=10.;
+          newmu=3.;
           particles_for_movement=1.;
         }else{
-          newmu = 10.*particles_for_movement;
+          // newmu = 10.*particles_for_movement;
+          newmu = 3.*particles_for_movement;
         }
         c->mu = newmu;
+        
+        c->mu = 3.; particles_for_movement=0; // specified experiments
         //cerr<<newmu<<endl;
         
         //if(c->growth<1.)
