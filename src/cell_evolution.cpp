@@ -62,7 +62,7 @@ INIT {
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
     // THIS IS JUST FOR EXPERIMENTS
-    CPM->PlaceOneCellsAtXY(par.sizex/2,9.*par.sizey/10., par.size_init_cells, 1);
+    CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,par.sizey/4, par.size_init_cells, 2);
     //CPM->PlaceOneCellsAtXY(3*par.sizex/4,3*par.sizey/4, par.size_init_cells, 3);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,3*par.sizey/4, par.size_init_cells, 4);

@@ -123,12 +123,15 @@ void IntPlane::Plot(Graphics *g2, CellularPotts *cpm) {
     for(int y=1;y<sizey-1;y++) 
       //if (cpm->Sigma(x,y)==0) {
       if(sigma[x][y]!=0){
-	    // Make the pixel four times as large
-	    // to fit with the CPM plane
-	    g2->Point(10+sigma[x][y],2*x,2*y);
-        g2->Point(10+sigma[x][y],2*x+1,2*y);
-        g2->Point(10+sigma[x][y],2*x,2*y+1);
-        g2->Point(10+sigma[x][y],2*x+1,2*y+1);
+        int colorindex;
+        if(sigma[x][y]>0) colorindex = 10+sigma[x][y];
+        else colorindex = 5;
+	      // Make the pixel four times as large
+	      // to fit with the CPM plane
+	      g2->Point(colorindex,2*x,2*y);
+        g2->Point(colorindex,2*x+1,2*y);
+        g2->Point(colorindex,2*x,2*y+1);
+        g2->Point(colorindex,2*x+1,2*y+1);
       }
 }
 
@@ -618,14 +621,18 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
   
   //we go from right border to left
   for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
+    
     //center point is at coordinates (sizex/2, sizey)
     double dist_from_peak;
     dist_from_peak= sqrt( (sizey-j)*(sizey-j) + (sizex/2-i)*(sizex/2-i) );
+    
+    // int maxfood = 1.+9.*RANDOM();
+    // double pfood_j = 0.125;
+    // makes gradient
     int maxfood = 1+3.* (1 - dist_from_peak/(double)sizey);
-    double pfood_j = 0.5+ 0.5* (1 - dist_from_peak/(double)sizey);
+    double pfood_j = 0.1+ 0.9* (1 - dist_from_peak/(double)sizey);
     if(RANDOM() < pfood_j) sigma[sizex-i][sizey-j]=maxfood;
     else sigma[sizex-i][sizey-j]=0;
-    
     
     // if(i>sizex/2+25 || i<sizex/2-25) {
     //    sigma[i][j]=0;
@@ -640,6 +647,10 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // if(RANDOM() < pfood_j) sigma[i][j]=maxfood;
     // else sigma[i][j]=0;
 
+  }
+  
+  for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
+    if(RANDOM()<0.05) sigma[i][j]=-1;
   }
   
   return;

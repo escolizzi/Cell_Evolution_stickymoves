@@ -4,7 +4,7 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 500
+sizex = 300
 sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
@@ -30,15 +30,15 @@ lambda2 = 0
 #default startmu = 0.0 or 10.0
 # mu is now changed depending on metabolism
 startmu = 0.01
-persduration = 25
+persduration = 50
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #lookup table for J val with medium: 
 # e.g if I get 10o4_3_2_1 -> J(tau,medium) = 10 + sum(4*key[0],3*key[1],2*key[2],1*key[3])
@@ -83,13 +83,13 @@ initial_food_amount = 5
 #foodinflux = 0.002
 foodinflux = 0.0001
 # default eatprob = 1.
-eatprob = 0.05
+eatprob = 1.0
 # default growth = 10.
-growth = 1.
+growth = 0.
 # default ardecay = 0.5
 # ardecay = 0.1
-#ardecay = 0.0
-ardecay = 0.05
+ardecay = 0.0
+#ardecay = 0.05
 
 #default min_contact_duration_for_preying = 25
 min_contact_duration_for_preying = 25
@@ -112,12 +112,15 @@ init_k_ext_A = 0.
 init_k_ext_P = 0.
 init_k_ext_C = 0.
 
+#Weight For Chemotaxis vs. (persistence) random walk
+init_weight_for_chemotaxis = 0.05
+
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 50
-size_init_cells = 1600
+size_init_cells = 10000
 
 #leave division to 0, this seems buggy
-divisions = 5
+divisions = 7
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1

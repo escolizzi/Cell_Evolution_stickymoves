@@ -790,30 +790,33 @@ void Dish::CellsEat2(void)
   for(int x=1; x<par.sizex-1;x++){
       for(int y=1; y<par.sizey-1;y++){
         if(CPM->Sigma(x,y) && cell[CPM->Sigma(x,y)].AliveP() && cell[CPM->Sigma(x,y)].getTau() == PREY && Food->Sigma(x,y)){
-          //determine the mean position of the food that the cell sees
           int cell_sigma=CPM->Sigma(x,y);
-          int fx=x, fy=y;
-          
-          if(par.periodic_boundaries){
-            double meanx = cell[cell_sigma].getXpos();
-            double meany = cell[cell_sigma].getYpos();
-            if( (fx-meanx)>0 && (fx-meanx)>(meanx-(fx-(par.sizex-2))) ) fx-=(par.sizex-2);
-            else if( (meanx-fx)>0 && (meanx-fx)>(fx+(par.sizex-2)-meanx)) fx+=(par.sizex-2);
-            if( (fy-meany)>0 && (fy-meany)> (meany - (fy - (par.sizey-2))) ) fy-=(par.sizey-2);
-            else if( (meany-fy>0) && (meany-fy)>(fy+(par.sizey-2)-meany)) fy+=(par.sizey-2);
+          if(Food->Sigma(x,y) > 0){
+            //determine the mean position of the food that the cell sees
+            int fx=x, fy=y;
+            
+            if(par.periodic_boundaries){
+              double meanx = cell[cell_sigma].getXpos();
+              double meany = cell[cell_sigma].getYpos();
+              if( (fx-meanx)>0 && (fx-meanx)>(meanx-(fx-(par.sizex-2))) ) fx-=(par.sizex-2);
+              else if( (meanx-fx)>0 && (meanx-fx)>(fx+(par.sizex-2)-meanx)) fx+=(par.sizex-2);
+              if( (fy-meany)>0 && (fy-meany)> (meany - (fy - (par.sizey-2))) ) fy-=(par.sizey-2);
+              else if( (meany-fy>0) && (meany-fy)>(fy+(par.sizey-2)-meany)) fy+=(par.sizey-2);
+            }
+             
+            fsumx[cell_sigma]+=fx*Food->Sigma(x,y);
+            fsumy[cell_sigma]+=fy*Food->Sigma(x,y);
+            ftotal[cell_sigma]+=Food->Sigma(x,y);
+          }else{
+            int howmuchfood = BinomialDeviate( -1*Food->Sigma(x,y) , cell[cell_sigma].GetEatProb()/(double)par.scaling_cell_to_ca_time );
+            Food->addtoValue(x,y,-1*-howmuchfood);
+            
+            // we cannot add all the particles endlessly, otherwise it overflows
+            int current_particles = cell[cell_sigma].particles;
+            int added_particles = ( current_particles <= (MAX_PARTICLES-howmuchfood) )?howmuchfood:(MAX_PARTICLES-current_particles);
+            cell[cell_sigma].particles += added_particles;
+            // ADD SIGNAL for regulation
           }
-           
-          fsumx[cell_sigma]+=fx*Food->Sigma(x,y);
-          fsumy[cell_sigma]+=fy*Food->Sigma(x,y);
-          ftotal[cell_sigma]+=Food->Sigma(x,y);
-          
-          int howmuchfood = BinomialDeviate( Food->Sigma(x,y) , cell[cell_sigma].GetEatProb()/(double)par.scaling_cell_to_ca_time );
-          Food->addtoValue(x,y,-howmuchfood);
-
-          // we cannot add all the particles endlessly, otherwise it overflows
-          int current_particles = cell[cell_sigma].particles;
-          int added_particles = ( current_particles <= (MAX_PARTICLES-howmuchfood) )?howmuchfood:(MAX_PARTICLES-current_particles);
-          cell[cell_sigma].particles += added_particles;
 
         }
       }
@@ -827,14 +830,26 @@ void Dish::CellsEat2(void)
         //calculate "food" vector with respect to cell mean pos
         fvecx=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx; 
         fvecy=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
-        c.tvecx=(fvecx+c.tvecx)/2.;
-        c.tvecy=(fvecy+c.tvecy)/2.;
+        
+        // c.tvecx=(fvecx+c.tvecx)/2.;
+        // c.tvecy=(fvecy+c.tvecy)/2.;
+        // 
+        c.tvecx=c.weight_for_chemotaxis *fvecx + (1-c.weight_for_chemotaxis)*c.tvecx;
+        c.tvecy=c.weight_for_chemotaxis *fvecy + (1-c.weight_for_chemotaxis)*c.tvecy;
+        
+        // c.tvecx=fvecx;
+        // c.tvecy=fvecy;
+        
         double hyphyp=hypot(c.tvecx,c.tvecy);
         c.tvecx/=hyphyp;
         c.tvecy/=hyphyp;
       }
-      
+      if(c.tvecx>1 || c.tvecy>1){
+        std::cerr << ", vector: "<< c.tvecx <<" "<< c.tvecy  << '\n';
+        exit(1);
+      }
     }
+    
 }
 
 //to initialise cells' mu, perstime and persdur
@@ -963,7 +978,7 @@ void Dish::CellGrowthAndDivision2(void)
         }
         c->mu = newmu;
         
-        c->mu = 3.; particles_for_movement=0; // specified experiments
+        c->mu = 5.; particles_for_movement=0; // specified experiments
         //cerr<<newmu<<endl;
         
         //if(c->growth<1.)

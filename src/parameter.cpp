@@ -109,6 +109,8 @@ Parameter::Parameter() {
   init_k_ext_A = 0.;
   init_k_ext_P = 0.;
   init_k_ext_C = 0.;
+  
+  init_weight_for_chemotaxis=0.;
 }
 
 Parameter::~Parameter() {
@@ -333,6 +335,7 @@ void Parameter::Read(const char *filename) {
   init_k_ext_A = fgetpar(fp, "init_k_ext_A", 0., true);
   init_k_ext_P = fgetpar(fp, "init_k_ext_P", 0., true);
   init_k_ext_C = fgetpar(fp, "init_k_ext_C", 0., true);
+  init_weight_for_chemotaxis = fgetpar(fp, "init_weight_for_chemotaxis", 0., true);
 }
 
 //creates a rule for lookup table, by setting values, 
@@ -555,6 +558,7 @@ void Parameter::Write(ostream &os) const {
   os << " init_k_ext_A = " << init_k_ext_A << endl;
   os << " init_k_ext_P = " << init_k_ext_P << endl;
   os << " init_k_ext_C = " << init_k_ext_C << endl;
+  os << " init_weight_for_chemotaxis = " << init_weight_for_chemotaxis << endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {
