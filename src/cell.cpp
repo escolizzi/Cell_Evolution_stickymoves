@@ -137,7 +137,11 @@ void Cell::CellBirth(Cell &mother_cell) {
   k_ext_P = mother_cell.k_ext_P;
   k_ext_C = mother_cell.k_ext_C;
   
-  weight_for_chemotaxis = mother_cell.weight_for_chemotaxis;
+  //weight_for_chemotaxis = src.weight_for_chemotaxis;
+  k_chem_0=mother_cell.k_chem_0;
+  k_chem_A=mother_cell.k_chem_A;
+  k_chem_P=mother_cell.k_chem_P;
+  k_chem_C=mother_cell.k_chem_C;
   
   clearNeighbours(); //neighbours will be reassigned during the division function
   
@@ -212,7 +216,11 @@ void Cell::ConstructorBody(int settau,int setrecycledsigma) {
   k_ext_P = par.init_k_ext_P;
   k_ext_C = par.init_k_ext_C;
   
-  weight_for_chemotaxis=par.init_weight_for_chemotaxis;
+  //weight_for_chemotaxis=par.init_weight_for_chemotaxis;
+  k_chem_0=par.init_k_chem_0;
+  k_chem_A=par.init_k_chem_A;
+  k_chem_P=par.init_k_chem_P;
+  k_chem_C=par.init_k_chem_C;
   
   //  growth_threshold=par.dthres;
   growth_threshold=0;

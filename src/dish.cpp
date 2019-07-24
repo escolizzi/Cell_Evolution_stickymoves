@@ -930,6 +930,9 @@ void Dish::CellGrowthAndDivision2(void)
         //same function, be careful which parameters you pass
         c->extprotexpress_fraction = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_ext_0,c->k_ext_A,c->k_ext_P,c->k_ext_C);
         
+        //same function for regulation of chemotaxis
+        c->weight_for_chemotaxis = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
+        
         if(area){
           // particles_metabolised are those particles that are used for maintenance
           // only a fraction should be used for this

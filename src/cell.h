@@ -122,8 +122,12 @@ public:
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
     
-    weight_for_chemotaxis = src.weight_for_chemotaxis;
-    
+    //weight_for_chemotaxis = src.weight_for_chemotaxis;
+    k_chem_0=src.k_chem_0;
+    k_chem_A=src.k_chem_A;
+    k_chem_P=src.k_chem_P;
+    k_chem_C=src.k_chem_C;
+        
     jlock = src.jlock;
     jkey = src.jkey;
     vJ = src.vJ;
@@ -208,7 +212,11 @@ public:
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
     
-    weight_for_chemotaxis = src.weight_for_chemotaxis;
+    //weight_for_chemotaxis = src.weight_for_chemotaxis;
+    k_chem_0=src.k_chem_0;
+    k_chem_A=src.k_chem_A;
+    k_chem_P=src.k_chem_P;
+    k_chem_C=src.k_chem_C;
     
     jlock = src.jlock;
     jkey = src.jkey;
@@ -1092,7 +1100,10 @@ protected:
   double k_ext_C;
   
   double weight_for_chemotaxis;
-  
+  double k_chem_0;
+  double k_chem_A;
+  double k_chem_P;
+  double k_chem_C;
   
   double v[2];
   int n_copies; // number of expansions of this cell

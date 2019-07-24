@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 300
-sizey = 500
+sizex = 1000
+sizey = 1000
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -35,9 +35,9 @@ persduration = 50
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #lookup table for J val with medium: 
@@ -111,6 +111,12 @@ init_k_ext_0 = 1.
 init_k_ext_A = 0.
 init_k_ext_P = 0.
 init_k_ext_C = 0.
+
+#regulation for chemotaxis
+init_k_chem_0 = 0.05
+init_k_chem_A = 0.
+init_k_chem_P = 0.
+init_k_chem_C = 0.
 
 #Weight For Chemotaxis vs. (persistence) random walk
 init_weight_for_chemotaxis = 0.05

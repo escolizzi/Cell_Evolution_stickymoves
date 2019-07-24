@@ -107,6 +107,11 @@ class Parameter {
   double init_k_ext_A;
   double init_k_ext_P;
   double init_k_ext_C;
+  double init_k_chem_0;
+  double init_k_chem_A;
+  double init_k_chem_P;
+  double init_k_chem_C;
+  
   double init_weight_for_chemotaxis;
   struct key_lock_pair{
     int tau;

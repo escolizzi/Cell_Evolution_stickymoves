@@ -613,18 +613,53 @@ void IntPlane::IncreaseValSelfGrowth(CellularPotts *cpm)
   // return;
 }
 
+
+// I am going to change the direction of the gradient every so often
 void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
 {
-  static int first_time=1;
-  if(!first_time) return;
-  first_time=0;
+  // THIS IS FOR ONE GRADIENT ONCE
+  // static int first_time=1;
+  // if(!first_time) return;
+  // first_time=0;
+  
+  
+  static int gradient_dir;
+  static int here_time=-1; //so that it ++ to zero and sets the gradient
+  int peakx,peaky;
+  
+  here_time++;
+  if(here_time%15000 != 0) return;
+  // else we re-set the gradient to a random direction
+  int rn = (int)(4.*RANDOM());
+  while(rn == gradient_dir) rn = (int)(4.*RANDOM());
+  gradient_dir=rn;
+  
+  switch (gradient_dir) {
+    case 0 : peakx = sizex/2;
+             peaky = 1;
+             break;
+    case 1 : peakx = sizex/2;
+             peaky = sizey;
+             break;
+    case 2 : peakx = 1;
+             peaky = sizey/2;
+             break;
+    case 3 : peakx = sizex;
+             peaky = sizey/2;
+             break;
+    default: peakx = sizex/2;
+             peaky = sizey/2;
+             cerr<<"How could you possibly get an error here?"<<endl;
+             break;
+  }
+  
   
   //we go from right border to left
-  for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
-    
+  // for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
+  for(int i=1;i<sizex-1;i++)for(int j=1;j<sizey-1;j++){
     //center point is at coordinates (sizex/2, sizey)
     double dist_from_peak;
-    dist_from_peak= sqrt( (sizey-j)*(sizey-j) + (sizex/2-i)*(sizex/2-i) );
+    dist_from_peak= sqrt( (peaky-j)*(peaky-j) + (peakx-i)*(peakx-i) );
     
     // int maxfood = 1.+9.*RANDOM();
     // double pfood_j = 0.125;
