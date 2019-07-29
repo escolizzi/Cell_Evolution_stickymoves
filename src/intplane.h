@@ -220,6 +220,12 @@ class IntPlane {
     return thetime;
   }
   
+  inline int GetPeakx(void){
+    return peakx;
+  }
+  inline int GetPeaky(void){
+    return peaky;
+  }
   
  protected:
 
@@ -227,7 +233,8 @@ class IntPlane {
  
   int sizex;
   int sizey;
- 
+  int peakx,peaky; // location of peak of gradient,
+                   // for gradient experiments
  
   // Protected member functions
 

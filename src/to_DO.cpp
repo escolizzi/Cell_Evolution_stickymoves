@@ -1,3 +1,9 @@
+LOOK AT NOTE BELOW: DH is an integer.
+  It did create problems - not sure why.
+  The problem was that cells all tend to move to south west when in group.
+  MAYBE fixed - turned DH to a double.
+  
+
 To Do list for project
 - make patches of food in two ways:
   1) a patch stays in place longer (so that cells have time to react to that)

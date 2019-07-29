@@ -192,11 +192,9 @@ double sat(double x) {
 
 }
 
-
-
 int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 {
-  int DH = 0;
+  double DH = 0.;
   int i, sxy, sxyp;
   int neighsite;
 
@@ -348,7 +346,7 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 	//ay=y-(*cell)[sxy].getYpos();
 	//DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
    }
-
+  
   return DH;
 }
 
@@ -356,14 +354,17 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 
 int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
 {
-  int DH = 0;
+  double DH = 0.;
   int i, sxy, sxyp;
   int neighsite;
 
   /* Compute energydifference *IF* the copying were to occur */
   sxy = sigma[x][y];
   sxyp = sigma[xp][yp];
-
+  
+  // cerr<< "x ,y : " << x<<" "<<y<<endl;
+  // cerr<< "xp,yp: " << xp<<" "<<yp<<endl;
+  // 
   /* DH due to cell adhesion */
   for(i=1;i<=n_nb;i++) {
     int xp2,yp2;
@@ -397,6 +398,9 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
       //    - Adhesion_Energy( same but for the other pair)
       //DH += Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxyp].GetExtProtExpress_Fraction() , sxyp , neighsite, (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) ) 
       //    - Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxy].GetExtProtExpress_Fraction() , sxy , neighsite, (*cell)[sxy].EnergyDifference((*cell)[neighsite]) ) 
+      // cerr<< "sigmas sxyp, neigh: "<<sxyp<<" "<<neighsite<<": "<< Adhesion_Energy(sxyp , neighsite)<<endl;
+      // cerr<< "sigmas sxy, neigh: "<<sxy<<" "<<neighsite<<": "<< Adhesion_Energy(sxy , neighsite)<<endl;
+      // cerr<< "DH += " << (int) (Adhesion_Energy(sxyp , neighsite) - Adhesion_Energy(sxy , neighsite))<<endl ; 
       DH += Adhesion_Energy(sxyp , neighsite) 
           - Adhesion_Energy(sxy , neighsite); 
       // NOTICE THAT DH is an integer... dammit! This can create problems when multiplying with a factor
@@ -405,7 +409,9 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
           
     }
   }
-
+  
+  // cerr<<"End of Adh, DH = "<< DH<<endl;
+  
   // lambda is determined by chemical 0
 
   //cerr << "[" << lambda << "]";

@@ -1210,17 +1210,28 @@ void X11Graphics::Write(char *fname, int quality) {
     
   }
   
-    for (j=0; j < yfield; j++) {
-      for (i=0; i < xfield; i++) {
-	XColor col;
-	col=png_colors[movie_data[i+j*xfield]];
-	
-	//png_image[j*3*xfield + i*3] = col.red/256; //this is the old command... but why? 
-    png_image[j*3*xfield + i*3] = col.red;
-	png_image[j*3*xfield + i*3 + 1] = col.green;
-	png_image[j*3*xfield + i*3 + 2] = col.blue;
+//  for (j=0; j < yfield; j++) {
+//    for (i=0; i < xfield; i++) {
+  for (i=0; i < xfield; i++) {
+    for (j=0; j < yfield; j++) {  
+  	  XColor col;
+  	  col=png_colors[movie_data[i+j*xfield]];
+  	
+  	  //png_image[j*3*xfield + i*3] = col.red/256; //this is the old command... but why? 
+      
+      // png_image[j*3*xfield + i*3] = col.red;
+  	  // png_image[j*3*xfield + i*3 + 1] = col.green;
+  	  // png_image[j*3*xfield + i*3 + 2] = col.blue;
+      
+      png_image[i*3*yfield + j*3] = col.red;
+  	  png_image[i*3*yfield + j*3 + 1] = col.green;
+  	  png_image[i*3*yfield + j*3 + 2] = col.blue;
+      
     }
-    png_bytep ptr = png_image + j*3*xfield;
+    
+    // png_bytep ptr = png_image + j*3*xfield;
+    png_bytep ptr = png_image + i*3*yfield;
+    
     png_write_rows(png_ptr, &ptr, 1);
     }
     png_write_end(png_ptr, info_ptr);

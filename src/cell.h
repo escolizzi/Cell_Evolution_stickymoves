@@ -110,19 +110,22 @@ public:
     particles=src.particles;
     eatprob=src.eatprob;
     growth=src.growth;
-    //maintenance_fraction = src.maintenance_fraction;
+    
+    //this is copied for if there is a first time step
+    // where things depend on it and CellGrowthAndDivision2 is not called yet
+    maintenance_fraction = src.maintenance_fraction;
     k_mf_0 = src.k_mf_0;
     k_mf_A = src.k_mf_A;
     k_mf_P = src.k_mf_P;
     k_mf_C = src.k_mf_C;
     
-    //double extprotexpress_fraction;
+    extprotexpress_fraction = src.extprotexpress_fraction;
     k_ext_0 = src.k_ext_0;
     k_ext_A = src.k_ext_A;
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
     
-    //weight_for_chemotaxis = src.weight_for_chemotaxis;
+    weight_for_chemotaxis = src.weight_for_chemotaxis;
     k_chem_0=src.k_chem_0;
     k_chem_A=src.k_chem_A;
     k_chem_P=src.k_chem_P;
@@ -200,19 +203,20 @@ public:
     eatprob=src.eatprob;
     growth = src.growth;
     neighbours=src.neighbours;
-    // maintenance_fraction = src.maintenance_fraction;
+    
+    maintenance_fraction = src.maintenance_fraction;
     k_mf_0 = src.k_mf_0;
     k_mf_A = src.k_mf_A;
     k_mf_P = src.k_mf_P;
     k_mf_C = src.k_mf_C;
     
-    //double extprotexpress_fraction;
+    extprotexpress_fraction = src.extprotexpress_fraction;
     k_ext_0 = src.k_ext_0;
     k_ext_A = src.k_ext_A;
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
     
-    //weight_for_chemotaxis = src.weight_for_chemotaxis;
+    weight_for_chemotaxis = src.weight_for_chemotaxis;
     k_chem_0=src.k_chem_0;
     k_chem_A=src.k_chem_A;
     k_chem_P=src.k_chem_P;

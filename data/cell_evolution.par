@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 1000
-sizey = 1000
+sizex = 400
+sizey = 400
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -14,10 +14,10 @@ scaling_cell_to_ca_time = 10
 T = 20
 
 #initial target area = to half_div_area
-target_area = 50
+target_area = 100
 
 #Division area
-half_div_area = 50
+half_div_area = 100
 #division area for predators, set to -1 if you don't want to use
 half_div_area_2 = -1
 
@@ -35,9 +35,9 @@ persduration = 50
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #lookup table for J val with medium: 
@@ -65,7 +65,7 @@ periodic_boundaries = false
 #mutrate, typical length of key and lock is 10+10 -> 20*0.01=0.2 one mutation every 5 replications...
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
-mut_rate = 0.
+mut_rate = 0.01
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0
@@ -77,7 +77,7 @@ n_chem = 0
 food_influx_location = specified_experiment
 
 # default initial_food_amount = 5
-initial_food_amount = 5
+initial_food_amount = 0
 #default foodinflux=0.2
 #foodinflux = 0.025
 #foodinflux = 0.002
@@ -122,11 +122,11 @@ init_k_chem_C = 0.
 init_weight_for_chemotaxis = 0.05
 
 # initial conditions (create a "blob" of cells in the middle)
-n_init_cells = 50
+n_init_cells = 1
 size_init_cells = 10000
 
 #leave division to 0, this seems buggy
-divisions = 7
+divisions = 2
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1

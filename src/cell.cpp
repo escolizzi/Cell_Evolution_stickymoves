@@ -69,7 +69,7 @@ Cell::~Cell(void) {
 
 
 void Cell::CellBirth(Cell &mother_cell) {
-
+  
   colour = mother_cell.colour;
   alive = mother_cell.alive;
   v[0] = mother_cell.v[0];
@@ -125,19 +125,20 @@ void Cell::CellBirth(Cell &mother_cell) {
   
   growth=mother_cell.growth;
   eatprob=mother_cell.eatprob;
-  //maintenance_fraction = mother_cell.maintenance_fraction;
+  
+  maintenance_fraction = mother_cell.maintenance_fraction; //must be copied for first time step of life
   k_mf_0 = mother_cell.k_mf_0;
   k_mf_A = mother_cell.k_mf_A;
   k_mf_P = mother_cell.k_mf_P;
   k_mf_C = mother_cell.k_mf_C;
   
-  //double extprotexpress_fraction;
+  extprotexpress_fraction = mother_cell.extprotexpress_fraction;
   k_ext_0 = mother_cell.k_ext_0;
   k_ext_A = mother_cell.k_ext_A;
   k_ext_P = mother_cell.k_ext_P;
   k_ext_C = mother_cell.k_ext_C;
   
-  //weight_for_chemotaxis = src.weight_for_chemotaxis;
+  weight_for_chemotaxis = mother_cell.weight_for_chemotaxis;
   k_chem_0=mother_cell.k_chem_0;
   k_chem_A=mother_cell.k_chem_A;
   k_chem_P=mother_cell.k_chem_P;
@@ -205,18 +206,20 @@ void Cell::ConstructorBody(int settau,int setrecycledsigma) {
   particles=0;
   eatprob=0.;
   growth=par.growth;
-  //maintenance_fraction = par.init_maintenance_fraction;
+  
+  maintenance_fraction = 1;
   k_mf_0 = par.init_k_mf_0;
   k_mf_A = par.init_k_mf_A;
   k_mf_P = par.init_k_mf_P;
   k_mf_C = par.init_k_mf_C;
   
+  extprotexpress_fraction = 1;
   k_ext_0 = par.init_k_ext_0;
   k_ext_A = par.init_k_ext_A;
   k_ext_P = par.init_k_ext_P;
   k_ext_C = par.init_k_ext_C;
   
-  //weight_for_chemotaxis=par.init_weight_for_chemotaxis;
+  weight_for_chemotaxis=0.;
   k_chem_0=par.init_k_chem_0;
   k_chem_A=par.init_k_chem_A;
   k_chem_P=par.init_k_chem_P;
@@ -478,11 +481,20 @@ int Cell::MutateKeyAndLock(void)
 
 //returns a number between 0 and 1 which is either the maintenance_fraction 
 // or the fraction of expressed surface proteins (for adhesion)
-double Cell::CalculateMaintenance_or_ExtProtExpr_Fraction(double k0,double kA,double kP,double kC)
+double Cell::CalculateMaintenance_or_ExtProtExpr_Fraction(double k0, double kA,double kP,double kC)
 {
   double fraction=k0;
+  // std::cerr << "k0,kA,kP,kC = "<<k0<<" "<<kA<<" "<<kP<<" "<<kC  << '\n';
+  
+  // std::cerr << "k0 = "<<fraction << '\n';
   fraction += kA * area / (double)half_div_area;
+  
+  // std::cerr << "k0+kA*A = "<<fraction  << '\n';
+  
   fraction += kP * particles / 50.; // <-a reasonable scaling factor :P
+  
+  // std::cerr << "k0+kA*P+kP*P = "<<fraction  << '\n';
+  
   
   //next bit averages over non zero contacts: 
   // I should get the Jvalues from the sigma in contact with this cell
@@ -503,8 +515,14 @@ double Cell::CalculateMaintenance_or_ExtProtExpr_Fraction(double k0,double kA,do
   double toadd_avrgJ = (contlen_total>0)? sum_J_times_contlen/(double)(contlen_total*43.): 0.;
   fraction += kC * toadd_avrgJ;
   
-  if(fraction<0) fraction=0.;
-  if(fraction>1) fraction=1.;
+  // std::cerr << "k0+kA*P+kP*P+kC*C = "<<fraction  << '\n';
+  
+  
+  if(fraction<0.) fraction=0.;
+  if(fraction>1.) fraction=1.;
+  
+  // std::cerr << "Final = "<<fraction  << '\n';
+  
   
   return fraction;
 }

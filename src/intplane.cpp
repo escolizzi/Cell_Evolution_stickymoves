@@ -623,12 +623,14 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
   // first_time=0;
   
   
-  static int gradient_dir;
-  static int here_time=-1; //so that it ++ to zero and sets the gradient
-  int peakx,peaky;
+  static int gradient_dir=-1;
+  //static int here_time=-1; //so that it ++ to zero and sets the gradient
+  //int peakx,peaky;
   
-  here_time++;
-  if(here_time%15000 != 0) return;
+  // here_time++;
+  // if(here_time%45000 != 0) return;
+  
+  
   // else we re-set the gradient to a random direction
   int rn = (int)(4.*RANDOM());
   while(rn == gradient_dir) rn = (int)(4.*RANDOM());
@@ -639,36 +641,43 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
              peaky = 1;
              break;
     case 1 : peakx = sizex/2;
-             peaky = sizey;
+             peaky = sizey-1;
              break;
     case 2 : peakx = 1;
              peaky = sizey/2;
              break;
-    case 3 : peakx = sizex;
+    case 3 : peakx = sizex-1;
              peaky = sizey/2;
              break;
     default: peakx = sizex/2;
              peaky = sizey/2;
              cerr<<"How could you possibly get an error here?"<<endl;
+             exit(1);
              break;
   }
   
-  
+  // std::cerr<< '\n'<< '\n' << "HELLO"<< '\n' << '\n';
   //we go from right border to left
   // for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
   for(int i=1;i<sizex-1;i++)for(int j=1;j<sizey-1;j++){
+    sigma[i][j]=0;
     //center point is at coordinates (sizex/2, sizey)
     double dist_from_peak;
+    
+    // Different definitions of distance from peak will give you different gradients
     dist_from_peak= sqrt( (peaky-j)*(peaky-j) + (peakx-i)*(peakx-i) );
+    //dist_from_peak = peaky/2;
     
     // int maxfood = 1.+9.*RANDOM();
     // double pfood_j = 0.125;
     // makes gradient
     int maxfood = 1+3.* (1 - dist_from_peak/(double)sizey);
     double pfood_j = 0.1+ 0.9* (1 - dist_from_peak/(double)sizey);
-    if(RANDOM() < pfood_j) sigma[sizex-i][sizey-j]=maxfood;
-    else sigma[sizex-i][sizey-j]=0;
-    
+    if(RANDOM() < pfood_j) 
+      sigma[i][j]=maxfood; //else already set to zero
+    // else 
+    //   sigma[i][j]=0;
+    // 
     // if(i>sizex/2+25 || i<sizex/2-25) {
     //    sigma[i][j]=0;
     //    continue;
@@ -684,9 +693,11 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
 
   }
   
-  for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
-    if(RANDOM()<0.05) sigma[i][j]=-1;
-  }
+  // for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
+  //   if(RANDOM()<0.05) sigma[i][j]=-1;
+  // }
+  
+  std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;
   
   return;
   

@@ -30,6 +30,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #ifndef CRITTER_H_
 #define CRITTER_H_
 #include <vector>
+#include <set>
 #include "graph.h"
 #include "random.h"
 #include "pde.h"
@@ -110,6 +111,13 @@ public:
   void CellMigration(void);
   //find cells that ate enough and let them grow; divide big cells and kill small cells
   void CellGrowthAndDivision2(void);
+  int CheckWhoMadeit(void);
+  
+  void RemoveWhoDidNotMakeIt(void);
+  void ReproduceWhoMadeIt(void);
+  inline void ClearWhoMadeItSet(void){
+    who_made_it.clear();
+  }
   
   //void CalculateJTable(void);
   
@@ -141,7 +149,7 @@ public:
   PDE *PDEfield;
   IntPlane *Food;
   CellularPotts *CPM;
-
+  std::set<int> who_made_it;
   // Was used for gradient measurements, not functional now.
   void ClearGrads(void);
 

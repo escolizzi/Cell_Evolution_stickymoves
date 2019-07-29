@@ -107,13 +107,15 @@ INIT {
     //Set function pointer for food update, depending on parameters
     Food->InitIncreaseVal(CPM); //a pointer to CPM is an argument to InitIncreaseVal
                                  // but NOT to IncreaseVal if it points to IncreaseValEverywhere
-
+    
     // Initialises food plane
-    for(int i=0;i<par.sizex;i++)
-      for(int j=0;j<par.sizey;j++)
-        Food->addtoValue(i,j,par.initial_food_amount);  //add initial amount of food for preys
+    // for(int i=0;i<par.sizex;i++)
+    //   for(int j=0;j<par.sizey;j++)
+    //     Food->addtoValue(i,j,par.initial_food_amount);  //add initial amount of food for preys
 
-     //cout<<"Hello bla 3"<<endl;
+    Food->IncreaseVal(*(Food));
+    //cout<<"Hello bla 3"<<endl;
+    // exit(1);
 
   } catch(const char* error) {
     cerr << "Caught exception\n";
@@ -122,9 +124,32 @@ INIT {
   }
   
   for(int init_time=0;init_time<100;init_time++){
+    // cerr<<"Init Time: "<<init_time<<endl;
+    // for(auto c: cell){
+    //   if(c.AliveP()){
+    //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+    //   }
+    //   else
+    //     printf(" Cell with sigma %d is dead\n", c.Sigma());
+    // }
+    
+    
+    
     CPM->AmoebaeMove2(PDEfield);  //this changes neighs
   }
   InitCellMigration();
+  
+  std::cerr << "howmany cells? "<< cell.size() << '\n';
+  for(auto c: cell){
+    if(c.AliveP()){
+      printf("Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+    }
+    else
+      printf("Cell with sigma %d is dead\n", c.Sigma());
+  }
+  // std::cerr << "How can it be that weight_for_chemotaxis is different between here and inside the function?" << '\n';
+  // it isn't, but there is something weird-
+  // exit(1);
 }
 
 TIMESTEP {
@@ -153,8 +178,11 @@ TIMESTEP {
 
     // TIME SCALING IS DONE INSIDE FUNCTIONS
 
-    dish->Food->IncreaseVal(*(dish->Food)); // SCALED
-
+    // **************************************************** //
+    // WE NOW CHANGE FOOD BELOW - SEE FUNCTION CheckWhoMadeit
+    // dish->Food->IncreaseVal(*(dish->Food)); // SCALED
+    // *************************************************** //
+    
 //       // testing //
 //
 //       // Initialises food plane
@@ -166,7 +194,11 @@ TIMESTEP {
 //       //   testing    //
 //
       // dish->CellsEat(); // SCALED // HERE MAX PARTICLES IS DEFINED, should be a parameter
+      
+      
       dish->CellsEat2();
+      
+      
       
       dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
       dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
@@ -189,7 +221,28 @@ TIMESTEP {
     dish->CPM->AmoebaeMove2(dish->PDEfield);  //this changes neighs
     //cerr<<"Hello 1"<<endl;
     dish->UpdateNeighDuration();
-
+    
+    //dish->Food->IncreaseVal(*(dish->Food));
+    
+    // RE-DO this when you are done fixing bugs
+    if( i%25 == 0){
+      // cerr<<"Time: "<<i<<endl;
+      if( dish->CheckWhoMadeit() ){
+        //reset food
+        // clone them with mutations
+        // wipe out the previous pop
+        // reseed
+        //reset whomadeit vector
+        
+        dish->RemoveWhoDidNotMakeIt();
+        dish->ReproduceWhoMadeIt();
+        dish->ClearWhoMadeItSet();
+        dish->Food->IncreaseVal(*(dish->Food));
+        ;
+      }
+    }
+    
+    
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
     
@@ -206,7 +259,7 @@ TIMESTEP {
       BeginScene();
       ClearImage();
       dish->Plot(this);
-      dish->Food->Plot(this, dish->CPM);
+      //dish->Food->Plot(this, dish->CPM);
       //char title[400];
       //snprintf(title,399,"CellularPotts: %d MCS",i);
       //ChangeTitle(title);
@@ -223,7 +276,7 @@ TIMESTEP {
       dish->Plot(this); //everything contained here
       //dish->Food->Plot(this,dish->CPM); //will this work?  YES !!!
       EndScene();
-      Write(fname);
+      Write(fname); //FIXED SO THAT CODE AND IMAGE MATCH!
     }
     //exit(1);
     // TO FILE FOR TEXT
@@ -246,6 +299,8 @@ TIMESTEP {
     std::cerr << error << "\n";
     exit(1);
   }
+  
+  // exit(1);
 }
 
 int PDE::MapColour(double val) {

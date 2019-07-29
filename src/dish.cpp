@@ -25,6 +25,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include <map>
 #include <vector>
 #include <list>
+#include <set>
 #include <algorithm>
 #include <fstream>
 #include <string.h>
@@ -330,8 +331,10 @@ void Dish::MutateCells(vector<int> sigma_to_update)
       cell[upd_sigma].MutateKeyAndLock();
       //cell[upd_sigma].MutateMu();
       //cerr<<"hello from before mutation"<<endl;
-      cell[upd_sigma].MutateMaintenanceFractionParameters();
-      cell[upd_sigma].MutateExtProtFractionParameters();
+      if(par.mut_rate>0.){
+        cell[upd_sigma].MutateMaintenanceFractionParameters();
+        cell[upd_sigma].MutateExtProtFractionParameters();
+      }
     }
   }
 }
@@ -556,10 +559,12 @@ void Dish::FoodPlot(Graphics *g)
           g->Point(10+Food->Sigma(x,y),2*x,2*y+1);
           g->Point(10+Food->Sigma(x,y),2*x+1,2*y+1);
         }else{
-          g->Point(60+Food->Sigma(x,y),2*x,2*y);
-          g->Point(60+Food->Sigma(x,y),2*x+1,2*y);
-          g->Point(60+Food->Sigma(x,y),2*x,2*y+1);
-          g->Point(60+Food->Sigma(x,y),2*x+1,2*y+1);
+          ;
+          // it's getting a bit cumbersome to look at this, for now I'll do without
+          // g->Point(60+Food->Sigma(x,y),2*x,2*y);
+          // g->Point(60+Food->Sigma(x,y),2*x+1,2*y);
+          // g->Point(60+Food->Sigma(x,y),2*x,2*y+1);
+          // g->Point(60+Food->Sigma(x,y),2*x+1,2*y+1);
         }
       }
 }
@@ -570,7 +575,7 @@ void Dish::Plot(Graphics *g) {
 
     //here food plotting, with info from cpm and cell
     FoodPlot(g);
-    //Plot direction arrows, with line funciton from X11?
+    //Plot direction arrows, with line function from X11?
     if(par.startmu>0)
       for(auto c: cell){
         if(c.sigma==0 or !c.alive) continue;
@@ -586,6 +591,44 @@ void Dish::Plot(Graphics *g) {
         // do we really? we could just truncate vectors up to the max size..
         g->Line(x1,y1,x2, y2, 1);
       }
+    
+      //get info where the peak is and draw a line for box where who_made_it should register stuff
+      int peakx = Food->GetPeakx();
+      int peaky = Food->GetPeaky();
+      
+      int minx,maxx,miny,maxy;
+      
+      if(peakx==1) {
+        //then peaky = sizey/2 and 
+        minx = 1;
+        maxx = 21;
+        miny = 1;
+        maxy = par.sizey-1;
+        g->Line(2*21, 1 , 2*maxx , 2*par.sizey-1 , 1);
+      }else if(peakx==par.sizex-1){
+        minx = par.sizex-21;
+        maxx = par.sizex-1;
+        miny = 1;
+        maxy = par.sizey-1;
+        g->Line(2*minx,1,2*minx, 2*par.sizey-1, 1);
+      }else if(peaky==1){
+        minx = 1;
+        maxx = par.sizex-1;
+        miny = 1;
+        maxy = 21;
+        g->Line(1,2*21,2*par.sizex-1, 2*21, 1);
+      }else if(peaky==par.sizey-1){
+        minx = 1;
+        maxx = par.sizex-1;
+        miny = par.sizey-21;
+        maxy = par.sizey-1;
+        g->Line(1, 2*(par.sizey-21) , 2*par.sizex-1  , 2*(par.sizey-21), 1);
+      }else{
+        cerr<<"Plot(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
+        std::cerr << "Don't know what to do with this, program exits now." << '\n';
+        exit(1);
+      }
+    
  }
 
 
@@ -831,14 +874,27 @@ void Dish::CellsEat2(void)
         fvecx=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx; 
         fvecy=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
         
+        // c.tvecx=fvecx;
+        // c.tvecy=fvecy;
+        
         // c.tvecx=(fvecx+c.tvecx)/2.;
         // c.tvecy=(fvecy+c.tvecy)/2.;
         // 
+        
+        //c.tvecx=0.05 *fvecx + 0.95*c.tvecx;
+        //c.tvecy=0.05 *fvecy + 0.95*c.tvecy;
+        
+        // THIS IS CURRENT VERSION... A BIT BUGGY
+        
+        // if(c.weight_for_chemotaxis != 0.05){
+        //   //std::cerr <<"Sigma: "<<c.sigma<< ". weight_for_chemotaxis: "<<c.weight_for_chemotaxis << '\n';
+        //   //printf("CellsEat2(): Sigma %d, weight_for_chemotaxis: %.15f\n", c.sigma, c.weight_for_chemotaxis);
+        //   // printf("Notice that the number 0.05 is: %.15f\n", 0.05);
+        // 
+        // }
+        
         c.tvecx=c.weight_for_chemotaxis *fvecx + (1-c.weight_for_chemotaxis)*c.tvecx;
         c.tvecy=c.weight_for_chemotaxis *fvecy + (1-c.weight_for_chemotaxis)*c.tvecy;
-        
-        // c.tvecx=fvecx;
-        // c.tvecy=fvecy;
         
         double hyphyp=hypot(c.tvecx,c.tvecy);
         c.tvecx/=hyphyp;
@@ -920,7 +976,7 @@ void Dish::CellGrowthAndDivision2(void)
         //in this version, maintenance_fraction is a function of evolvable parameters:
         // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length 
         // and bounded inside [0,1]
-        c->maintenance_fraction = c->CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_mf_0,c->k_mf_A,c->k_mf_P,c->k_mf_C);
+        c->maintenance_fraction =1.;//c->CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_mf_0,c->k_mf_A,c->k_mf_P,c->k_mf_C);
         
         //Next, also Js should be a function of that, bounded between [reasonably high, actual J values]
         // this is just a number that is going to be multiplied to the J values of this cell...
@@ -929,9 +985,16 @@ void Dish::CellGrowthAndDivision2(void)
         
         //same function, be careful which parameters you pass
         c->extprotexpress_fraction = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_ext_0,c->k_ext_A,c->k_ext_P,c->k_ext_C);
+        // if (c->extprotexpress_fraction<0. || c->extprotexpress_fraction>1.) {
+        //  std::cerr <<"Sigma: "<<c->Sigma()<< ", extprotexpress_fraction: "<< c->extprotexpress_fraction << '\n';  
+        // }
         
         //same function for regulation of chemotaxis
-        c->weight_for_chemotaxis = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
+        c->weight_for_chemotaxis =  c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
+        // if (c->weight_for_chemotaxis<0. || c->weight_for_chemotaxis>1.) {
+          // std::cerr <<"Sigma: "<<c->Sigma()<< ", weight_for_chemotaxis: "<< c->weight_for_chemotaxis << '\n';
+          
+        // }
         
         if(area){
           // particles_metabolised are those particles that are used for maintenance
@@ -962,6 +1025,7 @@ void Dish::CellGrowthAndDivision2(void)
                                                              //But food IS consumed
 
         c->SetTargetArea(newarint);
+        
         
         //Setting mu:
         // particles_for_movement maps to mu as follows:
@@ -1019,7 +1083,7 @@ void Dish::CellGrowthAndDivision2(void)
 //     cerr<<"Cell vector size:"<<cell.size()<<endl;
 
     if(celldivisions){
-      //cerr<<"Hello7"<<endl;
+      // cerr<<"Hello7"<<endl;
 
       // All this can be deleted ***************
 //        int i=0;
@@ -1059,6 +1123,121 @@ void Dish::CellGrowthAndDivision2(void)
     }
 }
 
+
+//checks if sufficiently many cells made it into the reproduction zone
+//it keeps a list of sigmas of cells that are there
+//if length of list is large enough -> returns 1
+// should create a new list of cells based on some fitness function,
+// kill everybody, place these new cells, change gradient direction + add new food
+int Dish::CheckWhoMadeit(void){
+  
+  //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y, 
+  // while the other is size_y/2_or_x/2
+  //we can predetermine where a minx maxx miny maxy rectangle should be based on peakx and peaky
+  // and run a for loop only within these numbers, and check if CPM->sigma[][] != 0
+  static int current_peakx=-1,current_peaky=-1;
+  static int minx,maxx,miny,maxy;
+  
+  //get info where the peak is
+  int peakx = Food->GetPeakx();
+  int peaky = Food->GetPeaky();
+  
+  
+  if(peakx != current_peakx || peaky != current_peaky){
+    current_peakx=peakx;
+    current_peaky=peaky;
+  
+    if(peakx==1) {
+      //then peaky = sizey/2 and 
+      minx = 1;
+      maxx = 21;
+      miny = 1;
+      maxy = par.sizey-1;
+    }else if(peakx==par.sizex-1){
+      minx = par.sizex-21;
+      maxx = par.sizex-1;
+      miny = 1;
+      maxy = par.sizey-1;
+    }else if(peaky==1){
+      minx = 1;
+      maxx = par.sizex-1;
+      miny = 1;
+      maxy = 21;
+    }else if(peaky==par.sizey-1){
+      minx = 1;
+      maxx = par.sizex-1;
+      miny = par.sizey-21;
+      maxy = par.sizey-1;
+    }else{
+      cerr<<"CheckWhoMadeit(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
+      std::cerr << "Don't know what to do with this, program exits now." << '\n';
+      exit(1);
+    }
+  }
+  
+  //find if cells in some area around the peak are already in the list
+  //easy: go in order through CPM and check the sigmas
+  for(int i=minx;i<maxx;i++)for(int j=miny;j<maxy;j++){
+    if( CPM->Sigma(i,j)!=0 ){
+      who_made_it.insert( CPM->Sigma(i,j) ); //if already there it will not be duplicated in the set
+    }
+  }
+  
+  // cerr<< "px,py: "<< peakx<<" "<<peaky <<" box mx,My my,My: "<< minx<<" "<<maxx<<" "<<miny<<" "<<maxy<<endl;
+  // cerr<< "who_made_it has so many members: "<< who_made_it.size() << endl;
+  
+  //if list is large enough return 1, else 0
+  unsigned int howmany_makeit_for_nextgen = 20;
+  if( who_made_it.size() > howmany_makeit_for_nextgen ) {
+    std::cerr << "Many made it !" << '\n';
+    //who_made_it.clear();
+    return 1;
+  }
+  // return 1;
+  return 0;
+}
+
+//remove cells from dish and CPM based on indexes in who_made_it 
+void Dish::RemoveWhoDidNotMakeIt(void)
+{
+  std::cerr << "Who made it: ";
+  for(auto sig:who_made_it) std::cerr << sig<<" ";
+  std::cerr << '\n';
+  
+  vector<Cell>::iterator c; //iterator to go over all Cells
+  for( c=cell.begin(), ++c; c!=cell.end(); ++c){
+    
+    cerr<<"This sigma: "<<c->Sigma();
+    
+    if( who_made_it.count( c->Sigma() ) == 0 ) {
+      cerr<<" will be removed"<<endl;
+      c->SetTargetArea(0);
+      c->Apoptose(); //set alive to false
+      CPM->RemoveCell(&*c,par.min_area_for_life,c->meanx,c->meany);
+    }else{
+      cerr<<" will not be removed"<<endl;
+    }
+  }
+}
+
+void Dish::ReproduceWhoMadeIt(void)
+{
+  vector<bool> which_cells(cell.size()); //which cells will divide
+  for(auto sig: who_made_it){
+    which_cells[sig] = true;
+  }
+  vector<int> sigma_newcells; 
+  int howmany_rounds_of_division = 2;
+  for(int i=0;i<howmany_rounds_of_division;i++){
+    sigma_newcells = CPM->DivideCells(which_cells);
+    MutateCells(sigma_newcells);
+    UpdateVectorJ(sigma_newcells);
+  }
+  vector<Cell>::iterator c; //iterator to go over all Cells
+  for( c=cell.begin(), ++c; c!=cell.end(); ++c){
+    c->SetTargetArea(par.target_area); // for good measure
+  }
+}
 
 int Dish::CountCells(void) const {
 
@@ -1187,6 +1366,15 @@ int Dish::SaveData(int Time)
     ofs << icell->k_ext_A << " ";
     ofs << icell->k_ext_P << " ";
     ofs << icell->k_ext_C << " ";
+    
+    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_chem_0, 
+                                                               icell->k_chem_A, 
+                                                               icell->k_chem_P, 
+                                                               icell->k_chem_C) << " ";
+    ofs << icell->k_chem_0 << " ";
+    ofs << icell->k_chem_A << " ";
+    ofs << icell->k_chem_P << " ";
+    ofs << icell->k_chem_C << " ";
     
     
     // YOU SHOULD KEEP THIS AT THE LAST, because it's not constant
