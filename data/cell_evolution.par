@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 400
-sizey = 400
+sizex = 300
+sizey = 300
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -35,9 +35,9 @@ persduration = 50
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #lookup table for J val with medium: 
@@ -123,10 +123,10 @@ init_weight_for_chemotaxis = 0.05
 
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
-size_init_cells = 10000
+size_init_cells = 30000
 
 #leave division to 0, this seems buggy
-divisions = 2
+divisions = 4
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1

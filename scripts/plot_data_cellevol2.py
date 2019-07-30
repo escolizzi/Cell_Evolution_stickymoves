@@ -151,14 +151,16 @@ lpop=[0,0,0]
 lpop_time=[]
 lmaintf=[]
 lmaintf_thistime=[]
-lmaintf=[]
-lmaintf_thistime=[]
 lJfract=[]
 lJfract_thistime=[]
+lcfract=[]
+lcfract_thistime=[]
 lk=[]
 lj=[]
+lc=[]
 lk_thistime=[]
 lj_thistime=[]
+lc_thistime=[]
 
 #open filename once to see what is the first time step... for now it is typically zero but in the future?
 with open(filename,"r") as fin:
@@ -186,14 +188,17 @@ with open(filename,"r") as fin:
         birthdate=int(line[2])
         #key=line[3]  #don't care about this right now
         #lock=line[4]
-        contacts=line[17:]
         #print contacts
         #maintf=float(line[5])*(1-float(line[7])) #actually prints maintf
         maintf=float(line[7])
         Jfract=float(line[12]) #actually fraction of resources to maintenance
-        
+        cfract=[float(line[17])]
+                
         km0,kmA,kmP,kmC = [ float(x) for x in line[8:12] ]
         kj0,kjA,kjP,kjC = [ float(x) for x in line[13:17] ]
+        kc0,kcA,kcP,kcC = [ float(x) for x in line[18:22] ]
+        
+        contacts=line[22:]
         
         if time != ltime[-1]: 
           #calculate statistics
@@ -201,6 +206,7 @@ with open(filename,"r") as fin:
           
           lk.append(lk_thistime)
           lj.append(lj_thistime)          
+          lc.append(lc_thistime)
           
           #lJmatrix.astype(float)/lcounter.astype(float)
           l_avrgdata_time.append(lJ_av_matrix)
@@ -211,6 +217,7 @@ with open(filename,"r") as fin:
           ltime.append(time)
           lmaintf.append( lmaintf_thistime )
           lJfract.append(lJfract_thistime)
+          lcfract.append(lcfract_thistime)
           # zero the counters
           lcounter=np.zeros((3,3),dtype=int)
           lJmatrix=np.zeros((3,3),dtype=int)
@@ -218,18 +225,25 @@ with open(filename,"r") as fin:
           lpop=[0 for _ in lpop]
           lmaintf_thistime=[]
           lJfract_thistime=[]
+          lcfract_thistime=[]
           lk_thistime=[]
           lj_thistime=[]
-        
+          lc_thistime=[]
+          
         lmaintf_thistime.append(maintf)
         lk_thistime.append( [ km0,kmA,kmP,kmC ] )
-        lj_thistime.append( [ kj0,kjA,kjP,kjC ] )
         lJfract_thistime.append(Jfract)
+        lj_thistime.append( [ kj0,kjA,kjP,kjC ] )
+        lcfract_thistime.append(cfract)
+        lc_thistime.append([kc0,kcA,kcP,kcC])        
         
         lpop[tau]+=1 
         for ctau, cJ in [ contacts[pos:pos + 2] for pos in xrange(0, len(contacts), 2) ]:
           ctau=int(ctau)
-          lcounter[tau,ctau]+=1
+          # print tau,ctau
+          # print line
+          # print contacts
+          lcounter[tau,ctau]+=1 
           lJmatrix[tau,ctau]+=int(cJ)
           lJmatrix2[tau][ctau].append(int(cJ))
           if int(cJ)<=0: 
@@ -301,36 +315,67 @@ blob_plot(ax2,[x[1][1] for x in l_avrgdata_time2][blobplot_every/2::blobplot_eve
 
 
 ax2.legend()
-print("Hello2")
+print("Hello2 - for this version Im not printing maint fract, only contact fract and chemotaxis fraction")
 # ax3 = fig.add_subplot(413)
+#sys.exit(1) #I have not impleneted it yet
+
+# ax3 = plt.subplot2grid((6, 4), (2, 0), colspan=2)
+# a = ax3.plot(ltime,[np.mean(x) for x in lmaintf],label="maint fract")
+# blob_plot(ax3,lmaintf[::blobplot_every] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+# ax3.legend()
+# print("Hello3")
+# 
+# ax4 = plt.subplot2grid((6, 4), (3, 0))
+# # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
+# a = ax4.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lj ], label="km0")
+# blob_plot(ax4, zip(*lj[::blobplot_every])[0] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+# ax4.legend()
+# 
+# ax5 = plt.subplot2grid((6, 4), (3, 1))
+# # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
+# a = ax5.plot( ltime, [ np.mean( zip(*x)[1] ) for x in lj ], label="kmA")
+# blob_plot(ax5, zip(*lj[::blobplot_every])[1] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+# ax5.legend()
+# 
+# ax6 = plt.subplot2grid((6, 4), (4, 0))
+# # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
+# a = ax6.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lj ], label="kmP")
+# blob_plot(ax6, zip(*lj[::blobplot_every])[2] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+# ax6.legend()
+# 
+# ax7 = plt.subplot2grid((6, 4), (4, 1))
+# # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
+# a = ax7.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lj ], label="kmC")
+# blob_plot(ax7, zip(*lj[::blobplot_every])[3] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+# ax7.legend()
 
 ax3 = plt.subplot2grid((6, 4), (2, 0), colspan=2)
-a = ax3.plot(ltime,[np.mean(x) for x in lmaintf],label="maint fract")
-blob_plot(ax3,lmaintf[::blobplot_every] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+a = ax3.plot(ltime,[np.mean(x) for x in lcfract],label="chemot fract")
+blob_plot(ax3,lcfract[::blobplot_every] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax3.legend()
 print("Hello3")
 
 ax4 = plt.subplot2grid((6, 4), (3, 0))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax4.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lj ], label="km0")
+a = ax4.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lc ], label="kc0")
 blob_plot(ax4, zip(*lj[::blobplot_every])[0] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax4.legend()
 
 ax5 = plt.subplot2grid((6, 4), (3, 1))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax5.plot( ltime, [ np.mean( zip(*x)[1] ) for x in lj ], label="kmA")
+a = ax5.plot( ltime, [ np.mean( zip(*x)[1] ) for x in lc ], label="kcA")
 blob_plot(ax5, zip(*lj[::blobplot_every])[1] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax5.legend()
 
 ax6 = plt.subplot2grid((6, 4), (4, 0))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax6.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lj ], label="kmP")
+a = ax6.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lc ], label="kcP")
 blob_plot(ax6, zip(*lj[::blobplot_every])[2] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax6.legend()
 
 ax7 = plt.subplot2grid((6, 4), (4, 1))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax7.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lj ], label="kmC")
+a = ax7.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lc ], label="kcC")
 blob_plot(ax7, zip(*lj[::blobplot_every])[3] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax7.legend()
 
@@ -346,7 +391,7 @@ ax9 = plt.subplot2grid((6, 4), (3, 2))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax9.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lk ], label="kj0")
 blob_plot(ax9, zip(*lk[::blobplot_every])[0] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
-ax4.legend()
+ax9.legend()
 
 ax10 = plt.subplot2grid((6, 4), (3, 3))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
@@ -358,13 +403,13 @@ ax11 = plt.subplot2grid((6, 4), (4, 2))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax11.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lk ], label="kjP")
 blob_plot(ax11, zip(*lk[::blobplot_every])[2] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
-ax10.legend()
+ax11.legend()
 
 ax12 = plt.subplot2grid((6, 4), (4, 3))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax12.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lk ], label="kjC")
 blob_plot(ax12, zip(*lk[::blobplot_every])[3] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
-ax10.legend()
+ax12.legend()
 
 
 title=filename.split('/')[-3]+'_'+filename.split('/')[-2]

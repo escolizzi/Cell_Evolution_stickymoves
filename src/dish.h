@@ -150,6 +150,8 @@ public:
   IntPlane *Food;
   CellularPotts *CPM;
   std::set<int> who_made_it;
+  int the_line = 51;
+  
   // Was used for gradient measurements, not functional now.
   void ClearGrads(void);
 

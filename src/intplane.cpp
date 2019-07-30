@@ -690,12 +690,9 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // double pfood_j = 0.5+ 0.5* (sizey-j)/(double)(sizey);
     // if(RANDOM() < pfood_j) sigma[i][j]=maxfood;
     // else sigma[i][j]=0;
-
+    
+    // if(RANDOM()<0.05) sigma[i][j]=-1; //food
   }
-  
-  // for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
-  //   if(RANDOM()<0.05) sigma[i][j]=-1;
-  // }
   
   std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;
   

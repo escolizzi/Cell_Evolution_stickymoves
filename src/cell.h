@@ -471,6 +471,15 @@ public:
     // }
   }
   
+  inline void MutateChemotaxisParameters(void){
+    // if(RANDOM() < par.mut_rate){
+      k_chem_0 += (RANDOM() -0.5)/10.;
+      k_chem_A += (RANDOM() -0.5)/10.;
+      k_chem_P += (RANDOM() -0.5)/10.;
+      k_chem_C += (RANDOM() -0.5)/10.;
+    // }
+  }
+  
   //! Set cell type of this Cell.
   inline int getHalfDivArea(void) {
     return half_div_area;

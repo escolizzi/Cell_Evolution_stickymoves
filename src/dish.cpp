@@ -334,6 +334,7 @@ void Dish::MutateCells(vector<int> sigma_to_update)
       if(par.mut_rate>0.){
         cell[upd_sigma].MutateMaintenanceFractionParameters();
         cell[upd_sigma].MutateExtProtFractionParameters();
+        cell[upd_sigma].MutateChemotaxisParameters();
       }
     }
   }
@@ -601,12 +602,12 @@ void Dish::Plot(Graphics *g) {
       if(peakx==1) {
         //then peaky = sizey/2 and 
         minx = 1;
-        maxx = 21;
+        maxx = the_line;
         miny = 1;
         maxy = par.sizey-1;
-        g->Line(2*21, 1 , 2*maxx , 2*par.sizey-1 , 1);
+        g->Line(2*the_line, 1 , 2*maxx , 2*par.sizey-1 , 1);
       }else if(peakx==par.sizex-1){
-        minx = par.sizex-21;
+        minx = par.sizex-the_line;
         maxx = par.sizex-1;
         miny = 1;
         maxy = par.sizey-1;
@@ -615,14 +616,14 @@ void Dish::Plot(Graphics *g) {
         minx = 1;
         maxx = par.sizex-1;
         miny = 1;
-        maxy = 21;
-        g->Line(1,2*21,2*par.sizex-1, 2*21, 1);
+        maxy = the_line;
+        g->Line(1,2*the_line,2*par.sizex-1, 2*the_line, 1);
       }else if(peaky==par.sizey-1){
         minx = 1;
         maxx = par.sizex-1;
-        miny = par.sizey-21;
+        miny = par.sizey-the_line;
         maxy = par.sizey-1;
-        g->Line(1, 2*(par.sizey-21) , 2*par.sizex-1  , 2*(par.sizey-21), 1);
+        g->Line(1, 2*(par.sizey-the_line) , 2*par.sizex-1  , 2*(par.sizey-the_line), 1);
       }else{
         cerr<<"Plot(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
         std::cerr << "Don't know what to do with this, program exits now." << '\n';
@@ -1131,6 +1132,8 @@ void Dish::CellGrowthAndDivision2(void)
 // kill everybody, place these new cells, change gradient direction + add new food
 int Dish::CheckWhoMadeit(void){
   
+  // int the_line = 41;
+  
   //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y, 
   // while the other is size_y/2_or_x/2
   //we can predetermine where a minx maxx miny maxy rectangle should be based on peakx and peaky
@@ -1150,11 +1153,11 @@ int Dish::CheckWhoMadeit(void){
     if(peakx==1) {
       //then peaky = sizey/2 and 
       minx = 1;
-      maxx = 21;
+      maxx = the_line;
       miny = 1;
       maxy = par.sizey-1;
     }else if(peakx==par.sizex-1){
-      minx = par.sizex-21;
+      minx = par.sizex-the_line;
       maxx = par.sizex-1;
       miny = 1;
       maxy = par.sizey-1;
@@ -1162,11 +1165,11 @@ int Dish::CheckWhoMadeit(void){
       minx = 1;
       maxx = par.sizex-1;
       miny = 1;
-      maxy = 21;
+      maxy = the_line;
     }else if(peaky==par.sizey-1){
       minx = 1;
       maxx = par.sizex-1;
-      miny = par.sizey-21;
+      miny = par.sizey-the_line;
       maxy = par.sizey-1;
     }else{
       cerr<<"CheckWhoMadeit(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
@@ -1187,7 +1190,7 @@ int Dish::CheckWhoMadeit(void){
   // cerr<< "who_made_it has so many members: "<< who_made_it.size() << endl;
   
   //if list is large enough return 1, else 0
-  unsigned int howmany_makeit_for_nextgen = 20;
+  unsigned int howmany_makeit_for_nextgen = 100;
   if( who_made_it.size() > howmany_makeit_for_nextgen ) {
     std::cerr << "Many made it !" << '\n';
     //who_made_it.clear();
