@@ -115,6 +115,7 @@ public:
   
   void RemoveWhoDidNotMakeIt(void);
   void ReproduceWhoMadeIt(void);
+  void ReproduceWhoMadeIt2(void); //with particles dependent reproduction
   inline void ClearWhoMadeItSet(void){
     who_made_it.clear();
   }
@@ -151,6 +152,8 @@ public:
   CellularPotts *CPM;
   std::set<int> who_made_it;
   int the_line = 51;
+  unsigned int howmany_makeit_for_nextgen = 100;
+  unsigned int popsize = 300;
   
   // Was used for gradient measurements, not functional now.
   void ClearGrads(void);
