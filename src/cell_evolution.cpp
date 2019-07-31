@@ -258,7 +258,13 @@ TIMESTEP {
 
       BeginScene();
       ClearImage();
-      dish->Plot(this,1);
+      if(par.readcolortable){
+      //  dish->Plot(this,1);
+        dish->Plot(this,2);
+      }
+      else{
+        dish->Plot(this,0);
+      }
       //dish->Food->Plot(this, dish->CPM);
       //char title[400];
       //snprintf(title,399,"CellularPotts: %d MCS",i);
@@ -273,7 +279,7 @@ TIMESTEP {
       sprintf(fname,"%s/ext%07d.png",par.datadir,i);
       BeginScene(); //this is an empty function for X11
       ClearImage(); //
-      dish->Plot(this,1); //everything contained here
+      dish->Plot(this,2); //everything contained here
       //dish->Food->Plot(this,dish->CPM); //will this work?  YES !!!
       EndScene();
       Write(fname); //FIXED SO THAT CODE AND IMAGE MATCH!

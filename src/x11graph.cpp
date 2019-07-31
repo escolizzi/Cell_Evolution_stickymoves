@@ -201,7 +201,7 @@ void X11Graphics::ReceiveScene1(int machineindex, int beastindex, int ndish) {
 }
 #endif
 
-void X11Graphics::ColorTable(XColor *cols)
+void X11Graphics::GenerateColorTable(XColor *cols)
 {
   // to make something color blind friendy,
   // all colors have to be sufficiently different even when you exclude ag
@@ -251,14 +251,6 @@ void X11Graphics::ColorTable(XColor *cols)
     cols[i].green= g;
     cols[i].blue=  b;
   }
-
-  for(i=111;i<111+511;i++){
-    //make colors
-    cols[i].red =  radial_colour[i-111][0];
-    cols[i].green= radial_colour[i-111][1];
-    cols[i].blue=  radial_colour[i-111][2];
-  }
-
   //for(i=0;i<256;i++){
   //  cerr<<i<<" "<<cols[i].red<<" "<<cols[i].green<<" "<<cols[i].blue<<endl;
   //}

@@ -1030,11 +1030,11 @@ void CellularPotts::PlotSigma(Graphics *g, int mag) {
 }
 
 //function to plot the direction of the target vector as a cell colour
-void CellularPotts::CellAngleColour(Graphics *g=0)
+void CellularPotts::CellAngleColour(Graphics *g)
 {
 
-  for ( i = 0; i < sizex; i++ )
-    for ( j = 0; j < sizey; j++ ) {
+  for ( int i = 0; i < sizex; i++ )
+    for ( int j = 0; j < sizey; j++ ) {
       int colour;
 
       if(i==0 || i== sizex-1 || j==0 || j == sizey){
@@ -1049,12 +1049,116 @@ void CellularPotts::CellAngleColour(Graphics *g=0)
       if (sigma[i][j]<=0) {
         colour=0;
       }else{
-        colour = (*cell)[sigma[i][j]].Colour()+111;
+        colour = (*cell)[sigma[i][j]].AngleColour();
         //colour = sigma[i][j];
       }
 
+      //colour point if this is a cell
+      if (sigma[i][j]>0){
+
+        g->Point( colour, 2*i, 2*j); //draws 2i,2j
+        //check if the other 3 pixels in the image should be coloured as boundary
+        //if this cell different from what is on i+1,j
+        //south
+        if ( sigma[i][j] != sigma[i+1][j] && i+1 < sizex-1){
+          g->Point( 1, 2*i+1, 2*j );
+        }
+        else{
+          g->Point( colour, 2*i+1, 2*j );
+        }
+        //east
+        if( sigma[i][j] != sigma[i][j+1] && j+1<sizey-1){
+          g->Point( 1, 2*i, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i, 2*j+1 );
+        }
+        //southeast
+        if (i+1<sizex-1 && j+1<sizey-1 && (sigma[i][j]!=sigma[i+1][j+1] || sigma[i+1][j]!=sigma[i][j+1]) ){
+          g->Point( 1, 2*i+1, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i+1, 2*j+1 );
+        }
+      }//if this is a cell
+
+    } //end of for loop
+
+
+
+
 }
 
+void CellularPotts::CellOrderColour(Graphics *g)
+{
+  vector <double> cellorder;
+  double temp;
+
+//determine order value for each cell (mapped to value between 0 and 1, 0 being fully aligned and 1 being
+//fully counteraligned)
+  for(auto c: (*cell)){
+    temp=0.;
+    for (auto n: c.neighbours){
+      temp+=(c.tvecx*(*cell)[n.first].tvecx+c.tvecy*(*cell)[n.first].tvecy)+1.;
+    }
+    cellorder.push_back(temp/(2*c.neighbours.size()));
+  }
+
+  for ( int i = 0; i < sizex; i++ )
+    for ( int j = 0; j < sizey; j++ ) {
+      int colour;
+
+      if(i==0 || i== sizex-1 || j==0 || j == sizey){
+        colour=0;
+        g->Point( colour, 2*i, 2*j);
+        g->Point( colour, 2*i+1, 2*j);
+        g->Point( colour, 2*i, 2*j+1);
+        g->Point( colour, 2*i+1, 2*j+1);
+        continue;
+      }
+
+      if (sigma[i][j]<=0) {
+        colour=0;
+      }else{
+        colour = (int)(cellorder[sigma[i][j]]*127+2);
+        //colour = sigma[i][j];
+      }
+
+      //colour point if this is a cell
+      if (sigma[i][j]>0){
+
+        g->Point( colour, 2*i, 2*j); //draws 2i,2j
+        //check if the other 3 pixels in the image should be coloured as boundary
+        //if this cell different from what is on i+1,j
+        //south
+        if ( sigma[i][j] != sigma[i+1][j] && i+1 < sizex-1){
+          g->Point( 1, 2*i+1, 2*j );
+        }
+        else{
+          g->Point( colour, 2*i+1, 2*j );
+        }
+        //east
+        if( sigma[i][j] != sigma[i][j+1] && j+1<sizey-1){
+          g->Point( 1, 2*i, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i, 2*j+1 );
+        }
+        //southeast
+        if (i+1<sizex-1 && j+1<sizey-1 && (sigma[i][j]!=sigma[i+1][j+1] || sigma[i+1][j]!=sigma[i][j+1]) ){
+          g->Point( 1, 2*i+1, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i+1, 2*j+1 );
+        }
+      }//if this is a cell
+
+    } //end of for loop
+
+
+
+
+}
 
 int **CellularPotts::SearchNandPlot(Graphics *g, bool get_neighbours)
 {

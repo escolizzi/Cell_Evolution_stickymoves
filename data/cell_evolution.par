@@ -65,7 +65,7 @@ periodic_boundaries = false
 #mutrate, typical length of key and lock is 10+10 -> 20*0.01=0.2 one mutation every 5 replications...
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
-mut_rate = 0.01
+mut_rate = 0.0
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0
@@ -123,11 +123,11 @@ init_weight_for_chemotaxis = 0.05
 
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
-size_init_cells = 30000
+size_init_cells = 20000
 #size_init_cells = 20000
 
 #leave division to 0, this seems buggy
-divisions = 4
+divisions = 3
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
@@ -149,7 +149,7 @@ save_backup_period = 5000
 backupdir = backup
 
 #if readcolortable is true, it reads the color table from "colortable_filename", otherwise it generates a pretty one internally
-readcolortable = false
-colortable_filename = default.ctb
+readcolortable = true
+colortable_filename = ../data/circular4.ctb
 
 

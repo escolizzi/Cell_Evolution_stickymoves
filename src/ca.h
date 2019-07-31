@@ -87,12 +87,13 @@ public:
    determined. */
   int **SearchNandPlot(Graphics *g=0, bool get_neighbours=true);
   void CellAngleColour(Graphics *g=0);
-
+  void CellOrderColour(Graphics *g=0);
   //! Plot the dish to Graphics window g
   inline void Plot(Graphics *g, int colour) {
     switch (colour) {
       case 0: SearchNandPlot(g, false); break;
       case 1: CellAngleColour(g); break;
+      case 2: CellOrderColour(g); break;
       default: cerr <<"CPM Plot: invalid option. exiting..."<<endl; exit(1);
     }
   }

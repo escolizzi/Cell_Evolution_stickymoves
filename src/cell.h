@@ -289,10 +289,11 @@ public:
 //this function maps migration vector angle to a colour in radial_colour array (see misc.cpp)
   inline int AngleColour(void) const {
     double ang=atan(tvecy/tvecx);
-    if(ang<-0.000001) ang+=2.*M_PI;
+    if(tvecx<0.000) ang+=M_PI;
+    else if(tvecy<0.000) ang+=2*M_PI;
     ang/=2.*M_PI;
 
-    return (int)(ang*511);
+    return (int)(ang*254)+2;
   };
 
   //sets properties of cell
