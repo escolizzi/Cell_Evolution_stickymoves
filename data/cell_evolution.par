@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 400
-sizey = 400
+sizex = 500
+sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -35,9 +35,9 @@ persduration = 50
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #lookup table for J val with medium: 
@@ -124,7 +124,7 @@ init_weight_for_chemotaxis = 0.05
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
 size_init_cells = 30000
-#size_init_cells = 20000
+#size_init_cells = 10000
 
 #leave division to 0, this seems buggy
 divisions = 4
@@ -139,7 +139,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 5
+storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2

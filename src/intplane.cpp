@@ -671,7 +671,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // int maxfood = 1.+9.*RANDOM();
     // double pfood_j = 0.125;
     // makes gradient
-    int maxfood = 1+3.* (1 - dist_from_peak/(double)sizey);
+    int maxfood = 1+5.* (1 - dist_from_peak/(double)sizey);
     double pfood_j = 0.1+ 0.9* (1 - dist_from_peak/(double)sizey);
     if(RANDOM() < pfood_j) 
       sigma[i][j]=maxfood; //else already set to zero
@@ -691,7 +691,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // if(RANDOM() < pfood_j) sigma[i][j]=maxfood;
     // else sigma[i][j]=0;
     
-    // if(RANDOM()<0.05) sigma[i][j]=-1; //food
+    if(RANDOM()<0.05) sigma[i][j]=-1; //food
   }
   
   std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;

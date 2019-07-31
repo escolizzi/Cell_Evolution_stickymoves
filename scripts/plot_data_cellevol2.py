@@ -190,13 +190,13 @@ with open(filename,"r") as fin:
         #lock=line[4]
         #print contacts
         #maintf=float(line[5])*(1-float(line[7])) #actually prints maintf
-        maintf=float(line[7])
-        Jfract=float(line[12]) #actually fraction of resources to maintenance
-        cfract=[float(line[17])]
+        maintf=float(line[7])  #fraction of resources to maintenance
+        Jfract=float(line[12]) #fraction of own j val expressed
+        cfract=[float(line[17])] #fraction of movement dedicated to gradient following
                 
-        km0,kmA,kmP,kmC = [ float(x) for x in line[8:12] ]
-        kj0,kjA,kjP,kjC = [ float(x) for x in line[13:17] ]
-        kc0,kcA,kcP,kcC = [ float(x) for x in line[18:22] ]
+        km0,kmA,kmP,kmC = [ float(x) for x in line[8:12] ]  # maint vs movement
+        kj0,kjA,kjP,kjC = [ float(x) for x in line[13:17] ] # expression of J val
+        kc0,kcA,kcP,kcC = [ float(x) for x in line[18:22] ] # chemotaxis
         
         contacts=line[22:]
         
@@ -204,7 +204,7 @@ with open(filename,"r") as fin:
           #calculate statistics
           lJ_av_matrix = np.divide(lJmatrix.astype(float) , lcounter.astype(float), out=np.zeros_like(lJmatrix.astype(float)), where=lcounter!=0)
           
-          lk.append(lk_thistime)
+          lk.append(lk_thistime) 
           lj.append(lj_thistime)          
           lc.append(lc_thistime)
           
@@ -279,11 +279,11 @@ ax2 = plt.subplot2grid((6, 4), (1, 0), colspan=4)
 #THIS BELOW WORKS FINE, BUT NOW WE USE GAMMAs, NOTICE THAT I AM USIGN AVERAGE J VALUES
 a=ax2.plot( ltime, [ J_av[1,0] for J_av in l_avrgdata_time ], label="J10" )
 b=ax2.plot( ltime, [ J_av[1,1] for J_av in l_avrgdata_time ], label="J11" )
-c=ax2.plot( ltime, [ J_av[1,2] for J_av in l_avrgdata_time ], label="J12" )
+# c=ax2.plot( ltime, [ J_av[1,2] for J_av in l_avrgdata_time ], label="J12" )
 
-d=ax2.plot( ltime, [ J_av[2,0] for J_av in l_avrgdata_time ], label="J20" )
+# d=ax2.plot( ltime, [ J_av[2,0] for J_av in l_avrgdata_time ], label="J20" )
 #e=ax2.plot( ltime, [ J_av[2,1] for J_av in l_avrgdata_time ], label="J21" )  #overlaps perfectly with [1,2], as it should
-f=ax2.plot( ltime, [ J_av[2,2] for J_av in l_avrgdata_time ], label="J22" )
+# f=ax2.plot( ltime, [ J_av[2,2] for J_av in l_avrgdata_time ], label="J22" )
 
 print("Hello1.1")
 # print()
@@ -355,28 +355,49 @@ blob_plot(ax3,lcfract[::blobplot_every] ,ltime[::blobplot_every], (a[0].get_colo
 ax3.legend()
 print("Hello3")
 
+lc_toblpl=lc[::blobplot_every] # same as before, just sparser
+
 ax4 = plt.subplot2grid((6, 4), (3, 0))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax4.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lc ], label="kc0")
-blob_plot(ax4, zip(*lj[::blobplot_every])[0] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+
+
+bla = []
+for thistime_lc_toblpl in lc_toblpl:
+    transp=zip(*thistime_lc_toblpl)
+    bla.append(transp[0])
+blob_plot(ax4, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')    
+#blob_plot(ax4, zip(*lc[::blobplot_every])[0] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax4.legend()
 
 ax5 = plt.subplot2grid((6, 4), (3, 1))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax5.plot( ltime, [ np.mean( zip(*x)[1] ) for x in lc ], label="kcA")
-blob_plot(ax5, zip(*lj[::blobplot_every])[1] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+bla = []
+for thistime_lc_toblpl in lc_toblpl:
+    transp=zip(*thistime_lc_toblpl)
+    bla.append(transp[1])
+blob_plot(ax5, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax5.legend()
 
 ax6 = plt.subplot2grid((6, 4), (4, 0))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax6.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lc ], label="kcP")
-blob_plot(ax6, zip(*lj[::blobplot_every])[2] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+bla = []
+for thistime_lc_toblpl in lc_toblpl:
+    transp=zip(*thistime_lc_toblpl)
+    bla.append(transp[2])
+blob_plot(ax6, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax6.legend()
 
 ax7 = plt.subplot2grid((6, 4), (4, 1))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
 a = ax7.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lc ], label="kcC")
-blob_plot(ax7, zip(*lj[::blobplot_every])[3] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+bla = []
+for thistime_lc_toblpl in lc_toblpl:
+    transp=zip(*thistime_lc_toblpl)
+    bla.append(transp[3])
+blob_plot(ax7, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax7.legend()
 
 
@@ -386,29 +407,46 @@ a = ax8.plot(ltime,[np.mean(x) for x in lJfract],label="J expr fract")
 blob_plot(ax8,lJfract[::blobplot_every] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax8.legend()
 
+lj_toblpl=lj[::blobplot_every] # same as before, just sparser
 
 ax9 = plt.subplot2grid((6, 4), (3, 2))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax9.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lk ], label="kj0")
-blob_plot(ax9, zip(*lk[::blobplot_every])[0] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+a = ax9.plot( ltime, [ np.mean( zip(*x)[0] ) for x in lj ], label="kj0")
+bla = []
+for thistime_lj_toblpl in lj_toblpl:
+    transp=zip(*thistime_lj_toblpl)
+    bla.append(transp[0])
+blob_plot(ax9, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax9.legend()
 
 ax10 = plt.subplot2grid((6, 4), (3, 3))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax10.plot( ltime, [ np.mean( zip(*x)[1] ) for x in lk ], label="kjA")
-blob_plot(ax10, zip(*lk[::blobplot_every])[1] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+a = ax10.plot( ltime, [ np.mean( zip(*x)[1] ) for x in lj ], label="kjA")
+bla = []
+for thistime_lj_toblpl in lj_toblpl:
+    transp=zip(*thistime_lj_toblpl)
+    bla.append(transp[1])
+blob_plot(ax10, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax10.legend()
 
 ax11 = plt.subplot2grid((6, 4), (4, 2))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax11.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lk ], label="kjP")
-blob_plot(ax11, zip(*lk[::blobplot_every])[2] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+a = ax11.plot( ltime, [ np.mean( zip(*x)[2] ) for x in lj ], label="kjP")
+bla = []
+for thistime_lj_toblpl in lj_toblpl:
+    transp=zip(*thistime_lj_toblpl)
+    bla.append(transp[2])
+blob_plot(ax11, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax11.legend()
 
 ax12 = plt.subplot2grid((6, 4), (4, 3))
 # at every time step lj is like this [[k0,kA,kP,kC],[k0,kA,kP,kC],...]
-a = ax12.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lk ], label="kjC")
-blob_plot(ax12, zip(*lk[::blobplot_every])[3] ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
+a = ax12.plot( ltime, [ np.mean( zip(*x)[3] ) for x in lj ], label="kjC")
+bla = []
+for thistime_lj_toblpl in lj_toblpl:
+    transp=zip(*thistime_lj_toblpl)
+    bla.append(transp[3])
+blob_plot(ax12, bla ,ltime[::blobplot_every], (a[0].get_color(),0.5),'float')
 ax12.legend()
 
 
