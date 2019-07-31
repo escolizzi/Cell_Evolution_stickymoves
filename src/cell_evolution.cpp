@@ -234,9 +234,9 @@ TIMESTEP {
         // reseed
         //reset whomadeit vector
 
-        dish->RemoveWhoDidNotMakeIt();
-        dish->ReproduceWhoMadeIt();
-        dish->ClearWhoMadeItSet();
+        dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
+        dish->ReproduceWhoMadeIt(); //reproduction
+        dish->ClearWhoMadeItSet(); //zeros the who_made_it set
         dish->Food->IncreaseVal(*(dish->Food));
         ;
       }

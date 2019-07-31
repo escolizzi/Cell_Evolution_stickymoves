@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 300
-sizey = 300
+sizex = 400
+sizey = 400
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -124,6 +124,7 @@ init_weight_for_chemotaxis = 0.05
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
 size_init_cells = 30000
+#size_init_cells = 20000
 
 #leave division to 0, this seems buggy
 divisions = 4
@@ -138,7 +139,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 50
+storage_stride = 5
 graphics = false
 store = true
 datadir = data_film2
