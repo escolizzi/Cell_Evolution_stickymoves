@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright 1996-2006 Roeland Merks
 
@@ -38,7 +38,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 class Dish;
 
 class Dir {
-  
+
   /* To store a celldirection matrix */
   friend class CellularPotts;
 public:
@@ -49,7 +49,7 @@ public:
     bb1=0.; bb2=0.;
     lb1=0.; lb2=0.;
   }
-  
+
   double  meanx,meany;
   double  aa1,aa2;
   double  bb1,bb2;
@@ -60,10 +60,10 @@ class CellularPotts {
 
   friend class Info;
   friend class Morphometry;
-    
+
 public:
   //! \brief Constructs a CA field. This should be done in "Dish".
-  CellularPotts(std::vector<Cell> *cells, const int sizex=200, 
+  CellularPotts(std::vector<Cell> *cells, const int sizex=200,
 		const int sizey=200 );
   // empty constructor
   // (necessary for derivation)
@@ -74,24 +74,29 @@ public:
   // Every time AllocateSigma is called in the base class methods
   // the function belonging the actual type will be called
   virtual void AllocateSigma(int sx, int sy);
-  
+
   // destructor must also be virtual
   virtual ~CellularPotts();
 
   /*! \brief Plots the dish to the screen or to a movie and searches the
-   neighbours. 
+   neighbours.
 
    These distinct tasks have been lumped together in the
    same method because both for drawing the black lines between the
    cells and for searching the neighbours, the cell borders have to be
    determined. */
   int **SearchNandPlot(Graphics *g=0, bool get_neighbours=true);
-  
+  void CellAngleColour(Graphics *g=0);
+
   //! Plot the dish to Graphics window g
-  inline void Plot(Graphics *g) {
-    SearchNandPlot(g, false);
+  inline void Plot(Graphics *g, int colour) {
+    switch (colour) {
+      case 0: SearchNandPlot(g, false); break;
+      case 1: CellAngleColour(g); break;
+      default: cerr <<"CPM Plot: invalid option. exiting..."<<endl; exit(1);
+    }
   }
-  
+
   //! Searches the cells' neighbors without plotting
   inline int **SearchNeighbours(void) {
     return SearchNandPlot(0, true);
@@ -107,56 +112,56 @@ public:
   }
 
   /*! Plot the cells according to their cell identity, not their type.
-    
+
   The black lines are omitted.
   */
   void PlotSigma(Graphics *g, int mag=2);
 
-  
+
   // Divide all cells, returns same as DivideCells(vector bool)
   vector<int> DivideCells(void) {
 	std::vector<bool> tmp;
     return DivideCells(tmp);
   }
-  
+
     /*! Divide all cells marked "true" in which_cells.
-      
+
     \param which_cells is a vector<bool> with the same number of
     elements as the number of cells. It is a mask indicating which
     cells should be divided; each cell marked true will be divided.
-      
+
      If which_cells is empty, this method divides all cells.
     */
     //void DivideCells(std::vector<bool> which_cells);
     vector<int> DivideCells(std::vector<bool> which_cells);
     vector<int> DivideCells2(std::vector<bool> which_cells);
-    
+
     /*! Implements the core CPM algorithm. Carries out one MCS.
       \return Total energy change during MCS.
     */
     int AmoebaeMove(PDE *PDEfield=0);
     int AmoebaeMove2(PDE *PDEfield);
     /*! \brief Read initial cell shape from XPM file.
-      Reads the initial cell shape from an 
+      Reads the initial cell shape from an
       include xpm picture called "ZYGXPM(ZYGOTE)",
       and it allocates enough cells for it to the Dish */
     void ReadZygotePicture(void);
 
-    
+
     // int BlobCounting(void); (not implemented?)
-    
+
     // Used internally to assign a Cell object to each "blob"
     // "blobs" should already have different indices.
     //
     // (i.e. to start from a binary image you'd probably first want
     // to apply a blob counting algorithm
     void ConstructInitCells(Dish &beast);
-    
+
     //! Returns the number of completed Monte Carlo steps.
     inline int Time() const {
       return thetime;
     }
-  
+
 
     // not currently used? In Critter implementation (see Hogeweg
     // 2000) this was used to have cells divide at double their original area.
@@ -168,33 +173,33 @@ public:
   inline int SizeX() const {
     return sizex;
   }
-  
+
   //! \brief Return the vertical size of the CA plane.
   inline int SizeY() const {
     return sizey;
   }
-  
+
   /*! \brief Return the value of lattice site (x,y).
 
   i.e. This will return the index of the cell which occupies site (x,y). */
   inline int Sigma(const int x, const int y) const {
     return sigma[x][y];
   }
-  
+
   // Was used to make it possible to enlarge the Graphics window in
   // X11 and replace the contents interactively. Not currently supported.
   void Replace(Graphics *g);
 
   /*! In this method the principal axes of the cells are computed using
-   the method described in "Biometry", box 15.5 
+   the method described in "Biometry", box 15.5
    \return a pointer to a "new[]"ed array containing the directions.
    The memory has to be freed afterwards using the delete[] operator
   */
   Dir *FindCellDirections3(void) const;
   Dir *FindCellDirections2(void) const;
-  
+
   Dir *FindCellDirections(void) const;
-  
+
 
   /*! \brief Initialize the CA plane with n circular cells fitting in
     a cellsize^2 square.*/
@@ -204,7 +209,7 @@ public:
 
   \param n: Number of cells.
   \param cellsize: Number of Eden growth iterations.
-  \param subfield: Defines a centered frame of size (size/subfield)^2 in which all cell will be positioned. 
+  \param subfield: Defines a centered frame of size (size/subfield)^2 in which all cell will be positioned.
   \return Index of last cell inserted.
   */
   int GrowInCells(int n_cells, int cellsize, double subfield=1.);
@@ -216,35 +221,35 @@ public:
     cell->push_back(Cell(beast));
     return cell->back();
   }
-  
+
   //removes cell from ca plane by force
   void RemoveCell(Cell* cellid);
   void RemoveCell(Cell* cellid,int min_area, int meanx, int meany);
   int FancyloopX(int loopdepth, int meanx, int meany, int thissig, bool above);
   int FancyloopY(int loopdepth, int meanx, int meany, int thissig, bool left);
   /*! \brief Display the division planes returned by FindCellDirections.
-    
+
   \param g: Graphics window
   \param celldir: cell axes as returned by FindCellDirections.
   */
   void ShowDirections(Graphics &g, const Dir *celldir) const;
-  
-  //! \brief Returns the mean area of the cells. 
+
+  //! \brief Returns the mean area of the cells.
   double MeanCellArea(void) const;
-  
+
   /*! \brief Returns the cell density.
 
   Cell density is defined as the area occupied by cells divided by the size of the field.
   */
-  double CellDensity(void) const; 
-  
+  double CellDensity(void) const;
+
   //! \brief Set target lengths of all cells to the value given in parameter file.
   void ResetTargetLengths(void);
- 
+
   int spins_converted;
-  
+
   /*! \brief Give each cell a random cell type.
-    
+
   The number of cell types is defined by the J parameter file. (See
   Jtable in parameter file).ount
   */
@@ -254,7 +259,7 @@ public:
     divide, with rate "growth_rate"
   */
   void GrowAndDivideCells(int growth_rate);
-  
+
   inline Cell &getCell(int c) {
     return (*cell)[c];
   }
@@ -263,21 +268,21 @@ public:
     \return The area of the convex hull in lattice sites.
   */
   double DrawConvexHull(Graphics *g, int color=1);
-  
+
   /*! Calculate compactness (summed_area/hull_area) of all cells.
     This is a good measure for the density.
     \return Compactness.
   */
-  double Compactness(double *res_compactness = 0, 
-		     double *res_area = 0, 
+  double Compactness(double *res_compactness = 0,
+		     double *res_area = 0,
 		     double *res_cell_area = 0);
-  
-  
+
+
   //This used to be private but I want to use it elsewhere
   static const int nx[25], ny[25];
   static const int nbh_level[5];
   int n_nb;
-    
+
 private:
   void IndexShuffle(void);
   int DeltaH(int x,int y, int xp, int yp, PDE *PDEfield=0);
@@ -302,10 +307,10 @@ private:
 	  std::cerr << "[" << sigma[x-1][y+1] << " " << sigma[x][y+1] << " " << sigma[x+1][y+1] << "]\n";
   }
 
-  
+
 protected:
 	void BaseInitialisation(std::vector<Cell> *cell);
-  
+
 protected:
   int **sigma;
   int sizex;
@@ -318,7 +323,7 @@ private:
   std::vector<Cell> *cell;
   int zygote_area;
   int thetime;
- 
+
 };
 
 

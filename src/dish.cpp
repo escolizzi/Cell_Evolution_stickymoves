@@ -261,7 +261,7 @@ void Dish::UpdateVectorJ(vector<int> sigma_to_update)
   //cerr<<"UpdateVectorJ begin, cell vector size: "<<cell.size()<<endl;
 
   vector<Cell>::iterator c;
-  
+
   for(auto upd_sigma: sigma_to_update){
     if(upd_sigma != 0){
       for(c=cell.begin(); c!=cell.end(); ++c){
@@ -319,7 +319,7 @@ void Dish::InitMaintenanceFraction()
   for(c=cell.begin(); c!=cell.end(); ++c){
     c->maintenance_fraction = par.init_maintenance_fraction;
   }
-} 
+}
 
 // sigma_newcells is an int vector as lognas there are cells,
 // it is zero everywhere, except at the positions of a mother cell's sigma,
@@ -570,9 +570,11 @@ void Dish::FoodPlot(Graphics *g)
       }
 }
 
-void Dish::Plot(Graphics *g) {
-    if (CPM)
-      CPM->Plot(g);
+void Dish::Plot(Graphics *g, int colour) {
+    if (CPM){
+      CPM->Plot(g, colour);
+    }
+
 
     //here food plotting, with info from cpm and cell
     FoodPlot(g);
@@ -592,15 +594,15 @@ void Dish::Plot(Graphics *g) {
         // do we really? we could just truncate vectors up to the max size..
         g->Line(x1,y1,x2, y2, 1);
       }
-    
+
       //get info where the peak is and draw a line for box where who_made_it should register stuff
       int peakx = Food->GetPeakx();
       int peaky = Food->GetPeaky();
-      
+
       int minx,maxx,miny,maxy;
-      
+
       if(peakx==1) {
-        //then peaky = sizey/2 and 
+        //then peaky = sizey/2 and
         minx = 1;
         maxx = the_line;
         miny = 1;
@@ -629,7 +631,7 @@ void Dish::Plot(Graphics *g) {
         std::cerr << "Don't know what to do with this, program exits now." << '\n';
         exit(1);
       }
-    
+
  }
 
 
@@ -820,14 +822,14 @@ void Dish::CellsEat(void)
 }
 
 //changes cells direction vector based on where more food is
-void Dish::CellsEat2(void) 
+void Dish::CellsEat2(void)
 {
   // if(par.periodic_boundaries)
   // {
   //   std::cerr << "CellsEat2: does not work with wrapped boundaries" << '\n';
   //   exit(1);
   // }
-  
+
   int MAX_PARTICLES=1000000; //max particles that a cell can have inside it
   std::vector<int> fsumx(cell.size(),0), fsumy(cell.size(),0),ftotal(cell.size(),0);
   int foodload;
@@ -838,7 +840,7 @@ void Dish::CellsEat2(void)
           if(Food->Sigma(x,y) > 0){
             //determine the mean position of the food that the cell sees
             int fx=x, fy=y;
-            
+
             if(par.periodic_boundaries){
               double meanx = cell[cell_sigma].getXpos();
               double meany = cell[cell_sigma].getYpos();
@@ -847,14 +849,14 @@ void Dish::CellsEat2(void)
               if( (fy-meany)>0 && (fy-meany)> (meany - (fy - (par.sizey-2))) ) fy-=(par.sizey-2);
               else if( (meany-fy>0) && (meany-fy)>(fy+(par.sizey-2)-meany)) fy+=(par.sizey-2);
             }
-             
+
             fsumx[cell_sigma]+=fx*Food->Sigma(x,y);
             fsumy[cell_sigma]+=fy*Food->Sigma(x,y);
             ftotal[cell_sigma]+=Food->Sigma(x,y);
           }else{
             int howmuchfood = BinomialDeviate( -1*Food->Sigma(x,y) , cell[cell_sigma].GetEatProb()/(double)par.scaling_cell_to_ca_time );
             Food->addtoValue(x,y,-1*-howmuchfood);
-            
+
             // we cannot add all the particles endlessly, otherwise it overflows
             int current_particles = cell[cell_sigma].particles;
             int added_particles = ( current_particles <= (MAX_PARTICLES-howmuchfood) )?howmuchfood:(MAX_PARTICLES-current_particles);
@@ -865,38 +867,38 @@ void Dish::CellsEat2(void)
         }
       }
     }
-    
+
     //update the cell's movement vector with respect to the location of food
     int count=0;
     double fvecx, fvecy;
     for(auto &c: cell){
       if(c.sigma && ftotal[c.sigma]){
         //calculate "food" vector with respect to cell mean pos
-        fvecx=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx; 
+        fvecx=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx;
         fvecy=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
-        
+
         // c.tvecx=fvecx;
         // c.tvecy=fvecy;
-        
+
         // c.tvecx=(fvecx+c.tvecx)/2.;
         // c.tvecy=(fvecy+c.tvecy)/2.;
-        // 
-        
+        //
+
         //c.tvecx=0.05 *fvecx + 0.95*c.tvecx;
         //c.tvecy=0.05 *fvecy + 0.95*c.tvecy;
-        
+
         // THIS IS CURRENT VERSION... A BIT BUGGY
-        
+
         // if(c.weight_for_chemotaxis != 0.05){
         //   //std::cerr <<"Sigma: "<<c.sigma<< ". weight_for_chemotaxis: "<<c.weight_for_chemotaxis << '\n';
         //   //printf("CellsEat2(): Sigma %d, weight_for_chemotaxis: %.15f\n", c.sigma, c.weight_for_chemotaxis);
         //   // printf("Notice that the number 0.05 is: %.15f\n", 0.05);
-        // 
+        //
         // }
-        
+
         c.tvecx=c.weight_for_chemotaxis *fvecx + (1-c.weight_for_chemotaxis)*c.tvecx;
         c.tvecy=c.weight_for_chemotaxis *fvecy + (1-c.weight_for_chemotaxis)*c.tvecy;
-        
+
         double hyphyp=hypot(c.tvecx,c.tvecy);
         c.tvecx/=hyphyp;
         c.tvecy/=hyphyp;
@@ -906,7 +908,7 @@ void Dish::CellsEat2(void)
         exit(1);
       }
     }
-    
+
 }
 
 //to initialise cells' mu, perstime and persdur
@@ -975,38 +977,38 @@ void Dish::CellGrowthAndDivision2(void)
         double particles_metabolised = 0.;
         double particles_for_movement = 0.;
         //in this version, maintenance_fraction is a function of evolvable parameters:
-        // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length 
+        // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length
         // and bounded inside [0,1]
         c->maintenance_fraction =1.;//c->CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_mf_0,c->k_mf_A,c->k_mf_P,c->k_mf_C);
-        
+
         //Next, also Js should be a function of that, bounded between [reasonably high, actual J values]
         // this is just a number that is going to be multiplied to the J values of this cell...
-        // ... how? maybe directly in amoebamove? (it'd be easier than updating all J values for this guy 
-        // and for all those in contact with this guy) 
-        
+        // ... how? maybe directly in amoebamove? (it'd be easier than updating all J values for this guy
+        // and for all those in contact with this guy)
+
         //same function, be careful which parameters you pass
         c->extprotexpress_fraction = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_ext_0,c->k_ext_A,c->k_ext_P,c->k_ext_C);
         // if (c->extprotexpress_fraction<0. || c->extprotexpress_fraction>1.) {
-        //  std::cerr <<"Sigma: "<<c->Sigma()<< ", extprotexpress_fraction: "<< c->extprotexpress_fraction << '\n';  
+        //  std::cerr <<"Sigma: "<<c->Sigma()<< ", extprotexpress_fraction: "<< c->extprotexpress_fraction << '\n';
         // }
-        
+
         //same function for regulation of chemotaxis
         c->weight_for_chemotaxis =  c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
         // if (c->weight_for_chemotaxis<0. || c->weight_for_chemotaxis>1.) {
           // std::cerr <<"Sigma: "<<c->Sigma()<< ", weight_for_chemotaxis: "<< c->weight_for_chemotaxis << '\n';
-          
+
         // }
-        
+
         if(area){
           // particles_metabolised are those particles that are used for maintenance
           // only a fraction should be used for this
           //the other should be used for movement
           particles_metabolised = c->maintenance_fraction* c->particles/(double)par.scaling_cell_to_ca_time;
           particles_for_movement = (1. - c->maintenance_fraction) * c->particles/(double)par.scaling_cell_to_ca_time;
-          
+
           //newar+= c->growth*particles_metabolised/double(area);
           newar+= c->growth*particles_metabolised;
-          
+
           if(RANDOM() < par.ardecay/(double)par.scaling_cell_to_ca_time )
             newar -= 1; //area decays of the same amount per time step, on average.
             //newar=double(area) - double(area)*par.ardecay + c->growth*double(c->particles)/double(area);
@@ -1026,14 +1028,14 @@ void Dish::CellGrowthAndDivision2(void)
                                                              //But food IS consumed
 
         c->SetTargetArea(newarint);
-        
-        
+
+
         //Setting mu:
         // particles_for_movement maps to mu as follows:
         // mu = particles_for_movement* 10 (i.e. )
         // if mu > 10 -> mu = 10 and some particles_for_movement are not consumed, and should be recycled
-        //  i.e. you use at most one particle per time step for movement 
-        
+        //  i.e. you use at most one particle per time step for movement
+
         // FIRST: check how much movement this would be
         //cerr<<"particles for movement: "<< particles_for_movement <<",thus mu: ";
         double newmu;
@@ -1045,10 +1047,10 @@ void Dish::CellGrowthAndDivision2(void)
           newmu = 3.*particles_for_movement;
         }
         c->mu = newmu;
-        
+
         c->mu = 5.; particles_for_movement=0; // specified experiments
         //cerr<<newmu<<endl;
-        
+
         //if(c->growth<1.)
           //c->particles=int(double(c->particles)*c->growth);
         //else
@@ -1131,27 +1133,27 @@ void Dish::CellGrowthAndDivision2(void)
 // should create a new list of cells based on some fitness function,
 // kill everybody, place these new cells, change gradient direction + add new food
 int Dish::CheckWhoMadeit(void){
-  
+
   // int the_line = 41;
-  
-  //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y, 
+
+  //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y,
   // while the other is size_y/2_or_x/2
   //we can predetermine where a minx maxx miny maxy rectangle should be based on peakx and peaky
   // and run a for loop only within these numbers, and check if CPM->sigma[][] != 0
   static int current_peakx=-1,current_peaky=-1;
   static int minx,maxx,miny,maxy;
-  
+
   //get info where the peak is
   int peakx = Food->GetPeakx();
   int peaky = Food->GetPeaky();
-  
-  
+
+
   if(peakx != current_peakx || peaky != current_peaky){
     current_peakx=peakx;
     current_peaky=peaky;
-  
+
     if(peakx==1) {
-      //then peaky = sizey/2 and 
+      //then peaky = sizey/2 and
       minx = 1;
       maxx = the_line;
       miny = 1;
@@ -1177,7 +1179,7 @@ int Dish::CheckWhoMadeit(void){
       exit(1);
     }
   }
-  
+
   //find if cells in some area around the peak are already in the list
   //easy: go in order through CPM and check the sigmas
   for(int i=minx;i<maxx;i++)for(int j=miny;j<maxy;j++){
@@ -1185,10 +1187,10 @@ int Dish::CheckWhoMadeit(void){
       who_made_it.insert( CPM->Sigma(i,j) ); //if already there it will not be duplicated in the set
     }
   }
-  
+
   // cerr<< "px,py: "<< peakx<<" "<<peaky <<" box mx,My my,My: "<< minx<<" "<<maxx<<" "<<miny<<" "<<maxy<<endl;
   // cerr<< "who_made_it has so many members: "<< who_made_it.size() << endl;
-  
+
   //if list is large enough return 1, else 0
   unsigned int howmany_makeit_for_nextgen = 100;
   if( who_made_it.size() > howmany_makeit_for_nextgen ) {
@@ -1200,18 +1202,18 @@ int Dish::CheckWhoMadeit(void){
   return 0;
 }
 
-//remove cells from dish and CPM based on indexes in who_made_it 
+//remove cells from dish and CPM based on indexes in who_made_it
 void Dish::RemoveWhoDidNotMakeIt(void)
 {
   std::cerr << "Who made it: ";
   for(auto sig:who_made_it) std::cerr << sig<<" ";
   std::cerr << '\n';
-  
+
   vector<Cell>::iterator c; //iterator to go over all Cells
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
-    
+
     cerr<<"This sigma: "<<c->Sigma();
-    
+
     if( who_made_it.count( c->Sigma() ) == 0 ) {
       cerr<<" will be removed"<<endl;
       c->SetTargetArea(0);
@@ -1229,7 +1231,7 @@ void Dish::ReproduceWhoMadeIt(void)
   for(auto sig: who_made_it){
     which_cells[sig] = true;
   }
-  vector<int> sigma_newcells; 
+  vector<int> sigma_newcells;
   int howmany_rounds_of_division = 2;
   for(int i=0;i<howmany_rounds_of_division;i++){
     sigma_newcells = CPM->DivideCells(which_cells);
@@ -1348,38 +1350,38 @@ int Dish::SaveData(int Time)
     ofs << icell->mu << " ";
     //ofs << icell->getXvec()<<" "<< icell->getYvec()<<" ";
     ofs << icell->particles << " ";
-    
+
     //recalculated here because just-born cells do not have defined values
     // for maintenance_fraction or extprotexpress_fraction
-    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_mf_0, 
-                                                               icell->k_mf_A, 
-                                                               icell->k_mf_P, 
+    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_mf_0,
+                                                               icell->k_mf_A,
+                                                               icell->k_mf_P,
                                                                icell->k_mf_C) << " ";
-    
+
     ofs << icell->k_mf_0 << " ";
     ofs << icell->k_mf_A << " ";
     ofs << icell->k_mf_P << " ";
     ofs << icell->k_mf_C << " ";
-    
-    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_ext_0, 
-                                                               icell->k_ext_A, 
-                                                               icell->k_ext_P, 
+
+    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_ext_0,
+                                                               icell->k_ext_A,
+                                                               icell->k_ext_P,
                                                                icell->k_ext_C) << " ";
     ofs << icell->k_ext_0 << " ";
     ofs << icell->k_ext_A << " ";
     ofs << icell->k_ext_P << " ";
     ofs << icell->k_ext_C << " ";
-    
-    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_chem_0, 
-                                                               icell->k_chem_A, 
-                                                               icell->k_chem_P, 
+
+    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_chem_0,
+                                                               icell->k_chem_A,
+                                                               icell->k_chem_P,
                                                                icell->k_chem_C) << " ";
     ofs << icell->k_chem_0 << " ";
     ofs << icell->k_chem_A << " ";
     ofs << icell->k_chem_P << " ";
     ofs << icell->k_chem_C << " ";
-    
-    
+
+
     // YOU SHOULD KEEP THIS AT THE LAST, because it's not constant
     for( auto i: icell->neighbours){
       int thisj=icell->getVJ()[ i.first ];

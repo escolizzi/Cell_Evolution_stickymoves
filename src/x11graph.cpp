@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright 1995-2006 Roeland Merks, Maarten Boerlijst (probably)
 
@@ -45,6 +45,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include "x11graph.h"
 #include "parameter.h"
 #include "output.h"
+#include "misc.h"
 #include <iostream>
 #include <string>
 
@@ -54,7 +55,7 @@ extern int errno;
 using namespace std;
 
 X11Graphics::X11Graphics(int xsize, int ysize, const char *movie_file) : Graphics() {
-  
+
   // initialisation of data members
   count=0;
   title=strdup("Cellular Potts");
@@ -66,21 +67,21 @@ X11Graphics::X11Graphics(int xsize, int ysize, const char *movie_file) : Graphic
   yfield=ysize;
 
   pseudoCol8=1;
-  
+
   old_window_name=0;
 
   // X11Graphics Initialisation
   // Open window, etc.
   if (par.graphics)
     InitGraphics(xfield, yfield);
-  
+
   if (par.store) {
     if (movie_file) {
       movie_file_name=strdup(movie_file);
       store=true;
       InitStore();
     }
-    else       
+    else
       store=false;
     // NB dropped default movie name "showbeast.mov"
     // No movie name given, no movie written.
@@ -99,14 +100,14 @@ X11Graphics::~X11Graphics(void) {
   free(title);
 
   if (store) {
-    free(film); 
+    free(film);
   }
   if (store) {
     if (compressed_movie_p)
       pclose(movie_fp);
     else
       fclose(movie_fp);
-  }  
+  }
 }
 
 void X11Graphics::BeginScene(void) {
@@ -114,17 +115,17 @@ void X11Graphics::BeginScene(void) {
 }
 
 void X11Graphics::EndScene(void)
-{ 
+{
   if (par.graphics) {
 #ifdef USE_XSHM
     if (shm) {// shared memory extension available?
        XShmPutImage(display,window,windowGC,image,0,0,0,0,image->width,image->height,0);
     }
     else
-#endif 
+#endif
       XPutImage(display,window,windowGC,image,0,0,0,0,image->width,image->height);
     }
-  
+
   static int thetime=0;
   if (store && !(thetime++ % par.storage_stride) )
     StoreCompPict();
@@ -134,34 +135,34 @@ void X11Graphics::EndScene(void)
 #define NOPVM
 #ifndef NOPVM
 void X11Graphics::SendScene() {
-  
+
   SendPicture(image_data,xfield,yfield);
 }
 
 void X11Graphics::ReceiveScene(int machineindex, int beastindex, int ndish) {
-  
+
   int sizex,sizey;
   char *picture;
   int xpos,ypos;
   int i,j;
   int xdim;
-  
+
  /*  ComputeDimensions(&xdim,&ydim); */
   xdim=(int)(sqrt((float)(ndish)-1.))+1;
- 
+
   /* Receive the picture */
   picture=ReceivePicture(&sizex,&sizey,machineindex);
-  
+
   /* position of this scene in the big picture */
   xpos=(beastindex%xdim)*sizex;
   ypos=(beastindex/xdim)*sizey;
 
   printf("xp: %d, yp: %d\n",xpos,ypos);
-    
+
   /* Copy the picture in the display window */
   for (i=0;i<sizex;i++)
     for (j=0;j<sizey;j++) {
-      if (pseudoCol8) 
+      if (pseudoCol8)
 	image_data[xpos+i+xdim*sizey*(ypos+j)]=picture[j+ i*sizex ];
       else
 	XPutPixel(image,xpos+i,ypos+j,colors[picture[j+i*sizex]].pixel);
@@ -174,56 +175,56 @@ void X11Graphics::ReceiveScene(int machineindex, int beastindex, int ndish) {
 
 
 void X11Graphics::ReceiveScene1(int machineindex, int beastindex, int ndish) {
-  
+
   int sizex,sizey;
   char *picture;
   int xpos,ypos;
   int i,j;
-  
- 
- 
+
+
+
   /* Receive the picture */
   picture=ReceivePicture(&sizex,&sizey,machineindex);
-  
+
   /* position of this scene in the big picture */
   xpos=0;
   ypos=0;
-    
+
   /* Copy the picture in the display window */
   for (i=0;i<sizex;i++)
     for (j=0;j<sizey;j++)
       image_data[xpos+i+sizey*(ypos+j)]=picture[j+ i*sizex ];
-  
+
   /* And redraw the window .... */
   DrawScene();
-  
+
 }
 #endif
 
-void X11Graphics::GenerateColorTable(XColor *cols)
+void X11Graphics::ColorTable(XColor *cols)
 {
-  // to make something color blind friendy, 
+  // to make something color blind friendy,
   // all colors have to be sufficiently different even when you exclude ag
-  
+
   //DOES THIS DO IT ??? YEP - more or less !!!
   //            w,   blk, r,  blu,   y    c    g    m    br
   int ar[10] = {254, 0, 200, 0, 254,   50,  90,  245, 100, 180};
   int ag[10] = {254, 0, 30,  51, 210,  206, 254, 10,  50,  180};
   int ab[10] = {254, 0, 30,  102, 50, 250, 180, 200, 0,   180};
   int i;
-  
-  
-  //color 0 is white (background), 1 is black, the other until 10 are simple colors 
+
+
+  //color 0 is white (background), 1 is black, the other until 10 are simple colors
   // color blind friendly and pretty!
-  // red, yellow, blue, cyan, green, magenta, brown <- :$ 
+  // red, yellow, blue, cyan, green, magenta, brown <- :$
   for(i=0;i<10;i++){
     cols[i].red = ar[i] ;
     cols[i].green=ag[i];
     cols[i].blue=ab[i];
   }
-  
+
   //cout<<"Hello0"<<endl;
-  
+
   // these 50 colors are for food, when no predators are on top
   // start from yellow, go to red ("hot"-like color map, moving on the surface of the cube)
   // steps are 250/50 =5 long
@@ -232,14 +233,14 @@ void X11Graphics::GenerateColorTable(XColor *cols)
   for(i=10;i<60;i++){
     //make colors
     g-=step;
-    
+
     cols[i].red =  r ;
     cols[i].green= g;
     cols[i].blue=  b;
   }
-  
+
   //cout<<"Hello1"<<endl;
-  
+
   //this is for the shading, when predators are below that
   // maybe can be combined with map above?
   r=154;g=154;b=102;
@@ -250,7 +251,14 @@ void X11Graphics::GenerateColorTable(XColor *cols)
     cols[i].green= g;
     cols[i].blue=  b;
   }
-  
+
+  for(i=111;i<111+511;i++){
+    //make colors
+    cols[i].red =  radial_colour[i-111][0];
+    cols[i].green= radial_colour[i-111][1];
+    cols[i].blue=  radial_colour[i-111][2];
+  }
+
   //for(i=0;i<256;i++){
   //  cerr<<i<<" "<<cols[i].red<<" "<<cols[i].green<<" "<<cols[i].blue<<endl;
   //}
@@ -272,7 +280,7 @@ void X11Graphics::ReadColorTable(XColor *cols, const char *colortable_filename)
      snprintf(message,199,"X11Graphics::ReadColorTable: Colormap '%s' not found.",name);
      //cerr << message << endl;
      throw(message);
-     
+
    }
    while (fscanf(fpc,"%d",&i) != EOF) {
          fscanf(fpc,"%d %d %d\n",&p,&q,&r);
@@ -294,7 +302,7 @@ void X11Graphics::MakeColorMap()
 
   //colormap_size = DisplayCells(display, screen);
   colormap_size=256;
-  
+
   if ((colors = (XColor *)malloc(colormap_size*sizeof(XColor))) == NULL) {
     fprintf(stderr, "No memory for setting up colormap\n");
     exit(1);
@@ -304,15 +312,15 @@ void X11Graphics::MakeColorMap()
     colors[i].flags = DoRed | DoGreen | DoBlue;
   }
   XQueryColors(display,DefaultColormap(display,screen),colors,colormap_size);
-  
+
   cerr<<endl<<endl<<endl<<"hello from colormap...ever called?"<<endl;
   cerr<<"MakeColorMap function makes colors"<<endl;
-  
+
   if(par.readcolortable)
     ReadColorTable(colors,par.colortable_filename);
   else
     GenerateColorTable(colors);
-  
+
   if (pseudoCol8) {
     new_colormap = XCreateColormap(display,
 				   RootWindow(display,screen),
@@ -325,23 +333,23 @@ void X11Graphics::MakeColorMap()
     for (i=0; i <= 255 && i < colormap_size; i++)
       XAllocColor(display,new_colormap,&colors[i]);
   }
-}  
+}
 
- 
+
 int X11Graphics::GetXYCoo(int *X, int *Y)
 {
 #define KEYBUFSIZE 10
   char keybuffer[KEYBUFSIZE];
   int bufsize=KEYBUFSIZE;
   static unsigned int oldwidth=0,oldheight=0;
-  
+
   KeySym key;
   XComposeStatus cs;
-  
-  
+
+
 
   if (par.graphics) {
-    
+
     /* initialise oldwidth and oldheight */
     if (oldwidth==0 && oldheight==0) {
       int di;
@@ -349,7 +357,7 @@ int X11Graphics::GetXYCoo(int *X, int *Y)
       Window dw;
       XGetGeometry(display,window,&dw,&di,&di,&oldwidth,&oldheight,&dui,&dui);
     }
-    
+
     while (XEventsQueued(display,QueuedAfterFlush) > 0) {
       XNextEvent(display, &event);
       if (event.xany.window == window)
@@ -382,7 +390,7 @@ int X11Graphics::GetXYCoo(int *X, int *Y)
 	  }
 	  break;
 	case ConfigureNotify:
-	  if ((unsigned int)event.xconfigure.width != oldwidth || 
+	  if ((unsigned int)event.xconfigure.width != oldwidth ||
 	      (unsigned int)event.xconfigure.height != oldheight) {
 	    *X=event.xconfigure.width;
 	    *Y=event.xconfigure.height;
@@ -405,25 +413,25 @@ int X11Graphics::GetXYCoo(int *X, int *Y)
 
 
 int X11Graphics::XExposep() {
-  
-  if (par.graphics) 
-    
-    if (event.xany.window == window) 
-      
+
+  if (par.graphics)
+
+    if (event.xany.window == window)
+
       switch (event.type) {
       case Expose:
 	if (event.xexpose.count == 0)
 	  return TRUE;
-	
+
 	/* else: go on and return FALSE */
-	
+
       default:
 	return FALSE;
 	break;
       }
-    
+
   return FALSE;
-  
+
 }
 
 
@@ -439,23 +447,23 @@ int X11Graphics::GetHeight(Window w) {
 
 
 char *X11Graphics::ChangeTitle (const char *message) {
-  
+
   /* Change name of window: */
   if (!XFetchName(display, window, &old_window_name)) {
-    
+
     /* Window's name fetch unsuccessful, write message to terminal. */
     fprintf(stdout,"%s\n",message);
-    
+
   } else {
-    
+
     /* Write message in window title */
     XStoreName(display,window,message);
-        
+
   }
-  
+
   XFlush(display);
   return old_window_name;
-  
+
 }
 
 void X11Graphics::RecoverTitle(void) {
@@ -465,19 +473,19 @@ void X11Graphics::RecoverTitle(void) {
     free(old_window_name);
     old_window_name=0;
   }
-  
+
 }
 
 
 void X11Graphics::InitGraphics(int xsize, int ysize)
-{ 
+{
   char **argv=0;
   int i;
   hsize=xfield=xsize;
   vsize=yfield=ysize;
-  
 
-  if (par.graphics) { 
+
+  if (par.graphics) {
     if (!display)
       display = XOpenDisplay(server);
     if (!display) {
@@ -489,7 +497,7 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
     visual_info.screen = screen;
     if (!visual_list)
       visual_list = XGetVisualInfo(display,VisualScreenMask,&visual_info,&i);
-    
+
     if (pseudoCol8 && XMatchVisualInfo(display,screen,8,PseudoColor,&visual_info)) {
       visual = visual_info.visual;
       depth = visual_info.depth;
@@ -520,13 +528,13 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
     white = WhitePixel(display, screen);
     background = white;
     foreground = black;
-  
+
     setattributes.colormap = new_colormap;
     setattributes.background_pixel = WhitePixel(display,screen);
     background=0;
- 
+
     setattributes.border_pixel = BlackPixel(display,screen);
-    
+
     window = XCreateWindow(display,
 			   DefaultRootWindow(display), hint.x, hint.y,
 			   hint.width, hint.height, 5 , depth,
@@ -540,19 +548,19 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
     if (DoesBackingStore(DefaultScreenOfDisplay(display))) {
       setattributes.backing_store = WhenMapped;
       XChangeWindowAttributes(display,window,CWBackingStore,&setattributes);
-    
+
     }
-    
+
     windowGC = XCreateGC(display, window, 0, 0);
     XSetBackground(display, windowGC, background);
     XSetForeground(display, windowGC, foreground);
     XSetLineAttributes(display,windowGC,1,LineSolid,CapRound,JoinRound);
 
     XSelectInput(display, window, ButtonPressMask | ExposureMask | KeyPressMask | StructureNotifyMask);
- 
+
     XMapRaised(display, window);
     XNextEvent(display, &event);
-  }  
+  }
 
   // Try to attach to shared memory
 
@@ -581,36 +589,36 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
   //  movie_data=image_data;
   //} else {
   //}
-  if (image_data == NULL) printf("Error in memory allocation\n"); 
+  if (image_data == NULL) printf("Error in memory allocation\n");
 
 #ifdef USE_XSHM
-  if (graphics && shm) { 
-    
+  if (graphics && shm) {
+
     image = XShmCreateImage(display, visual, depth, ZPixmap, NULL, &shminfo,  xfield, yfield);
     // Allocate shared memory
     shminfo.shmid = shmget (IPC_PRIVATE,
-			    image->bytes_per_line *image->height, 
+			    image->bytes_per_line *image->height,
 			    IPC_CREAT|0777);
-    
+
     // Attach the shared memory segment to the process
     shminfo.shmaddr = image->data = shmat (shminfo.shmid, 0, 0);
-    
-    
+
+
     // Reading and writing to the shm will be made possible
     shminfo.readOnly = False;
-    
+
     if (!XShmAttach (display, &shminfo)) {
       printf("Warning: shared memory extension is available, but allocation of \n shared memory segment failed... Reverting to private memory. \n This is not problematic, but it will be a bit slower.\n");
       shm=0;
-      
+
     } else {
 
       printf("Successfully prepared for using shared memory.\n");
     }
-    
-    
+
+
   } else { // Shared memory is unavailable
-#endif 
+#endif
 
     if (pseudoCol8) {
       image_data = (char *)malloc(xfield*yfield*sizeof(char));
@@ -620,10 +628,10 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
     }
     if (image_data == NULL) {
 
-      printf("Error in memory allocation\n"); 
+      printf("Error in memory allocation\n");
       exit (1);
     }
-    
+
     // Create XImage structure
     if (par.graphics) {
       image = XCreateImage(display, visual, depth, ZPixmap,
@@ -635,7 +643,7 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
 	}
       }
     }
-    
+
 
 #ifdef USE_XSHM
   }
@@ -662,11 +670,11 @@ void X11Graphics::CloseGraphics()
   }
 
   if (par.graphics) {
-    XFreeGC(display,windowGC); 
-    XDestroyWindow(display,window); 
-    XCloseDisplay(display);   
+    XFreeGC(display,windowGC);
+    XDestroyWindow(display,window);
+    XCloseDisplay(display);
   }
-} 
+}
 
 
 void X11Graphics::Point( int color, int x, int y)
@@ -674,7 +682,7 @@ void X11Graphics::Point( int color, int x, int y)
   // The following is not necessary for 8-bits graphics
   // therefore I commented it out.
   // if (pseudoCol8) {
-    
+
   //  (image_data)[i+j*xfield] = (char)color;
   //} else {
   if (color<0) color=0;
@@ -695,13 +703,13 @@ void X11Graphics::Point( int color, int x, int y)
   }*/
 
 void X11Graphics::Line(  int x0, int y0,int x1,int y1,int color ) {
-  
+
   // Bresenham's line algorithm
   // See http://www.fact-index.com/b/br/bresenham_s_line_algorithm_c_code.html
 
   // Provided to supply a line drawing algorithm that allows
   // for writing the lines to a picture or a movie
-  
+
   // (and I need Bresenham for the Lacunae measurement algorithm, and
   // want to see whether it works correctly :-) and it does :-)!
   int i;
@@ -710,33 +718,33 @@ void X11Graphics::Line(  int x0, int y0,int x1,int y1,int color ) {
   int dx, dy;  /* delta (difference in X and Y between points) */
   int e;
 
-  /* * inline swap. On some architectures, the XOR trick may be faster */ 
-  int tmpswap; 
+  /* * inline swap. On some architectures, the XOR trick may be faster */
+  int tmpswap;
 #define SWAP(a,b) tmpswap = a; a = b; b = tmpswap;
 
-  /* * optimize for vertical and horizontal lines here */ 
-  dx = abs(x1 - x0); 
-  sx = ((x1 - x0) > 0) ? 1 : -1; 
-  dy = abs(y1 - y0); 
-  sy = ((y1 - y0) > 0) ? 1 : -1; 
-  if (dy > dx) { 
-    steep = 0; 
-    SWAP(x0, y0); 
-    SWAP(dx, dy); 
-    SWAP(sx, sy); 
-  } 
-  e = (dy << 1) - dx; 
-  for (i = 0; i < dx; i++) { 
-    if (steep) { 
-      Point(color,x0,y0); 
-    } else { 
-      Point(color,y0,x0); 
-    } 
-    while (e >= 0) { 
-      y0 += sy; e -= (dx << 1); 
-    } 
-    x0 += sx; e += (dy << 1); 
-  } 
+  /* * optimize for vertical and horizontal lines here */
+  dx = abs(x1 - x0);
+  sx = ((x1 - x0) > 0) ? 1 : -1;
+  dy = abs(y1 - y0);
+  sy = ((y1 - y0) > 0) ? 1 : -1;
+  if (dy > dx) {
+    steep = 0;
+    SWAP(x0, y0);
+    SWAP(dx, dy);
+    SWAP(sx, sy);
+  }
+  e = (dy << 1) - dx;
+  for (i = 0; i < dx; i++) {
+    if (steep) {
+      Point(color,x0,y0);
+    } else {
+      Point(color,y0,x0);
+    }
+    while (e >= 0) {
+      y0 += sy; e -= (dx << 1);
+    }
+    x0 += sx; e += (dy << 1);
+  }
 }
 
 // Plot a field of values in this window,
@@ -745,7 +753,7 @@ void X11Graphics::Field (const int **r, int mag) {
   for (int x=0;x<xfield;x++) {
     for (int y=0;y<yfield;y++) {
       Point(r[x/mag][y/mag],x,y);
-      
+
     }
   }
   if (par.graphics)
@@ -759,13 +767,13 @@ void X11Graphics::InitStore(void)
   //  short col[256*3];
   int pars[3];
   //FILE *fpc;
-  //  if (!par.graphics) 
-  //  InitGraphics(xfield, yfield); 
+  //  if (!par.graphics)
+  //  InitGraphics(xfield, yfield);
   // NB: movie data is always allocated in constructor, so we can write images
   film = (unsigned char *)malloc(2*xfield*yfield*sizeof(unsigned char));
 
   if (FileExistsP(movie_file_name)) {
-    std::cerr << "Refusing to overwrite movies. \n Please remove or rename file " 
+    std::cerr << "Refusing to overwrite movies. \n Please remove or rename file "
 	 << movie_file_name << " and try again.\n";
     exit(1);
   }
@@ -781,10 +789,10 @@ void X11Graphics::InitStore(void)
     compressed_movie_p=true;
   } else {
     fprintf(stderr,"Writing uncompressed movie\n");
-    movie_fp=fopen(movie_file_name,"w"); 
+    movie_fp=fopen(movie_file_name,"w");
     compressed_movie_p=false;
   }
-  
+
   if (movie_fp==NULL) {
     char *error_message=(char *)malloc(200*sizeof(char));
     snprintf(error_message,199,"In X11Graphics::InitStore, %s\n",
@@ -793,11 +801,11 @@ void X11Graphics::InitStore(void)
     free(error_message);
     exit(1);
   }
-  
+
   pars[0] = (int)yfield;
   pars[1] = (int)xfield;
-  printf("%d %d\n",yfield,xfield); 
-  fwrite(pars,sizeof(int),2,movie_fp); 
+  printf("%d %d\n",yfield,xfield);
+  fwrite(pars,sizeof(int),2,movie_fp);
 
 }
 
@@ -825,25 +833,25 @@ int X11Graphics::DetectControl()
     }
   }
   return (mouse);
- 
+
 }
 
 void X11Graphics::StoreCompPict(void)
 {
   int dist;
   long k,t=0,params[5];
-  
+
   if ( store ) {
-    
+
     dist=1;t=0;
-    
+
     for (k=1;k<xfield*yfield;k++) {
       if (dist == 255 || (movie_data)[k] != (movie_data)[k-1]) {
 	film[t++] = (unsigned char)dist;
 	film[t++] = (movie_data)[k-1];
 	dist =1;
       }
-      else 
+      else
 	++dist;
     }
     film[t++] = (unsigned char)dist;
@@ -856,19 +864,19 @@ void X11Graphics::StoreCompPict(void)
 
     // Appending to a file using open is very unsafe
     // over NFS. Indeed the files are corrupted.
-    // It is safer to open the file only once and to keep the 
+    // It is safer to open the file only once and to keep the
     // file descriptor in a static int.
-    
+
     // RM. 14/05/03
 
     // AND, from now on we will be using fread and fwrite. Much
-    // safer. (Less efficient?) 
-    
+    // safer. (Less efficient?)
+
     // RM. 14/05/03
 
     //lseek(fps,0L,2);
-    
-    fwrite(params,sizeof(long),5,movie_fp); 
+
+    fwrite(params,sizeof(long),5,movie_fp);
     fwrite(film,sizeof(unsigned char),t,movie_fp);
     fflush(movie_fp);
     //close(fps);
@@ -880,10 +888,10 @@ void X11Graphics::StoreCompPict(void)
 // testbed
 /*
   int main(int argc, char *argv[]) {
-  
+
   int s=50;
   X11Graphics *g=new X11Graphics[100](s,s);
-  
+
   sleep(2);
   for (int c=0; c<100;c++) {
     for (int i=0;i<s*s;i++) {
@@ -892,7 +900,7 @@ void X11Graphics::StoreCompPict(void)
     }
     g[c].EndScene();
   }
-  
+
   while(1);
 
   delete[] g;
@@ -906,10 +914,10 @@ int X11Graphics::LineClearP(char direction,int pos, int cropcol) {
   int x,y;
 
   if (direction=='x') {
-    for (y=1;y<yfield-1;y++) 
-      if (XGetPixel(image, pos, y)!=colors[cropcol].pixel) 
+    for (y=1;y<yfield-1;y++)
+      if (XGetPixel(image, pos, y)!=colors[cropcol].pixel)
 	return false;
-  } else 
+  } else
     if (direction=='y') {
       for (x=1;x<xfield-1;x++)
 	if (XGetPixel(image, x, pos)!=colors[cropcol].pixel)
@@ -920,38 +928,38 @@ int X11Graphics::LineClearP(char direction,int pos, int cropcol) {
       throw (error);
       exit(1);
     }
-  
+
   return true;
 
 }
 
 LineType X11Graphics::CropSize(void) {
 
-  /* Returns the upper left and the lower right coordinates 
+  /* Returns the upper left and the lower right coordinates
      of the beast */
-  
+
   LineType CropSize;
   int x,y;
-  
-  for (x=1;x<xfield-1;x++) 
+
+  for (x=1;x<xfield-1;x++)
     if (!LineClearP('x',x)) {
       CropSize.x1=x;
       break;
     }
-  
-  for (y=1;y<yfield-1;y++) 
+
+  for (y=1;y<yfield-1;y++)
     if (!LineClearP('y',y)) {
       CropSize.y1=y;
       break;
     }
 
-  for (x=xfield-1;x>0;x--) 
+  for (x=xfield-1;x>0;x--)
     if (!LineClearP('x',x)) {
       CropSize.x2=x;
       break;
     }
-  
-  for (y=yfield-1;y>0;y--) 
+
+  for (y=yfield-1;y>0;y--)
     if (!LineClearP('y',y)) {
       CropSize.y2=y;
       break;
@@ -962,29 +970,29 @@ LineType X11Graphics::CropSize(void) {
 }
 
 Coordinate X11Graphics::ReplaceBeast(Coordinate old_size,Coordinate new_size) {
-  
+
   Coordinate offset;
   int x,y,button;
   Cursor hand;
-  
+
   offset.x=0;
   offset.y=0;
-  
+
   /* Change name of window: */
   ChangeTitle("Replace beast, please.");
 
   XSetBackground(display, windowGC, WhitePixel(display, screen));
   XSetForeground(display, windowGC, BlackPixel(display, screen));
   XClearWindow(display,window);
-  XDrawRectangle(display,window,windowGC,offset.x,offset.y,old_size.x,old_size.y);  
+  XDrawRectangle(display,window,windowGC,offset.x,offset.y,old_size.x,old_size.y);
   XFlush(display);
-  
+
   XSelectInput(display, window, ButtonPressMask | PointerMotionMask);
-  
+
   hand=XCreateFontCursor(display, XC_hand1);
-  
+
   XGrabPointer(display,window,TRUE,ButtonPressMask | PointerMotionMask, GrabModeAsync,GrabModeAsync,window, hand,CurrentTime);
-      
+
   while ((button=GetXYCoo(&x,&y))!=1) {
     if (button==MOTION) {
 
@@ -992,9 +1000,9 @@ Coordinate X11Graphics::ReplaceBeast(Coordinate old_size,Coordinate new_size) {
 	offset.x=x;
       if (y+old_size.y < new_size.y)
 	offset.y=y;
-      
+
       XClearWindow(display, window);
-      XDrawRectangle(display,window,windowGC,offset.x,offset.y,old_size.x,old_size.y); 
+      XDrawRectangle(display,window,windowGC,offset.x,offset.y,old_size.x,old_size.y);
       XFlush(display);
 
 
@@ -1005,15 +1013,15 @@ Coordinate X11Graphics::ReplaceBeast(Coordinate old_size,Coordinate new_size) {
   XUngrabPointer(display,CurrentTime);
   RecoverTitle();
 
-  XSelectInput(display, window, ButtonPressMask | KeyPressMask | 
+  XSelectInput(display, window, ButtonPressMask | KeyPressMask |
 		 ExposureMask | StructureNotifyMask);
-  
+
   return offset;
-} 
-  
+}
+
 
 void X11Graphics::Resize(void) {
-  
+
 #ifdef USE_XSHM
   extern int shm;
   extern XShmSegmentInfo shminfo;
@@ -1024,9 +1032,9 @@ void X11Graphics::Resize(void) {
   int di;
   unsigned int dui;
   Window dw;
-  
 
-  // Get rid of pending events 
+
+  // Get rid of pending events
   // many resize events are generated during a resize
   sleep(1);
 
@@ -1046,45 +1054,45 @@ void X11Graphics::Resize(void) {
   int old_yfield=yfield;
   xfield=newwidth;
   yfield=newheight;
-      
+
   printf("New xfield: %d, yfield: %d\n",xfield,yfield);
-  
+
 #ifdef USE_XSHM
   if (!shm) {
 #endif
-  
-    
+
+
 #ifdef USE_XSHM
   } else {
-    
+
     // Shared memory was used
     // Destroy memory segment and XImage
-    
+
     XShmDetach(display, &shminfo);
     XDestroyImage(image);
     shmdt(shminfo.shmaddr);
     shmctl(shminfo.shmid, IPC_RMID, 0);
-    
+
     // Generate new segment and attach to it
     shminfo.shmid = shmget (IPC_PRIVATE,
 			    image->bytes_per_line * image->height, IPC_CREAT|0777);
-    
-    
+
+
   }
 #endif
-  
+
   if (
 #ifdef USE_XSHM
-      shm || 
-#endif 
+      shm ||
+#endif
       image_data != NULL) {
-    
-    // New Image 
+
+    // New Image
 #ifdef USE_XSHM
     if (!shm) {
 #endif
       char *new_image_data = (char *)malloc(xfield*yfield*sizeof(char)*depth);
-      XImage *new_image = XCreateImage(display, visual, depth, ZPixmap, 
+      XImage *new_image = XCreateImage(display, visual, depth, ZPixmap,
 			   0, new_image_data, xfield, yfield, 8, 0);
       // Clear new image
       for (int x=0;x<xfield;x++) {
@@ -1092,11 +1100,11 @@ void X11Graphics::Resize(void) {
 	  XPutPixel(new_image, x, y, colors[0].pixel);
 	}
       }
-      
+
       // Copy old image into new image
       for (int x=0;x<old_xfield;x++) {
 	for (int y=0;y<old_yfield;y++) {
-	  XPutPixel(new_image, x, y, 
+	  XPutPixel(new_image, x, y,
 		    XGetPixel(image, x, y) );
 	}
       }
@@ -1106,39 +1114,39 @@ void X11Graphics::Resize(void) {
       image=new_image;
       image_data=new_image_data;
       EndScene();
-      
+
 #ifdef USE_XSHM
     } else {
       image_data = (char *)malloc(xfield*yfield*sizeof(char)*depth);
-      
-      image = XShmCreateImage(display, visual, depth, ZPixmap, 
+
+      image = XShmCreateImage(display, visual, depth, ZPixmap,
 			      NULL, &shminfo,  xfield, yfield);
-      
+
       // Allocate shared memory
       shminfo.shmid = shmget (IPC_PRIVATE,
-			      image->bytes_per_line *image->height, 
+			      image->bytes_per_line *image->height,
 			      IPC_CREAT|0777);
-      
+
       // Attach the shared memory segment to the process
       shminfo.shmaddr = image->data = shmat (shminfo.shmid, 0, 0);
-      
-      
+
+
       // Reading and writing to the shm will be made possible
       shminfo.readOnly = False;
-      
+
       if (!XShmAttach (display, &shminfo)) {
 	printf("Warning: shared memory extension is available, but allocation of \n shared memory segment failed... Reverting to private memory. \n This is not problematic, but it will be a bit slower.\n");
 	shm=0;
-	
+
       } else {
-	
+
 	printf("Successfully prepared for using shared memory.\n");
       }
-      
+
     }
 #endif
-    
-    
+
+
   }
   if (movie_data) {
     // reallocate moviedata
@@ -1158,10 +1166,10 @@ void X11Graphics::Write(char *fname, int quality) {
   if (name.find("png")==string::npos) {
     throw("X11Graphics::Write: Sorry, only PNG writing is implemented");
   }
-  
+
   //cerr << "Writing a PNG picture\n";
 
-  
+
   int i,j;
 
   FILE *fp;
@@ -1171,8 +1179,8 @@ void X11Graphics::Write(char *fname, int quality) {
     throw("X11Graphics::Write: File error\n");
   }
   png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-						(png_voidp)NULL, 
-						(png_error_ptr)NULL, 
+						(png_voidp)NULL,
+						(png_error_ptr)NULL,
 						(png_error_ptr)NULL);
   png_infop info_ptr = png_create_info_struct (png_ptr);
   png_init_io(png_ptr, fp);
@@ -1182,7 +1190,7 @@ void X11Graphics::Write(char *fname, int quality) {
   png_write_info(png_ptr,info_ptr);
 
   // data to hold true colour image
-  unsigned char *png_image = 
+  unsigned char *png_image =
     (unsigned char *)malloc(3*xfield*yfield*sizeof(unsigned char));
 
   int colormap_size=256;
@@ -1197,9 +1205,9 @@ void X11Graphics::Write(char *fname, int quality) {
       png_colors[i].pixel = i;
       png_colors[i].flags = DoRed | DoGreen | DoBlue;
     }
-    
+
     cerr<<"First call - inside Write(), making colors"<<endl;
-    
+
     if(par.readcolortable){
       ReadColorTable(png_colors,par.colortable_filename);
       cerr<<"read color table"<<endl;
@@ -1207,31 +1215,31 @@ void X11Graphics::Write(char *fname, int quality) {
       GenerateColorTable(png_colors);
       cerr<<"generate color table"<<endl;
     }
-    
+
   }
-  
+
 //  for (j=0; j < yfield; j++) {
 //    for (i=0; i < xfield; i++) {
   for (i=0; i < xfield; i++) {
-    for (j=0; j < yfield; j++) {  
+    for (j=0; j < yfield; j++) {
   	  XColor col;
   	  col=png_colors[movie_data[i+j*xfield]];
-  	
-  	  //png_image[j*3*xfield + i*3] = col.red/256; //this is the old command... but why? 
-      
+
+  	  //png_image[j*3*xfield + i*3] = col.red/256; //this is the old command... but why?
+
       // png_image[j*3*xfield + i*3] = col.red;
   	  // png_image[j*3*xfield + i*3 + 1] = col.green;
   	  // png_image[j*3*xfield + i*3 + 2] = col.blue;
-      
+
       png_image[i*3*yfield + j*3] = col.red;
   	  png_image[i*3*yfield + j*3 + 1] = col.green;
   	  png_image[i*3*yfield + j*3 + 2] = col.blue;
-      
+
     }
-    
+
     // png_bytep ptr = png_image + j*3*xfield;
     png_bytep ptr = png_image + i*3*yfield;
-    
+
     png_write_rows(png_ptr, &ptr, 1);
     }
     png_write_end(png_ptr, info_ptr);
@@ -1240,6 +1248,3 @@ void X11Graphics::Write(char *fname, int quality) {
     fflush(fp);
     fclose(fp);
 }
-
-
-

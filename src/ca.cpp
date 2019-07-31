@@ -232,13 +232,13 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
       DH += (sxyp==0?0:par.border_energy)-(sxy==0?0:par.border_energy);
     } else {
       //DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) - (*cell)[sxy].EnergyDifference((*cell)[neighsite]);
-      // notice that sxyp is medium, so there is no need of calling the function. 
+      // notice that sxyp is medium, so there is no need of calling the function.
       DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) - Adhesion_Energy(sxy , neighsite);
     }
   }
-   
 
-  
+
+
   // lambda is determined by chemical 0
 
   //cerr << "[" << lambda << "]";
@@ -346,7 +346,7 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 	//ay=y-(*cell)[sxy].getYpos();
 	//DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
    }
-  
+
   return DH;
 }
 
@@ -361,10 +361,10 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
   /* Compute energydifference *IF* the copying were to occur */
   sxy = sigma[x][y];
   sxyp = sigma[xp][yp];
-  
+
   // cerr<< "x ,y : " << x<<" "<<y<<endl;
   // cerr<< "xp,yp: " << xp<<" "<<yp<<endl;
-  // 
+  //
   /* DH due to cell adhesion */
   for(i=1;i<=n_nb;i++) {
     int xp2,yp2;
@@ -391,27 +391,27 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
       DH += (sxyp==0?0:par.border_energy)-(sxy==0?0:par.border_energy);
     } else {
       //cerr<<"Hello DH 0.1"<<endl;
-      
+
       // MAKE A FUNCTION that takes all values: J's and regulation and sigmas
       //get to the point where you write:
-      //DH += Adhesion_Energy( s1 , s2, J value) 
+      //DH += Adhesion_Energy( s1 , s2, J value)
       //    - Adhesion_Energy( same but for the other pair)
-      //DH += Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxyp].GetExtProtExpress_Fraction() , sxyp , neighsite, (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) ) 
-      //    - Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxy].GetExtProtExpress_Fraction() , sxy , neighsite, (*cell)[sxy].EnergyDifference((*cell)[neighsite]) ) 
+      //DH += Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxyp].GetExtProtExpress_Fraction() , sxyp , neighsite, (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) )
+      //    - Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxy].GetExtProtExpress_Fraction() , sxy , neighsite, (*cell)[sxy].EnergyDifference((*cell)[neighsite]) )
       // cerr<< "sigmas sxyp, neigh: "<<sxyp<<" "<<neighsite<<": "<< Adhesion_Energy(sxyp , neighsite)<<endl;
       // cerr<< "sigmas sxy, neigh: "<<sxy<<" "<<neighsite<<": "<< Adhesion_Energy(sxy , neighsite)<<endl;
-      // cerr<< "DH += " << (int) (Adhesion_Energy(sxyp , neighsite) - Adhesion_Energy(sxy , neighsite))<<endl ; 
-      DH += Adhesion_Energy(sxyp , neighsite) 
-          - Adhesion_Energy(sxy , neighsite); 
+      // cerr<< "DH += " << (int) (Adhesion_Energy(sxyp , neighsite) - Adhesion_Energy(sxy , neighsite))<<endl ;
+      DH += Adhesion_Energy(sxyp , neighsite)
+          - Adhesion_Energy(sxy , neighsite);
       // NOTICE THAT DH is an integer... dammit! This can create problems when multiplying with a factor
-      //DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) 
+      //DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite])
       //      - (*cell)[sxy].EnergyDifference((*cell)[neighsite]);
-          
+
     }
   }
-  
+
   // cerr<<"End of Adh, DH = "<< DH<<endl;
-  
+
   // lambda is determined by chemical 0
 
   //cerr << "[" << lambda << "]";
@@ -563,13 +563,13 @@ double CellularPotts::Adhesion_Energy(int sigma1, int sigma2)
 {
   double Jval = (*cell)[sigma1].EnergyDifference((*cell)[sigma2]);
   if(sigma1==sigma2) return 0;
-  if(! (sigma1 && sigma2) ) 
+  if(! (sigma1 && sigma2) )
     return Jval;
-  
+
   double fr1 = (*cell)[sigma1].GetExtProtExpress_Fraction();
   double fr2 = (*cell)[sigma2].GetExtProtExpress_Fraction();
   double minfr = (fr1<fr2)?fr1:fr2;
-  // minfr is in [0,1], 
+  // minfr is in [0,1],
   // I want to map it so that if minfr=0, I return 43, and if minfr=1 I return Jval
   // very simple function would be linear:
   // a line between (0,43) and (1,Jval) looks like:
@@ -1028,6 +1028,33 @@ void CellularPotts::PlotSigma(Graphics *g, int mag) {
   }
 
 }
+
+//function to plot the direction of the target vector as a cell colour
+void CellularPotts::CellAngleColour(Graphics *g=0)
+{
+
+  for ( i = 0; i < sizex; i++ )
+    for ( j = 0; j < sizey; j++ ) {
+      int colour;
+
+      if(i==0 || i== sizex-1 || j==0 || j == sizey){
+        colour=0;
+        g->Point( colour, 2*i, 2*j);
+        g->Point( colour, 2*i+1, 2*j);
+        g->Point( colour, 2*i, 2*j+1);
+        g->Point( colour, 2*i+1, 2*j+1);
+        continue;
+      }
+
+      if (sigma[i][j]<=0) {
+        colour=0;
+      }else{
+        colour = (*cell)[sigma[i][j]].Colour()+111;
+        //colour = sigma[i][j];
+      }
+
+}
+
 
 int **CellularPotts::SearchNandPlot(Graphics *g, bool get_neighbours)
 {
