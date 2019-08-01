@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 400
-sizey = 400
+sizex = 500
+sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -35,12 +35,12 @@ persduration = 50
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
-#lookup table for J val with medium: 
+#lookup table for J val with medium:
 # e.g if I get 10o4_3_2_1 -> J(tau,medium) = 10 + sum(4*key[0],3*key[1],2*key[2],1*key[3])
 Jmed_rule_input = 10o5_4_3_1_1_1
 
@@ -132,14 +132,14 @@ divisions = 3
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
 # chancemediumcopied is the chance that instead of copying a pixel with another, cells copy medium from outer space
-# was 0.0001 
+# was 0.0001
 chancemediumcopied = 0.0001
 #chancemediumcopied = 0.0
 subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 5
+storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2
@@ -150,6 +150,4 @@ backupdir = backup
 
 #if readcolortable is true, it reads the color table from "colortable_filename", otherwise it generates a pretty one internally
 readcolortable = true
-colortable_filename = ../data/circular4.ctb
-
-
+colortable_filename = ../data/circular4.ctb #derived from circular colormap "twilight" on github

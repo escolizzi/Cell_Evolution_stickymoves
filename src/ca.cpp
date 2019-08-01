@@ -2110,6 +2110,7 @@ vector<int> CellularPotts::DivideCells2(vector<bool> which_cells)
   //but further down, it will just divide all cells if which_cells is empty...
   // the comment above really is not true
   if ( !(which_cells.size()==0 || which_cells.size() >= cell->size()) ) {
+    cerr<<"which_cells.size()="<<which_cells.size()<<endl;
     throw "In CellularPotts::DivideCells, Too few elements in vector<int> which_cells.";
   }
   // division
