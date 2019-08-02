@@ -106,6 +106,10 @@ public:
     perstime=src.perstime;
     mu=src.mu;
 
+    chemmu=src.chemmu;
+    chemvecx=src.chemvecx;
+    chemvecy=src.chemvecy;
+
     owner=src.owner;
     particles=src.particles;
     eatprob=src.eatprob;
@@ -187,6 +191,10 @@ public:
     persdur=src.persdur;
     perstime=src.perstime;
     mu=src.mu;
+
+    chemmu=src.chemmu;
+    chemvecx=src.chemvecx;
+    chemvecy=src.chemvecy;
 
     sum_x=src.sum_x;
     sum_y=src.sum_y;
@@ -369,12 +377,27 @@ public:
   inline double getYvec(void){
     return tvecy;
   }
+  inline double getChemXvec(void){
+    return chemvecx;
+  }
+  inline double getChemYvec(void){
+    return chemvecy;
+  }
+  inline double getChemMu(void){
+    //cout<<"numu: "<<mu<<endl;
+    return chemmu;
+  }
   inline double getMu(void){
     //cout<<"numu: "<<mu<<endl;
     return mu;
   }
   inline void setMu(double initmu){
     mu=initmu;
+   // cout<<"initmu: "<<mu<<endl;
+  }
+
+  inline void setChemMu(double initweight){
+    chemmu=initweight;
    // cout<<"initmu: "<<mu<<endl;
   }
   inline void setPersDur(int dur){
@@ -394,8 +417,19 @@ public:
     tvecx=cos(pol);  // try swapping these around
     tvecy=sin(pol);
   }
+  inline void startChemVec(){ //to make sure hamiltonian has something to work with.
 
+    double pol=RANDOM()*2.*M_PI; //random angle
 
+    //pol=0.;
+
+    chemvecx=cos(pol);  // try swapping these around
+    chemvecy=sin(pol);
+  }
+  inline void setChemVec(double xx, double yy){ //to make sure hamiltonian has something to work with.
+    chemvecx=xx;  // try swapping these around
+    chemvecy=yy;
+  }
   //update the target vector with the actual direction of motion
   inline void updateTarVec()
   {
@@ -1054,6 +1088,10 @@ protected:
   double prevx;
   double prevy;
 
+  //store direction of chemokine gradient (int plane)
+  double chemvecx;
+  double chemvecy;
+  double chemmu; //this is the max strength of chemotaxis
   //migration parameters
   int persdur; //how long is this cell's persistent walk?
   int perstime; //counter for how long it has walked persistently

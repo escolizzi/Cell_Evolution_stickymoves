@@ -347,6 +347,46 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 	//DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
    }
 
+//Similarly to Joost's method, a bias due to chemokine gradient
+    if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
+        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+        double smeany = (*cell)[sxy].getYpos();
+
+        if(par.periodic_boundaries){
+          if( (x-smeanx)>0 && (x-smeanx)>(smeanx-(x-(par.sizex-2))) ) {
+            smeanx+=(par.sizex-2);
+   //          cerr<<"dhwm hello"<<endl;
+            //cerr<<"passb"<<endl;
+          }
+          else if( (smeanx-x)>0 && (smeanx-x)>(x+(par.sizex-2)-smeanx) ){
+            smeanx-=(par.sizex-2);
+   //            cerr<<"dhwm hello"<<endl;
+            //cerr<<"passb"<<endl;
+         }
+          if( (y-smeany)>0 && (y-smeany)>(smeany-(y-(par.sizey-2))) ){
+            smeany+=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+
+         }
+          else if( (smeany-y)>0 && (smeany-y)>(y+(par.sizey-2)-smeany) ){
+            smeany-=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+          }
+        }
+
+        ax=x-smeanx;
+        ay=y-smeany;
+        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+
+
+      // cout << "Migrating1!"<<endl;
+      //cout<< sxy<<" "<<(*cell)[sxy].getMu()<<" "<<sxyp<<" "<<(*cell)[sxyp].getMu()<<endl;
+
+        // WAS THIS BELOW, BUGGY WITH WRAPPED BOUNDARIES
+        //ax=x-(*cell)[sxy].getXpos();
+   //ay=y-(*cell)[sxy].getYpos();
+   //DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
+    }
   return DH;
 }
 
@@ -468,11 +508,7 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
 			     (*cell)[sxy].TargetLength()) ) ));
   }*/
 
-  /*cell migration */
-  //Joost's method
-  double ax, ay;
-
-// WAS LIKE THIS BEFORE, BUGGY WITH WRAPPED BOUNDARIES
+  // WAS LIKE THIS BEFORE, BUGGY WITH WRAPPED BOUNDARIES
 //   if((*cell)[sxy].getMu()>0.0001 || (*cell)[sxyp].getMu()>0.0001){
 //     //cout << "Migrating!"<<endl;
 //     //cerr<<"sigma focal="<< sxy<<" "<<(*cell)[sxy].getXvec()<<" "<<(*cell)[sxy].getYvec()<<" ";
@@ -489,7 +525,9 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
 //       DH-=(*cell)[sxyp].getMu()*(ax*(*cell)[sxyp].getXvec() + ay*(*cell)[sxyp].getYvec())/hypot(ax,ay);
 //     }
 //   }
-
+/*cell migration */
+//Joost's method
+double ax, ay;
   if((*cell)[sxy].getMu()>0.0001 || (*cell)[sxyp].getMu()>0.0001){
     if(sxy!=MEDIUM){
       //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
@@ -554,6 +592,73 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
        DH-=(*cell)[sxyp].getMu()*(ax*(*cell)[sxyp].getXvec() + ay*(*cell)[sxyp].getYvec())/hypot(ax,ay);
     }
   }
+
+
+  //Similar to Joost's method, but for chemotaxis (no persistence!)
+    if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
+      if(sxy!=MEDIUM){
+        //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
+        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+        double smeany = (*cell)[sxy].getYpos();
+
+        if(par.periodic_boundaries){
+          // if x is on the right and meanx is on the left
+          // and if by moving meanx to the right we diminish this distance
+          if( (x-smeanx)>0 && (x-smeanx)>(smeanx+(par.sizex-2)-x) ){
+            smeanx+=(par.sizex-2);
+            //cerr<<"dh s hello"<<endl;
+            //cerr<<"passb"<<endl;
+          }
+          else if( (smeanx-x)>0 && (smeanx-x)>(x+(par.sizex-2)-smeanx) ) {
+            smeanx-=(par.sizex-2);
+  //            cerr<<"dh s hello"<<endl;
+            //cerr<<"passb"<<endl;
+          }
+          if( (y-smeany)>0 && (y-smeany)>(smeany-(y-(par.sizey-2))) ){
+            smeany+=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+          }
+          else if( (smeany-y)>0 && (smeany-y)>(y+(par.sizey-2)-smeany) ){
+            smeany-=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+          }
+        }
+
+        ax=x-smeanx;
+        ay=y-smeany;
+        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+      }
+      if(sxyp!=MEDIUM){
+         double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+         double spmeany = (*cell)[sxyp].getYpos();
+
+         if(par.periodic_boundaries){
+           if( (x-spmeanx)>0 && (x-spmeanx)>(spmeanx-(x-(par.sizex-2))) ){
+             spmeanx+=(par.sizex-2);
+  //            cerr<<"dh sp hello"<<endl;
+             //cerr<<"passb"<<endl;
+          }
+           else if( (spmeanx-x)>0 && (spmeanx-x)>(x+(par.sizex-2)-spmeanx) ) {
+             spmeanx-=(par.sizex-2);
+  //            cerr<<"dh sp hello"<<endl;
+             //cerr<<"passb"<<endl;
+           }
+           if( (y-spmeany)>0 && (y-spmeany)>(spmeany-(y-(par.sizey-2))) ){
+             spmeany+=(par.sizey-2);
+             //cerr<<"passb"<<endl;
+           }
+           else if( (spmeany-y)>0 && (spmeany-y)>(y+(par.sizey-2)-spmeany) ){
+             spmeany-=(par.sizey-2);
+             //cerr<<"passb"<<endl;
+           }
+         }
+         //ax=x-(*cell)[sxyp].getXpos(); //returns meanx
+         //ay=y-(*cell)[sxyp].getYpos(); //returns meany
+         ax=x-spmeanx;
+         ay=y-spmeany;
+         DH-=(*cell)[sxyp].getChemMu()*(ax*(*cell)[sxyp].getChemXvec() + ay*(*cell)[sxyp].getChemYvec())/hypot(ax,ay);
+      }
+    }
 //
 //
   return DH;

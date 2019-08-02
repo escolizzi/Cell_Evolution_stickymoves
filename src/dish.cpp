@@ -870,41 +870,20 @@ void Dish::CellsEat2(void)
 
     //update the cell's movement vector with respect to the location of food
     int count=0;
-    double fvecx, fvecy;
+    double xv,yv;
     for(auto &c: cell){
       if(c.sigma && ftotal[c.sigma]){
         //calculate "food" vector with respect to cell mean pos
-        fvecx=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx;
-        fvecy=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
+        xv=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx;
+        yv=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
 
-        // c.tvecx=fvecx;
-        // c.tvecy=fvecy;
-
-        // c.tvecx=(fvecx+c.tvecx)/2.;
-        // c.tvecy=(fvecy+c.tvecy)/2.;
-        //
-
-        //c.tvecx=0.05 *fvecx + 0.95*c.tvecx;
-        //c.tvecy=0.05 *fvecy + 0.95*c.tvecy;
-
-        // THIS IS CURRENT VERSION... A BIT BUGGY
-
-        // if(c.weight_for_chemotaxis != 0.05){
-        //   //std::cerr <<"Sigma: "<<c.sigma<< ". weight_for_chemotaxis: "<<c.weight_for_chemotaxis << '\n';
-        //   //printf("CellsEat2(): Sigma %d, weight_for_chemotaxis: %.15f\n", c.sigma, c.weight_for_chemotaxis);
-        //   // printf("Notice that the number 0.05 is: %.15f\n", 0.05);
-        //
-        // }
-
-        c.tvecx=c.weight_for_chemotaxis *fvecx + (1-c.weight_for_chemotaxis)*c.tvecx;
-        c.tvecy=c.weight_for_chemotaxis *fvecy + (1-c.weight_for_chemotaxis)*c.tvecy;
-
-        double hyphyp=hypot(c.tvecx,c.tvecy);
-        c.tvecx/=hyphyp;
-        c.tvecy/=hyphyp;
+        double hyphyp=hypot(xv,yv);
+        xv/=hyphyp;
+        yv/=hyphyp;
+        c.setChemVec(xv,yv);
       }
-      if(c.tvecx>1 || c.tvecy>1){
-        std::cerr << ", vector: "<< c.tvecx <<" "<< c.tvecy  << '\n';
+      if(c.chemvecx>1 || c.chemvecy>1){
+        std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
         exit(1);
       }
     }
@@ -924,10 +903,13 @@ void Dish::InitCellMigration(void)
     icell->startTarVec();
     icell->setPersTime(int(par.persduration*RANDOM())); //so that cells don't all start turning at the same time...
     icell->setPersDur(par.persduration);
+
+    icell->setChemMu(par.init_chemmu);
+    icell->startChemVec();
     //cerr<<"Cell "<<icell->sigma<<" vecx="<<icell->tvecx<<" vecy="<<icell->tvecy<<endl;
     //cerr<<"Cell persdur "<<icell->persdur<<" perstime "<<icell->perstime<<endl;
   }
-
+cerr<<"init chemmu is"<<par.init_chemmu<<endl;
 }
 
 //function to have cells update their persistence time (perstime);
@@ -1048,7 +1030,7 @@ void Dish::CellGrowthAndDivision2(void)
         }
         c->mu = newmu;
 
-        c->mu = 5.; particles_for_movement=0; // specified experiments
+        c->mu = par.startmu; particles_for_movement=0; // specified experiments
         //cerr<<newmu<<endl;
 
         //if(c->growth<1.)
@@ -1227,28 +1209,28 @@ void Dish::RemoveWhoDidNotMakeIt(void)
 void Dish::ReproduceWhoMadeIt2(void)
 {
   vector<bool> which_cells(cell.size()); //which cells will divide
-  vector<int> sigma_newcells; 
-  
+  vector<int> sigma_newcells;
+
   double tot_eaten_particles=0.;
-  unsigned int current_popsize = who_made_it.size(); 
-  
+  unsigned int current_popsize = who_made_it.size();
+
   for(auto sig: who_made_it){
     tot_eaten_particles+=cell[sig].particles;
   }
-  
+
   // What happens if no-one ate anything?
   // Should we give a little chance of reprodution to cells that ate nothing?
   // yes: LITTLE = 0.1
   double epsilon=0.1;
   tot_eaten_particles+= epsilon*current_popsize;
-  
+
   while(true){
-    //strategy is to fill which_cells until a repetition happens, 
+    //strategy is to fill which_cells until a repetition happens,
     // at which point we duplicate the cells in which_cells
     // then we zero which_cells
     // and start again to fill it
     // it's not the most optimal but better than replicating one cell at a time
-    
+
     double sum_particles=0.;
     double rn = tot_eaten_particles*RANDOM(); //random choice of who replicates proportional to particles
     int which_sig; //guaranteed to be initialised by the end of the loop
@@ -1259,22 +1241,22 @@ void Dish::ReproduceWhoMadeIt2(void)
         break;
       }
     }
-    
+
     current_popsize++;
-    
+
     if(which_cells[which_sig] == false) which_cells[which_sig] = true;
     else{
-      
+
       sigma_newcells = CPM->DivideCells(which_cells); //replicate cells
       MutateCells(sigma_newcells);
       UpdateVectorJ(sigma_newcells);
-      
+
       for(int i=0;i<5;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little
-      
+
       std::fill(which_cells.begin(), which_cells.end(), false); //zero the vector
       which_cells[which_sig] = true; //set the cell to replicate
     }
-    
+
     //if we are done we should replicate the last cells in which_cells and we are done
     if(current_popsize==popsize) {
       sigma_newcells = CPM->DivideCells(which_cells);
@@ -1282,10 +1264,10 @@ void Dish::ReproduceWhoMadeIt2(void)
       UpdateVectorJ(sigma_newcells);
       break;
     }
-      
-    
+
+
   }
-  
+
   vector<Cell>::iterator c; //iterator to go over all Cells
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
     c->SetTargetArea(par.target_area); // for good measure

@@ -1,7 +1,7 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 10000000
+mcs = 100000
 
 ### grid size ###
 sizex = 500
@@ -11,7 +11,7 @@ sizey = 500
 scaling_cell_to_ca_time = 10
 
 # Cellular Potts parameters
-T = 20
+T = 16
 
 #initial target area = to half_div_area
 target_area = 100
@@ -29,8 +29,9 @@ lambda2 = 0
 #make startmu = 0 for no persistent movement
 #default startmu = 0.0 or 10.0
 # mu is now changed depending on metabolism
-startmu = 0.01
+startmu = 3.
 persduration = 50
+init_chemmu = 3.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
@@ -113,13 +114,13 @@ init_k_ext_P = 0.
 init_k_ext_C = 0.
 
 #regulation for chemotaxis
-init_k_chem_0 = 0.05
+init_k_chem_0 = 1.
 init_k_chem_A = 0.
 init_k_chem_P = 0.
 init_k_chem_C = 0.
 
 #Weight For Chemotaxis vs. (persistence) random walk
-init_weight_for_chemotaxis = 0.05
+init_weight_for_chemotaxis = 1.0
 
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
@@ -139,7 +140,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 50
+storage_stride = 20
 graphics = false
 store = true
 datadir = data_film2
@@ -149,5 +150,6 @@ save_backup_period = 5000
 backupdir = backup
 
 #if readcolortable is true, it reads the color table from "colortable_filename", otherwise it generates a pretty one internally
-readcolortable = true
-colortable_filename = ../data/circular4.ctb #derived from circular colormap "twilight" on github
+readcolortable = false
+colortable_filename = ../data/circular.ctb
+#derived from circular colormap "twilight" on github
