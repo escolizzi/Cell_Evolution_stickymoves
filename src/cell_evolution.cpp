@@ -74,7 +74,7 @@ INIT {
 
     //THIS IS TO USE FOR NORMAL INITIALISATION
     //CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
-    
+    CPM->PlaceCellsOrderly(par.n_init_cells,par.size_init_cells);
     CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
 
     // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
@@ -101,6 +101,8 @@ INIT {
       UpdateVectorJ(sigma_newcells);
       cerr<<"dividing again: "<<howmanydivisions<<endl;
     }
+    
+    for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area 
 
     //PrintContactList();
 
@@ -226,7 +228,6 @@ TIMESTEP {
     
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
-      // cerr<<"Time: "<<i<<endl;
       if( dish->CheckWhoMadeit() ){
         //reset food
         // clone them with mutations
@@ -236,8 +237,13 @@ TIMESTEP {
         
         dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
         dish->ReproduceWhoMadeIt2(); //reproduction
-        dish->ClearWhoMadeItSet(); //zeros the who_made_it set
-        dish->Food->IncreaseVal(*(dish->Food));
+        dish->ClearWhoMadeItSet(); //zeros the who_made_it set, 
+                                   // zero the particles eaten
+        dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here 
+                                                // because we do some AmoebaeMove2 steps in 
+                                                // ReproduceWhoMadeIt2 to let cells grow a little
+                                                // but we don't want this to go along the new gradient
+                                                // which would be unfair.
         ;
       }
     }
@@ -245,7 +251,9 @@ TIMESTEP {
     
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
-    
+    if( i%25 == 0){
+      cerr<<"by this time there are so many cells: "<<dish->CountCells()<<endl;
+    }
     
     // if(i%1000==0 ) {
     //   cerr<<"Time: "<<i<<endl;

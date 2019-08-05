@@ -1225,6 +1225,7 @@ void Dish::RemoveWhoDidNotMakeIt(void)
 void Dish::ReproduceWhoMadeIt2(void)
 {
   vector<bool> which_cells(cell.size()); //which cells will divide
+  vector<double> particles_of_those_whomadeit(cell.size());
   vector<int> sigma_newcells; 
   
   double tot_eaten_particles=0.;
@@ -1232,7 +1233,15 @@ void Dish::ReproduceWhoMadeIt2(void)
   
   for(auto sig: who_made_it){
     tot_eaten_particles+=cell[sig].particles;
+    particles_of_those_whomadeit[sig] = cell[sig].particles; //then use this to iterate
+                                                             // the reason is that daughter cells themselves don't replicate
+                                                             // so after halving particles with them a mother cell decreases its own exponentially
+                                                             // which screws up the probability of replication
+    cell[sig].SetTargetArea(2*par.target_area); 
+    cell[sig].mu = 0.;
   }
+  
+  for(int i=0;i<50;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little more
   
   // What happens if no-one ate anything?
   // Should we give a little chance of reprodution to cells that ate nothing?
@@ -1251,7 +1260,7 @@ void Dish::ReproduceWhoMadeIt2(void)
     double rn = tot_eaten_particles*RANDOM(); //random choice of who replicates proportional to particles
     int which_sig; //guaranteed to be initialised by the end of the loop
     for(auto sig: who_made_it){
-      sum_particles+= epsilon+cell[sig].particles;
+      sum_particles+= epsilon+particles_of_those_whomadeit[sig];
       if(sum_particles>rn){
         which_sig=sig; //we found that sigma that replicates
         break;
@@ -1260,24 +1269,32 @@ void Dish::ReproduceWhoMadeIt2(void)
     
     current_popsize++;
     
-    if(which_cells[which_sig] == false) which_cells[which_sig] = true;
+    if(which_cells[which_sig] == false){
+      which_cells[which_sig] = true;
+      cell[which_sig].mu = 0.;        // set mu to zero here so that they do not migrate in amoeabeamove later
+    }
     else{
       
       sigma_newcells = CPM->DivideCells(which_cells); //replicate cells
       MutateCells(sigma_newcells);
       UpdateVectorJ(sigma_newcells);
       
-      for(int i=0;i<5;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little
+      //for(int i=0;i<10;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little <- this is not working super well
       
       std::fill(which_cells.begin(), which_cells.end(), false); //zero the vector
       which_cells[which_sig] = true; //set the cell to replicate
+      cell[which_sig].mu = 0.;  // set mu to zero here so that they do not migrate in amoeabeamove later
     }
     
     //if we are done we should replicate the last cells in which_cells and we are done
     if(current_popsize==popsize) {
-      sigma_newcells = CPM->DivideCells(which_cells);
-      MutateCells(sigma_newcells);
-      UpdateVectorJ(sigma_newcells);
+      if(which_cells.size()>0){
+        sigma_newcells = CPM->DivideCells(which_cells);
+        MutateCells(sigma_newcells);
+        UpdateVectorJ(sigma_newcells);
+      }
+      //for(int i=0;i<10;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little more
+      
       break;
     }
       
@@ -1285,9 +1302,15 @@ void Dish::ReproduceWhoMadeIt2(void)
   }
   
   vector<Cell>::iterator c; //iterator to go over all Cells
+  int counter=0;
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
-    c->SetTargetArea(par.target_area); // for good measure
+    if(c->AliveP()){
+      c->SetTargetArea(par.target_area); // for good measure
+      counter++;
+    } 
   }
+  
+  cerr<<"At the end of ReproduceWhoMadeIt2 there are so many cells: "<<counter<<endl;
 }
 
 // previous version, without food-dependent fitness
@@ -1317,9 +1340,9 @@ int Dish::CountCells(void) const {
   for ( (i=cell.begin(),i++); i!=cell.end(); i++) {
     if (i->AliveP()) {
       amount++;
-    } else {
-      cerr << "Dead cell\n";
-    }
+    } //else {
+      //cerr << "Dead cell\n";
+      //}
   }
   return amount;
 }

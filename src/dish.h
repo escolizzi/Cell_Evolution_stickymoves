@@ -118,6 +118,7 @@ public:
   void ReproduceWhoMadeIt2(void); //with particles dependent reproduction
   inline void ClearWhoMadeItSet(void){
     who_made_it.clear();
+    for(auto &c:cell) c.particles=0;
   }
   
   //void CalculateJTable(void);

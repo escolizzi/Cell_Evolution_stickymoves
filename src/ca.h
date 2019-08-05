@@ -211,6 +211,7 @@ public:
   int GrowInCells(int n_cells, int cell_size, int sx, int sy, int offset_x, int offset_y);
   bool PlaceOneCellsAtXY(int posx,int posy, int cellsize, int cellsigma);
   int PlaceCellsRandomly(int n_cells, int cellsize);
+  int PlaceCellsOrderly(int n_cells, int cellsize);
   //! \brief Adds a new Cell and returns a reference to it.
   inline Cell &AddCell(Dish &beast) {
     cell->push_back(Cell(beast));

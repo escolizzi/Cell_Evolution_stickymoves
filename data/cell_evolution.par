@@ -4,8 +4,8 @@
 mcs = 10000000
 
 ### grid size ###
-sizex = 500
-sizey = 500
+sizex = 300
+sizey = 300
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -17,7 +17,8 @@ T = 20
 target_area = 100
 
 #Division area
-half_div_area = 100
+#half_div_area = 100
+half_div_area = 300
 #division area for predators, set to -1 if you don't want to use
 half_div_area_2 = -1
 
@@ -36,8 +37,8 @@ persduration = 50
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #lookup table for J val with medium: 
@@ -65,7 +66,7 @@ periodic_boundaries = false
 #mutrate, typical length of key and lock is 10+10 -> 20*0.01=0.2 one mutation every 5 replications...
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
-mut_rate = 0.01
+mut_rate = 0.0
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0
@@ -127,7 +128,7 @@ size_init_cells = 30000
 #size_init_cells = 10000
 
 #leave division to 0, this seems buggy
-divisions = 4
+divisions = 6
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
@@ -139,7 +140,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 50
+storage_stride = 1
 graphics = false
 store = true
 datadir = data_film2

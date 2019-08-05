@@ -2538,6 +2538,80 @@ int CellularPotts::PlaceCellsRandomly(int n, int cellsize)
     return count;
 }
 
+// Places cells at regular distance from one another:
+// For square cells of size s, the spatial occupation is sqrt(s). 
+// Since we have to place n of them, we use a square of space of size sqrt(n)*(sqrt(s) + a_little_bit), 
+// centered at the center of grid, which means that the upper left corner of the first cell is at 
+// x=(sizex-sqrt(n)*(sqrt(s) + a_little_bit))/2
+int CellularPotts::PlaceCellsOrderly(n_cells,size_cells)
+{
+    int count=0;
+    int a_little_bit=2;
+    int smaller_dimension=( par.sizex < par.sizey)?par.sizex:par.sizey;
+    if( (sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))>smaller_dimension ){
+      std::cerr << "PlaceCellsOrderly(): Error. Too many cells of too large size?" << '\n';
+      exit(1);
+    }
+    
+    //for(int x=(sizex-sqrt(n)*(sqrt(par.) + a_little_bit))/2)
+    
+    //below here it's a copy of PlaceCellsRandomly
+    
+    
+    
+    while(count<n && check<100)
+    {
+        overlap=false;
+        int x0=radsq+RandomNumber(sizex-2*radsq); //should avoid putting them across boundaries, radsq
+                                                  //(radius square is overdoing it,
+                                                  //but it's ok given the bugs that happen
+                                                  //when you put cells across boundaries :S )
+        int y0=radsq+RandomNumber(sizey-2*radsq);
+        // check overlap
+        for (int x=x0-cellsize;x<x0+cellsize;x++){
+           for (int y=y0-cellsize;y<y0+cellsize;y++){
+                if( (x-x0)*(x-x0)+(y-y0)*(y-y0)<radsq && x>=1 && x<sizex-1 && y>=1 && y<sizey-1)  // circle
+//              if( abs(x-x0)<sqrt(radsq) && abs(y-y0)<sqrt(radsq)+5 && x>=1 && x<sizex-1 && y>=1 && y<sizey-1) //rectangle
+//             if( ((x-x0)*(x-x0)/((double)radsq-20) +(y-y0)*(y-y0)/(100+(double)radsq))<1. && x>=1 && x<sizex-1 && y>=1 && y<sizey-1)  // ellipse
+
+               {
+                 if( sigma[x][y] ){
+                       overlap=true;
+                       check++;
+                       //cerr << "Overlap. count: "<<n<<" check: "<<check<< endl;
+                       break;
+                 }
+               }
+
+           }
+           if(overlap)
+               break;
+        }
+
+        if(!overlap)
+        {
+            check=0;
+            count++;
+            //cerr << "No overlap. count: "<<n<<" check: "<<check<< endl;
+            for (int x=x0-cellsize;x<x0+cellsize;x++)
+            {
+                for (int y=y0-cellsize;y<y0+cellsize;y++)
+                {
+//                   if( abs(x-x0)<sqrt(radsq) && abs(y-y0)<sqrt(radsq)+5 && x>=1 && x<sizex-1 && y>=1 && y<sizey-1)   //rectangle
+                   if((x-x0)*(x-x0)+(y-y0)*(y-y0)<radsq && x>=1 && x<sizex-1 && y>=1 && y<sizey-1) //circle
+//                  if( ((x-x0)*(x-x0)/((double)radsq-20) +(y-y0)*(y-y0)/(100+(double)radsq))<1.  && x>=1 && x<sizex-1 && y>=1 && y<sizey-1) //ellipses
+                        sigma[x][y]=count;
+
+                }
+
+            }
+        }
+    }
+
+    cerr<<"Placed "<<count<<" cells out of "<<n<<" requested."<<endl;
+    //exit(1);
+    return count;
+}
 
 /**! Fill the plane with initial cells
  \return actual amount of cells (some are not draw due to overlap) */
