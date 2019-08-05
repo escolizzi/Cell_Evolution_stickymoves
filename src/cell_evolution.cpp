@@ -233,7 +233,7 @@ TIMESTEP {
         // wipe out the previous pop
         // reseed
         //reset whomadeit vector
-
+        exit(0);
         dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
         dish->ReproduceWhoMadeIt2(); //reproduction
         dish->ClearWhoMadeItSet(); //zeros the who_made_it set

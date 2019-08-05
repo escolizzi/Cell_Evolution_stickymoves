@@ -1174,7 +1174,7 @@ int Dish::CheckWhoMadeit(void){
   // cerr<< "who_made_it has so many members: "<< who_made_it.size() << endl;
 
   //if list is large enough return 1, else 0
-  if( who_made_it.size() > howmany_makeit_for_nextgen ) {
+  if( who_made_it.size() > par.howmany_makeit_for_nextgen ) {
     std::cerr << "Many made it !" << '\n';
     //who_made_it.clear();
     return 1;

@@ -97,6 +97,7 @@ class Parameter {
   double init_chemmu;
   int persduration;
   int scaling_cell_to_ca_time;
+  int howmany_makeit_for_nextgen;
   char * backupdir;
   int save_backup_period;
   double init_maintenance_fraction;

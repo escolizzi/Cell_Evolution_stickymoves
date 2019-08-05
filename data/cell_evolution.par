@@ -31,15 +31,20 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50
-init_chemmu = 3.
+init_chemmu = 1.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
+
+keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
 #lookup table for J val with medium:
 # e.g if I get 10o4_3_2_1 -> J(tau,medium) = 10 + sum(4*key[0],3*key[1],2*key[2],1*key[3])
@@ -75,7 +80,9 @@ n_chem = 0
 
 #food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment
 # notice that nowhere zeroes foodinflux
-food_influx_location = specified_experiment
+food_influx_location = boundarygradient
+
+howmany_makeit_for_nextgen=5
 
 # default initial_food_amount = 5
 initial_food_amount = 0
@@ -140,7 +147,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 20
+storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2

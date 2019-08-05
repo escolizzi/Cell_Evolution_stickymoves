@@ -152,7 +152,7 @@ public:
   CellularPotts *CPM;
   std::set<int> who_made_it;
   int the_line = 51;
-  unsigned int howmany_makeit_for_nextgen = 30;
+  //unsigned int howmany_makeit_for_nextgen = 30;
   unsigned int popsize = 100;
 
   // Was used for gradient measurements, not functional now.

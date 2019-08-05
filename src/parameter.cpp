@@ -96,6 +96,7 @@ Parameter::Parameter() {
   startmu=0.0;
   persduration=0;
   scaling_cell_to_ca_time = 1;
+  howmany_makeit_for_nextgen=30;
   backupdir=strdup("backup");
   save_backup_period=0;
   init_maintenance_fraction = 0.85;
@@ -346,6 +347,7 @@ void Parameter::Read(const char *filename) {
   init_k_chem_A = fgetpar(fp, "init_k_chem_A", 0., true);
   init_k_chem_P = fgetpar(fp, "init_k_chem_P", 0., true);
   init_k_chem_C = fgetpar(fp, "init_k_chem_C", 0., true);
+  howmany_makeit_for_nextgen=igetpar(fp, "howmany_makeit_for_nextgen", 1, true);
 }
 
 //creates a rule for lookup table, by setting values,
