@@ -96,7 +96,6 @@ Parameter::Parameter() {
   startmu=0.0;
   persduration=0;
   scaling_cell_to_ca_time = 1;
-  howmany_makeit_for_nextgen=30;
   backupdir=strdup("backup");
   save_backup_period=0;
   init_maintenance_fraction = 0.85;
@@ -117,6 +116,9 @@ Parameter::Parameter() {
   init_k_chem_A = 0.;
   init_k_chem_P = 0.;
   init_k_chem_C = 0.;
+  
+  howmany_makeit_for_nextgen=30;
+  popsize=100;
 }
 
 Parameter::~Parameter() {
@@ -347,7 +349,8 @@ void Parameter::Read(const char *filename) {
   init_k_chem_A = fgetpar(fp, "init_k_chem_A", 0., true);
   init_k_chem_P = fgetpar(fp, "init_k_chem_P", 0., true);
   init_k_chem_C = fgetpar(fp, "init_k_chem_C", 0., true);
-  howmany_makeit_for_nextgen=igetpar(fp, "howmany_makeit_for_nextgen", 1, true);
+  howmany_makeit_for_nextgen = igetpar(fp, "howmany_makeit_for_nextgen", 1, true);
+  popsize = igetpar(fp, "popsize", 1, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -575,6 +578,8 @@ void Parameter::Write(ostream &os) const {
   os << " init_k_chem_P = " << init_k_chem_P << endl;
   os << " init_k_chem_C = " << init_k_chem_C << endl;
   //os << " init_weight_for_chemotaxis = " << init_weight_for_chemotaxis << endl;
+  os << " howmany_makeit_for_nextgen = " <<  howmany_makeit_for_nextgen << endl;
+  os << " popsize = " << popsize << endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

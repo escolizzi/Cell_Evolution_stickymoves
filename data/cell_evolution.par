@@ -4,8 +4,8 @@
 mcs = 100000
 
 ### grid size ###
-sizex = 300
-sizey = 300
+sizex = 500
+sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -13,8 +13,8 @@ scaling_cell_to_ca_time = 10
 # Cellular Potts parameters
 T = 16
 
-#initial target area = to half_div_area
-target_area = 100
+# set the target area to half_div_area
+target_area = 50
 
 #Division area
 #half_div_area = 100
@@ -38,15 +38,11 @@ init_chemmu = 1.
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
-<<<<<<< HEAD
-keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-=======
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
->>>>>>> alt_chemotaxis
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
-keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
@@ -57,12 +53,25 @@ Jmed_rule_input = 10o5_4_3_1_1_1
 
 key_lock_length = 25
 
+# initial conditions (create a "blob" of cells in the middle)
+howmany_makeit_for_nextgen = 100
+popsize = 250
+
+n_init_cells = 250
+size_init_cells = 50
+#size_init_cells = 20000
+#size_init_cells = 20000
+
+#leave division to 0, this seems buggy
+divisions = 0
+
 #conn_diss = 50
 conn_diss = 0
 vecadherinknockout = false
 chemotaxis = 0
 extensiononly = false
 border_energy = 100
+
 # min_area_for_life is the minimum area below which we set a cell to apoptose and remove, default 5
 min_area_for_life = 5
 
@@ -76,18 +85,16 @@ periodic_boundaries = false
 #mutrate, typical length of key and lock is 10+10 -> 20*0.01=0.2 one mutation every 5 replications...
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
-mut_rate = 0.0
+mut_rate = 0.01
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0
 
 ### IntPlane parameter ###
 
-#food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment
+#food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment,boundarygradient
 # notice that nowhere zeroes foodinflux
-food_influx_location = boundarygradient
-
-howmany_makeit_for_nextgen=5
+food_influx_location = specified_experiment
 
 # default initial_food_amount = 5
 initial_food_amount = 0
@@ -112,7 +119,7 @@ frac_contlen_eaten = 1.
 metabolic_conversion = 0.5
 
 # how much of metabolised particles goes to maintenance (vs. movement)
-#init_maintenance_fraction = 0.5
+init_maintenance_fraction = 1.
 # that is now a function controlled by the following parameters
 init_k_mf_0 = 1.
 init_k_mf_A = 0.
@@ -134,17 +141,6 @@ init_k_chem_C = 0.
 #Weight For Chemotaxis vs. (persistence) random walk
 init_weight_for_chemotaxis = 1.0
 
-# initial conditions (create a "blob" of cells in the middle)
-n_init_cells = 1
-size_init_cells = 20000
-#size_init_cells = 20000
-
-#leave division to 0, this seems buggy
-<<<<<<< HEAD
-divisions = 6
-=======
-divisions = 3
->>>>>>> alt_chemotaxis
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
@@ -156,7 +152,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 1
+storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2

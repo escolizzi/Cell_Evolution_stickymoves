@@ -62,7 +62,7 @@ INIT {
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
     // THIS IS JUST FOR EXPERIMENTS
-    CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
+    //CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,par.sizey/4, par.size_init_cells, 2);
     //CPM->PlaceOneCellsAtXY(3*par.sizex/4,3*par.sizey/4, par.size_init_cells, 3);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,3*par.sizey/4, par.size_init_cells, 4);
@@ -125,30 +125,30 @@ INIT {
     exit(1);
   }
 
-  for(int init_time=0;init_time<100;init_time++){
-    // cerr<<"Init Time: "<<init_time<<endl;
-    // for(auto c: cell){
-    //   if(c.AliveP()){
-    //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
-    //   }
-    //   else
-    //     printf(" Cell with sigma %d is dead\n", c.Sigma());
-    // }
-
-
-
+  for(int init_time=0;init_time<10;init_time++){
+  //   // cerr<<"Init Time: "<<init_time<<endl;
+  //   // for(auto c: cell){
+  //   //   if(c.AliveP()){
+  //   //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+  //   //   }
+  //   //   else
+  //   //     printf(" Cell with sigma %d is dead\n", c.Sigma());
+  //   // }
+  // 
+  // 
+  // 
     CPM->AmoebaeMove2(PDEfield);  //this changes neighs
   }
   InitCellMigration();
 
-  std::cerr << "howmany cells? "<< cell.size() << '\n';
-  for(auto c: cell){
-    if(c.AliveP()){
-      printf("Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
-    }
-    else
-      printf("Cell with sigma %d is dead\n", c.Sigma());
-  }
+  // std::cerr << "howmany cells? "<< cell.size() << '\n';
+  // for(auto c: cell){
+  //   if(c.AliveP()){
+  //     printf("Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+  //   }
+  //   else
+  //     printf("Cell with sigma %d is dead\n", c.Sigma());
+  // }
   // std::cerr << "How can it be that weight_for_chemotaxis is different between here and inside the function?" << '\n';
   // it isn't, but there is something weird-
   // exit(1);
@@ -234,7 +234,7 @@ TIMESTEP {
         // wipe out the previous pop
         // reseed
         //reset whomadeit vector
-        exit(0);
+        // exit(0);
         dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
         dish->ReproduceWhoMadeIt2(); //reproduction
         dish->ClearWhoMadeItSet(); //zeros the who_made_it set, 
@@ -251,9 +251,10 @@ TIMESTEP {
 
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
-    if( i%25 == 0){
-      cerr<<"by this time there are so many cells: "<<dish->CountCells()<<endl;
-    }
+    
+    // if( i%25 == 0){
+    //   cerr<<"by this time there are so many cells: "<<dish->CountCells()<<endl;
+    // }
     
     // if(i%1000==0 ) {
     //   cerr<<"Time: "<<i<<endl;

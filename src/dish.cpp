@@ -332,9 +332,9 @@ void Dish::MutateCells(vector<int> sigma_to_update)
       //cell[upd_sigma].MutateMu();
       //cerr<<"hello from before mutation"<<endl;
       if(par.mut_rate>0.){
-        cell[upd_sigma].MutateMaintenanceFractionParameters();
-        cell[upd_sigma].MutateExtProtFractionParameters();
-        cell[upd_sigma].MutateChemotaxisParameters();
+        //cell[upd_sigma].MutateMaintenanceFractionParameters();
+        //cell[upd_sigma].MutateExtProtFractionParameters();
+        //cell[upd_sigma].MutateChemotaxisParameters();
       }
     }
   }
@@ -1115,7 +1115,7 @@ void Dish::CellGrowthAndDivision2(void)
 // should create a new list of cells based on some fitness function,
 // kill everybody, place these new cells, change gradient direction + add new food
 int Dish::CheckWhoMadeit(void){
-
+  unsigned int howmany_makeit_for_nextgen = par.howmany_makeit_for_nextgen; //we do this to cast the par, which is int, to unsigned int
   // int the_line = 41;
 
   //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y,
@@ -1174,8 +1174,8 @@ int Dish::CheckWhoMadeit(void){
   // cerr<< "who_made_it has so many members: "<< who_made_it.size() << endl;
 
   //if list is large enough return 1, else 0
-  if( who_made_it.size() > par.howmany_makeit_for_nextgen ) {
-    std::cerr << "Many made it !" << '\n';
+  if( who_made_it.size() > howmany_makeit_for_nextgen ) {
+    // std::cerr << "Many made it !" << '\n';
     //who_made_it.clear();
     return 1;
   }
@@ -1186,28 +1186,31 @@ int Dish::CheckWhoMadeit(void){
 //remove cells from dish and CPM based on indexes in who_made_it
 void Dish::RemoveWhoDidNotMakeIt(void)
 {
-  std::cerr << "Who made it: ";
-  for(auto sig:who_made_it) std::cerr << sig<<" ";
-  std::cerr << '\n';
+  // std::cerr << "Who made it: ";
+  // for(auto sig:who_made_it) std::cerr << sig<<" ";
+  // std::cerr << '\n';
 
   vector<Cell>::iterator c; //iterator to go over all Cells
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
 
-    cerr<<"This sigma: "<<c->Sigma();
+    // cerr<<"This sigma: "<<c->Sigma();
 
     if( who_made_it.count( c->Sigma() ) == 0 ) {
-      cerr<<" will be removed"<<endl;
+      // cerr<<" will be removed"<<endl;
       c->SetTargetArea(0);
       c->Apoptose(); //set alive to false
       CPM->RemoveCell(&*c,par.min_area_for_life,c->meanx,c->meany);
-    }else{
-      cerr<<" will not be removed"<<endl;
     }
+    // else{
+    //   cerr<<" will not be removed"<<endl;
+    // }
   }
 }
 
 void Dish::ReproduceWhoMadeIt2(void)
 {
+  unsigned int popsize = par.popsize;
+  
   vector<bool> which_cells(cell.size()); //which cells will divide
   vector<double> particles_of_those_whomadeit(cell.size());
   vector<int> sigma_newcells; 
@@ -1229,7 +1232,7 @@ void Dish::ReproduceWhoMadeIt2(void)
   
   // What happens if no-one ate anything?
   // Should we give a little chance of reprodution to cells that ate nothing?
-  // yes: LITTLE = 0.1
+  // yes: espilon = 0.1
   double epsilon=0.1;
   tot_eaten_particles+= epsilon*current_popsize;
 
@@ -1294,7 +1297,7 @@ void Dish::ReproduceWhoMadeIt2(void)
     } 
   }
   
-  cerr<<"At the end of ReproduceWhoMadeIt2 there are so many cells: "<<counter<<endl;
+  // cerr<<"At the end of ReproduceWhoMadeIt2 there are so many cells: "<<counter<<endl;
 }
 
 // previous version, without food-dependent fitness
