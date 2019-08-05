@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright 1996-2006 Roeland Merks
 
@@ -109,7 +109,7 @@ INIT {
     //Set function pointer for food update, depending on parameters
     Food->InitIncreaseVal(CPM); //a pointer to CPM is an argument to InitIncreaseVal
                                  // but NOT to IncreaseVal if it points to IncreaseValEverywhere
-    
+
     // Initialises food plane
     // for(int i=0;i<par.sizex;i++)
     //   for(int j=0;j<par.sizey;j++)
@@ -124,7 +124,7 @@ INIT {
     std::cerr << error << "\n";
     exit(1);
   }
-  
+
   for(int init_time=0;init_time<100;init_time++){
     // cerr<<"Init Time: "<<init_time<<endl;
     // for(auto c: cell){
@@ -134,13 +134,13 @@ INIT {
     //   else
     //     printf(" Cell with sigma %d is dead\n", c.Sigma());
     // }
-    
-    
-    
+
+
+
     CPM->AmoebaeMove2(PDEfield);  //this changes neighs
   }
   InitCellMigration();
-  
+
   std::cerr << "howmany cells? "<< cell.size() << '\n';
   for(auto c: cell){
     if(c.AliveP()){
@@ -184,7 +184,7 @@ TIMESTEP {
     // WE NOW CHANGE FOOD BELOW - SEE FUNCTION CheckWhoMadeit
     // dish->Food->IncreaseVal(*(dish->Food)); // SCALED
     // *************************************************** //
-    
+
 //       // testing //
 //
 //       // Initialises food plane
@@ -196,12 +196,12 @@ TIMESTEP {
 //       //   testing    //
 //
       // dish->CellsEat(); // SCALED // HERE MAX PARTICLES IS DEFINED, should be a parameter
-      
-      
+
+
       dish->CellsEat2();
-      
-      
-      
+
+
+
       dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
       dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
       //Recalculate the all vs. all J table.
@@ -223,9 +223,9 @@ TIMESTEP {
     dish->CPM->AmoebaeMove2(dish->PDEfield);  //this changes neighs
     //cerr<<"Hello 1"<<endl;
     dish->UpdateNeighDuration();
-    
+
     //dish->Food->IncreaseVal(*(dish->Food));
-    
+
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
       if( dish->CheckWhoMadeit() ){
@@ -234,7 +234,7 @@ TIMESTEP {
         // wipe out the previous pop
         // reseed
         //reset whomadeit vector
-        
+        exit(0);
         dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
         dish->ReproduceWhoMadeIt2(); //reproduction
         dish->ClearWhoMadeItSet(); //zeros the who_made_it set, 
@@ -247,8 +247,8 @@ TIMESTEP {
         ;
       }
     }
-    
-    
+
+
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
     if( i%25 == 0){
@@ -259,14 +259,20 @@ TIMESTEP {
     //   cerr<<"Time: "<<i<<endl;
     //   dish->PrintCellParticles();
     // }
-    
+
     // TO SCREEN
     // UNUSED
     if (par.graphics && !(i%par.storage_stride)) {
 
       BeginScene();
       ClearImage();
-      dish->Plot(this);
+      if(par.readcolortable){
+      //  dish->Plot(this,1);
+        dish->Plot(this,2);
+      }
+      else{
+        dish->Plot(this,0);
+      }
       //dish->Food->Plot(this, dish->CPM);
       //char title[400];
       //snprintf(title,399,"CellularPotts: %d MCS",i);
@@ -277,14 +283,31 @@ TIMESTEP {
 
     // TO FILE FOR MOVIE
     if (par.store && !(i%par.storage_stride)) {
-      char fname[300];
-      sprintf(fname,"%s/ext%07d.png",par.datadir,i);
-      BeginScene(); //this is an empty function for X11
-      ClearImage(); //
-      dish->Plot(this); //everything contained here
+      if(par.readcolortable){
+        char fname[300];
+        sprintf(fname,"%s/angle%07d.png",par.datadir,i);
+        BeginScene(); //this is an empty function for X11
+        ClearImage(); //
+        dish->Plot(this,1); //everything contained here
+        EndScene();
+        Write(fname);
+        sprintf(fname,"%s/order%07d.png",par.datadir,i);
+        BeginScene(); //this is an empty function for X11
+        ClearImage(); //
+        dish->Plot(this,2); //everything contained here
       //dish->Food->Plot(this,dish->CPM); //will this work?  YES !!!
-      EndScene();
-      Write(fname); //FIXED SO THAT CODE AND IMAGE MATCH!
+        EndScene();
+        Write(fname); //FIXED SO THAT CODE AND IMAGE MATCH!
+      }
+      else{
+        char fname[300];
+        sprintf(fname,"%s/tau%07d.png",par.datadir,i);
+        BeginScene(); //this is an empty function for X11
+        ClearImage(); //
+        dish->Plot(this,0); //everything contained here
+        EndScene();
+        Write(fname);
+      }
     }
     //exit(1);
     // TO FILE FOR TEXT
@@ -307,7 +330,7 @@ TIMESTEP {
     std::cerr << error << "\n";
     exit(1);
   }
-  
+
   // exit(1);
 }
 

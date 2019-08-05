@@ -232,13 +232,13 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
       DH += (sxyp==0?0:par.border_energy)-(sxy==0?0:par.border_energy);
     } else {
       //DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) - (*cell)[sxy].EnergyDifference((*cell)[neighsite]);
-      // notice that sxyp is medium, so there is no need of calling the function. 
+      // notice that sxyp is medium, so there is no need of calling the function.
       DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) - Adhesion_Energy(sxy , neighsite);
     }
   }
-   
 
-  
+
+
   // lambda is determined by chemical 0
 
   //cerr << "[" << lambda << "]";
@@ -346,7 +346,47 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 	//ay=y-(*cell)[sxy].getYpos();
 	//DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
    }
-  
+
+//Similarly to Joost's method, a bias due to chemokine gradient
+    if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
+        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+        double smeany = (*cell)[sxy].getYpos();
+
+        if(par.periodic_boundaries){
+          if( (x-smeanx)>0 && (x-smeanx)>(smeanx-(x-(par.sizex-2))) ) {
+            smeanx+=(par.sizex-2);
+   //          cerr<<"dhwm hello"<<endl;
+            //cerr<<"passb"<<endl;
+          }
+          else if( (smeanx-x)>0 && (smeanx-x)>(x+(par.sizex-2)-smeanx) ){
+            smeanx-=(par.sizex-2);
+   //            cerr<<"dhwm hello"<<endl;
+            //cerr<<"passb"<<endl;
+         }
+          if( (y-smeany)>0 && (y-smeany)>(smeany-(y-(par.sizey-2))) ){
+            smeany+=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+
+         }
+          else if( (smeany-y)>0 && (smeany-y)>(y+(par.sizey-2)-smeany) ){
+            smeany-=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+          }
+        }
+
+        ax=x-smeanx;
+        ay=y-smeany;
+        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+
+
+      // cout << "Migrating1!"<<endl;
+      //cout<< sxy<<" "<<(*cell)[sxy].getMu()<<" "<<sxyp<<" "<<(*cell)[sxyp].getMu()<<endl;
+
+        // WAS THIS BELOW, BUGGY WITH WRAPPED BOUNDARIES
+        //ax=x-(*cell)[sxy].getXpos();
+   //ay=y-(*cell)[sxy].getYpos();
+   //DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
+    }
   return DH;
 }
 
@@ -361,10 +401,10 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
   /* Compute energydifference *IF* the copying were to occur */
   sxy = sigma[x][y];
   sxyp = sigma[xp][yp];
-  
+
   // cerr<< "x ,y : " << x<<" "<<y<<endl;
   // cerr<< "xp,yp: " << xp<<" "<<yp<<endl;
-  // 
+  //
   /* DH due to cell adhesion */
   for(i=1;i<=n_nb;i++) {
     int xp2,yp2;
@@ -391,27 +431,27 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
       DH += (sxyp==0?0:par.border_energy)-(sxy==0?0:par.border_energy);
     } else {
       //cerr<<"Hello DH 0.1"<<endl;
-      
+
       // MAKE A FUNCTION that takes all values: J's and regulation and sigmas
       //get to the point where you write:
-      //DH += Adhesion_Energy( s1 , s2, J value) 
+      //DH += Adhesion_Energy( s1 , s2, J value)
       //    - Adhesion_Energy( same but for the other pair)
-      //DH += Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxyp].GetExtProtExpress_Fraction() , sxyp , neighsite, (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) ) 
-      //    - Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxy].GetExtProtExpress_Fraction() , sxy , neighsite, (*cell)[sxy].EnergyDifference((*cell)[neighsite]) ) 
+      //DH += Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxyp].GetExtProtExpress_Fraction() , sxyp , neighsite, (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) )
+      //    - Adhesion_Energy( (*cell)[neighsite].GetExtProtExpress_Fraction() , (*cell)[sxy].GetExtProtExpress_Fraction() , sxy , neighsite, (*cell)[sxy].EnergyDifference((*cell)[neighsite]) )
       // cerr<< "sigmas sxyp, neigh: "<<sxyp<<" "<<neighsite<<": "<< Adhesion_Energy(sxyp , neighsite)<<endl;
       // cerr<< "sigmas sxy, neigh: "<<sxy<<" "<<neighsite<<": "<< Adhesion_Energy(sxy , neighsite)<<endl;
-      // cerr<< "DH += " << (int) (Adhesion_Energy(sxyp , neighsite) - Adhesion_Energy(sxy , neighsite))<<endl ; 
-      DH += Adhesion_Energy(sxyp , neighsite) 
-          - Adhesion_Energy(sxy , neighsite); 
+      // cerr<< "DH += " << (int) (Adhesion_Energy(sxyp , neighsite) - Adhesion_Energy(sxy , neighsite))<<endl ;
+      DH += Adhesion_Energy(sxyp , neighsite)
+          - Adhesion_Energy(sxy , neighsite);
       // NOTICE THAT DH is an integer... dammit! This can create problems when multiplying with a factor
-      //DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite]) 
+      //DH += (*cell)[sxyp].EnergyDifference((*cell)[neighsite])
       //      - (*cell)[sxy].EnergyDifference((*cell)[neighsite]);
-          
+
     }
   }
-  
+
   // cerr<<"End of Adh, DH = "<< DH<<endl;
-  
+
   // lambda is determined by chemical 0
 
   //cerr << "[" << lambda << "]";
@@ -468,11 +508,7 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
 			     (*cell)[sxy].TargetLength()) ) ));
   }*/
 
-  /*cell migration */
-  //Joost's method
-  double ax, ay;
-
-// WAS LIKE THIS BEFORE, BUGGY WITH WRAPPED BOUNDARIES
+  // WAS LIKE THIS BEFORE, BUGGY WITH WRAPPED BOUNDARIES
 //   if((*cell)[sxy].getMu()>0.0001 || (*cell)[sxyp].getMu()>0.0001){
 //     //cout << "Migrating!"<<endl;
 //     //cerr<<"sigma focal="<< sxy<<" "<<(*cell)[sxy].getXvec()<<" "<<(*cell)[sxy].getYvec()<<" ";
@@ -489,7 +525,9 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
 //       DH-=(*cell)[sxyp].getMu()*(ax*(*cell)[sxyp].getXvec() + ay*(*cell)[sxyp].getYvec())/hypot(ax,ay);
 //     }
 //   }
-
+/*cell migration */
+//Joost's method
+double ax, ay;
   if((*cell)[sxy].getMu()>0.0001 || (*cell)[sxyp].getMu()>0.0001){
     if(sxy!=MEDIUM){
       //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
@@ -554,6 +592,73 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
        DH-=(*cell)[sxyp].getMu()*(ax*(*cell)[sxyp].getXvec() + ay*(*cell)[sxyp].getYvec())/hypot(ax,ay);
     }
   }
+
+
+  //Similar to Joost's method, but for chemotaxis (no persistence!)
+    if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
+      if(sxy!=MEDIUM){
+        //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
+        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+        double smeany = (*cell)[sxy].getYpos();
+
+        if(par.periodic_boundaries){
+          // if x is on the right and meanx is on the left
+          // and if by moving meanx to the right we diminish this distance
+          if( (x-smeanx)>0 && (x-smeanx)>(smeanx+(par.sizex-2)-x) ){
+            smeanx+=(par.sizex-2);
+            //cerr<<"dh s hello"<<endl;
+            //cerr<<"passb"<<endl;
+          }
+          else if( (smeanx-x)>0 && (smeanx-x)>(x+(par.sizex-2)-smeanx) ) {
+            smeanx-=(par.sizex-2);
+  //            cerr<<"dh s hello"<<endl;
+            //cerr<<"passb"<<endl;
+          }
+          if( (y-smeany)>0 && (y-smeany)>(smeany-(y-(par.sizey-2))) ){
+            smeany+=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+          }
+          else if( (smeany-y)>0 && (smeany-y)>(y+(par.sizey-2)-smeany) ){
+            smeany-=(par.sizey-2);
+            //cerr<<"passb"<<endl;
+          }
+        }
+
+        ax=x-smeanx;
+        ay=y-smeany;
+        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+      }
+      if(sxyp!=MEDIUM){
+         double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+         double spmeany = (*cell)[sxyp].getYpos();
+
+         if(par.periodic_boundaries){
+           if( (x-spmeanx)>0 && (x-spmeanx)>(spmeanx-(x-(par.sizex-2))) ){
+             spmeanx+=(par.sizex-2);
+  //            cerr<<"dh sp hello"<<endl;
+             //cerr<<"passb"<<endl;
+          }
+           else if( (spmeanx-x)>0 && (spmeanx-x)>(x+(par.sizex-2)-spmeanx) ) {
+             spmeanx-=(par.sizex-2);
+  //            cerr<<"dh sp hello"<<endl;
+             //cerr<<"passb"<<endl;
+           }
+           if( (y-spmeany)>0 && (y-spmeany)>(spmeany-(y-(par.sizey-2))) ){
+             spmeany+=(par.sizey-2);
+             //cerr<<"passb"<<endl;
+           }
+           else if( (spmeany-y)>0 && (spmeany-y)>(y+(par.sizey-2)-spmeany) ){
+             spmeany-=(par.sizey-2);
+             //cerr<<"passb"<<endl;
+           }
+         }
+         //ax=x-(*cell)[sxyp].getXpos(); //returns meanx
+         //ay=y-(*cell)[sxyp].getYpos(); //returns meany
+         ax=x-spmeanx;
+         ay=y-spmeany;
+         DH-=(*cell)[sxyp].getChemMu()*(ax*(*cell)[sxyp].getChemXvec() + ay*(*cell)[sxyp].getChemYvec())/hypot(ax,ay);
+      }
+    }
 //
 //
   return DH;
@@ -563,13 +668,13 @@ double CellularPotts::Adhesion_Energy(int sigma1, int sigma2)
 {
   double Jval = (*cell)[sigma1].EnergyDifference((*cell)[sigma2]);
   if(sigma1==sigma2) return 0;
-  if(! (sigma1 && sigma2) ) 
+  if(! (sigma1 && sigma2) )
     return Jval;
-  
+
   double fr1 = (*cell)[sigma1].GetExtProtExpress_Fraction();
   double fr2 = (*cell)[sigma2].GetExtProtExpress_Fraction();
   double minfr = (fr1<fr2)?fr1:fr2;
-  // minfr is in [0,1], 
+  // minfr is in [0,1],
   // I want to map it so that if minfr=0, I return 43, and if minfr=1 I return Jval
   // very simple function would be linear:
   // a line between (0,43) and (1,Jval) looks like:
@@ -1026,6 +1131,137 @@ void CellularPotts::PlotSigma(Graphics *g, int mag) {
 	for (int ym=0;ym<mag;ym++)
       g->Point( sigma[x][y], mag*x+xm, mag*y+ym);
   }
+
+}
+
+//function to plot the direction of the target vector as a cell colour
+void CellularPotts::CellAngleColour(Graphics *g)
+{
+
+  for ( int i = 0; i < sizex; i++ )
+    for ( int j = 0; j < sizey; j++ ) {
+      int colour;
+
+      if(i==0 || i== sizex-1 || j==0 || j == sizey){
+        colour=0;
+        g->Point( colour, 2*i, 2*j);
+        g->Point( colour, 2*i+1, 2*j);
+        g->Point( colour, 2*i, 2*j+1);
+        g->Point( colour, 2*i+1, 2*j+1);
+        continue;
+      }
+
+      if (sigma[i][j]<=0) {
+        colour=0;
+      }else{
+        colour = (*cell)[sigma[i][j]].AngleColour();
+        //colour = sigma[i][j];
+      }
+
+      //colour point if this is a cell
+      if (sigma[i][j]>0){
+
+        g->Point( colour, 2*i, 2*j); //draws 2i,2j
+        //check if the other 3 pixels in the image should be coloured as boundary
+        //if this cell different from what is on i+1,j
+        //south
+        if ( sigma[i][j] != sigma[i+1][j] && i+1 < sizex-1){
+          g->Point( 1, 2*i+1, 2*j );
+        }
+        else{
+          g->Point( colour, 2*i+1, 2*j );
+        }
+        //east
+        if( sigma[i][j] != sigma[i][j+1] && j+1<sizey-1){
+          g->Point( 1, 2*i, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i, 2*j+1 );
+        }
+        //southeast
+        if (i+1<sizex-1 && j+1<sizey-1 && (sigma[i][j]!=sigma[i+1][j+1] || sigma[i+1][j]!=sigma[i][j+1]) ){
+          g->Point( 1, 2*i+1, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i+1, 2*j+1 );
+        }
+      }//if this is a cell
+
+    } //end of for loop
+
+
+
+
+}
+
+void CellularPotts::CellOrderColour(Graphics *g)
+{
+  vector <double> cellorder;
+  double temp;
+
+//determine order value for each cell (mapped to value between 0 and 1, 0 being fully aligned and 1 being
+//fully counteraligned)
+  for(auto c: (*cell)){
+    temp=0.;
+    for (auto n: c.neighbours){
+      temp+=(c.tvecx*(*cell)[n.first].tvecx+c.tvecy*(*cell)[n.first].tvecy)+1.;
+    }
+    cellorder.push_back(temp/(2*c.neighbours.size()));
+  }
+
+  for ( int i = 0; i < sizex; i++ )
+    for ( int j = 0; j < sizey; j++ ) {
+      int colour;
+
+      if(i==0 || i== sizex-1 || j==0 || j == sizey){
+        colour=0;
+        g->Point( colour, 2*i, 2*j);
+        g->Point( colour, 2*i+1, 2*j);
+        g->Point( colour, 2*i, 2*j+1);
+        g->Point( colour, 2*i+1, 2*j+1);
+        continue;
+      }
+
+      if (sigma[i][j]<=0) {
+        colour=0;
+      }else{
+        colour = (int)(cellorder[sigma[i][j]]*127+2);
+        //colour = sigma[i][j];
+      }
+
+      //colour point if this is a cell
+      if (sigma[i][j]>0){
+
+        g->Point( colour, 2*i, 2*j); //draws 2i,2j
+        //check if the other 3 pixels in the image should be coloured as boundary
+        //if this cell different from what is on i+1,j
+        //south
+        if ( sigma[i][j] != sigma[i+1][j] && i+1 < sizex-1){
+          g->Point( 1, 2*i+1, 2*j );
+        }
+        else{
+          g->Point( colour, 2*i+1, 2*j );
+        }
+        //east
+        if( sigma[i][j] != sigma[i][j+1] && j+1<sizey-1){
+          g->Point( 1, 2*i, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i, 2*j+1 );
+        }
+        //southeast
+        if (i+1<sizex-1 && j+1<sizey-1 && (sigma[i][j]!=sigma[i+1][j+1] || sigma[i+1][j]!=sigma[i][j+1]) ){
+          g->Point( 1, 2*i+1, 2*j+1 );
+        }
+        else {
+          g->Point( colour, 2*i+1, 2*j+1 );
+        }
+      }//if this is a cell
+
+    } //end of for loop
+
+
+
 
 }
 

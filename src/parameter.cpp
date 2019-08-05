@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright 1996-2006 Roeland Merks
 
@@ -37,7 +37,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 //parameter constructor - initialise default?
 Parameter::Parameter() {
-  
+
   T = 50.;
   target_area = 50;
   half_div_area = 50 ;
@@ -96,21 +96,23 @@ Parameter::Parameter() {
   startmu=0.0;
   persduration=0;
   scaling_cell_to_ca_time = 1;
+  howmany_makeit_for_nextgen=30;
   backupdir=strdup("backup");
   save_backup_period=0;
   init_maintenance_fraction = 0.85;
-  
+  init_chemmu=0.;
+
   init_k_mf_0 = 0.5;
   init_k_mf_A = 0.;
   init_k_mf_P = 0.;
   init_k_mf_C = 0.;
-  
+
   init_k_ext_0 = 0.5;
   init_k_ext_A = 0.;
   init_k_ext_P = 0.;
   init_k_ext_C = 0.;
-  
-  //init_weight_for_chemotaxis=0.;
+
+  init_weight_for_chemotaxis=0.;
   init_k_chem_0 = 0.5;
   init_k_chem_A = 0.;
   init_k_chem_P = 0.;
@@ -118,7 +120,7 @@ Parameter::Parameter() {
 }
 
 Parameter::~Parameter() {
-  
+
   // destruct parameter object
 
   // free string parameter
@@ -128,15 +130,15 @@ Parameter::~Parameter() {
 }
 
 void Parameter::CleanUp(void) {
-  if (Jtable) 
+  if (Jtable)
      free(Jtable);
-  if (diff_coeff) 
+  if (diff_coeff)
      free(diff_coeff);
-  if (decay_rate) 
+  if (decay_rate)
      free(decay_rate);
-  if (secr_rate) 
+  if (secr_rate)
      free(secr_rate);
-  if (datadir) 
+  if (datadir)
      free(datadir);
 
 }
@@ -166,7 +168,7 @@ int Parameter::ReadArguments(int argc, char *argv[])
   //starts from 2 because 0 is filename, 1 is parameter file path
   for(int i = 2;i<argc;i++){
     if( 0==strcmp( argv[i],"-datafile") ){
-      i++; if(i==argc){ 
+      i++; if(i==argc){
         cerr<<"Something odd in datafile?"<<endl;
         return 1;  //check if end of arguments, exit with error in case
       }
@@ -185,9 +187,9 @@ int Parameter::ReadArguments(int argc, char *argv[])
       free(datadir);
       datadir = (char *)malloc( 5+strlen(argv[i])*sizeof(char) )  ; //strlen(argv[i]) is ok because argv[i] is null terminated
       datadir = strdup(argv[i]);
-      
+
       cerr<<"New value for datadir: "<<datadir<<endl;
-    
+
     }else if( 0==strcmp(argv[i],"-backupdir") ){
       i++; if(i==argc) {
         cerr<<"Something odd in backupdir?"<<endl;
@@ -197,9 +199,9 @@ int Parameter::ReadArguments(int argc, char *argv[])
       free(backupdir);
       backupdir = (char *)malloc( 5+strlen(argv[i])*sizeof(char) )  ; //strlen(argv[i]) is ok because argv[i] is null terminated
       backupdir = strdup(argv[i]);
-      
+
       cerr<<"New value for backupdir: "<<backupdir<<endl;
-      
+
     }else if( 0==strcmp(argv[i],"-keylockfilename") ){
       i++; if(i==argc) {
         cerr<<"Something odd in keylockfilename?"<<endl;
@@ -209,59 +211,59 @@ int Parameter::ReadArguments(int argc, char *argv[])
       free(keylock_list_filename);
       keylock_list_filename = (char *)malloc( 5+strlen(argv[i])*sizeof(char) )  ; //strlen(argv[i]) is ok because argv[i] is null terminated
       keylock_list_filename = strdup(argv[i]);
-      
+
       cerr<<"New value for keylock_list_filename: "<<keylock_list_filename<<endl;
-      
+
     }else if( 0==strcmp(argv[i],"-seed") ){
-      i++; if(i==argc){ 
+      i++; if(i==argc){
         cerr<<"Something odd in seed?"<<endl;
         return 1;  //check if end of arguments, exit with error in case
       }
       rseed = atoi( argv[i] );
       cerr<<"New value for rseed: "<<rseed<<endl;
     }else if( 0==strcmp(argv[i],"-maxtime") ){
-      i++; if(i==argc){ 
+      i++; if(i==argc){
         cerr<<"Something odd in maxtime?"<<endl;
         return 1;  //check if end of arguments, exit with error in case
       }
       mcs = atoi( argv[i] );
       cerr<<"New value for maxtime (mcs in the code): "<<mcs<<endl;
     }else if( 0==strcmp(argv[i],"-halfdiv_area_predator") ){
-      i++; if(i==argc){ 
+      i++; if(i==argc){
         cerr<<"Something odd in halfdiv_area_predator?"<<endl;
         return 1;  //check if end of arguments, exit with error in case
       }
       half_div_area_2 = atoi( argv[i] );
       cerr<<"New value for half division area of predators (half_div_area_2 in the code): "<<half_div_area_2<<endl;
     }else if( 0==strcmp(argv[i],"-mutrate") ){
-      i++; if(i==argc){ 
+      i++; if(i==argc){
         cerr<<"Something odd in mutrate?"<<endl;
         return 1;  //check if end of arguments, exit with error in case
       }
       mut_rate = atof( argv[i] );
       cerr<<"New value for mutation rate: "<<mut_rate<<endl;
     }else if( 0==strcmp(argv[i],"-persduration") ){
-      i++; if(i==argc){ 
+      i++; if(i==argc){
         cerr<<"Something odd in persduration?"<<endl;
         return 1;  //check if end of arguments, exit with error in case
       }
       persduration = atoi( argv[i] );
       cerr<<"New value for persistence of movement: "<<persduration<<endl;
-    }else 
+    }else
       return 1;
   }
   return 0;
 }
 
 void Parameter::Read(const char *filename) {
-  
+
   static bool ReadP=false;
 
   if (ReadP) {
 
     //throw "Run Time Error in parameter.cpp: Please Read parameter file only once!!";
     CleanUp();
-    
+
   } else
     ReadP=true;
 
@@ -321,11 +323,12 @@ void Parameter::Read(const char *filename) {
   frac_contlen_eaten = fgetpar(fp, "frac_contlen_eaten", 1., true);
   metabolic_conversion = fgetpar(fp, "metabolic_conversion", 0.5, true);
   chancemediumcopied = fgetpar(fp, "chancemediumcopied", 0.0001, true);
-  readcolortable = bgetpar(fp, "readcolortable", false, true); 
-  colortable_filename = sgetpar(fp,"colortable_filename" , "default.ctb",true); 
+  readcolortable = bgetpar(fp, "readcolortable", false, true);
+  colortable_filename = sgetpar(fp,"colortable_filename" , "default.ctb",true);
   mut_rate = fgetpar(fp, "mut_rate", 0.01, true);
   persduration = igetpar(fp, "persduration", 0, true);
   startmu = fgetpar(fp, "startmu", 0.0, true);
+  init_chemmu = fgetpar(fp, "init_chemmu", 0.0, true);
   Jmed_rule_input = sgetpar(fp, "Jmed_rule_input", "0a0", true);
   scaling_cell_to_ca_time = igetpar(fp, "scaling_cell_to_ca_time", 1, true);
   backupdir = sgetpar(fp, "backupdir", "backup", true);
@@ -339,14 +342,15 @@ void Parameter::Read(const char *filename) {
   init_k_ext_A = fgetpar(fp, "init_k_ext_A", 0., true);
   init_k_ext_P = fgetpar(fp, "init_k_ext_P", 0., true);
   init_k_ext_C = fgetpar(fp, "init_k_ext_C", 0., true);
-  //init_weight_for_chemotaxis = fgetpar(fp, "init_weight_for_chemotaxis", 0., true);
+  init_weight_for_chemotaxis = fgetpar(fp, "init_weight_for_chemotaxis", 0., true);
   init_k_chem_0 = fgetpar(fp, "init_k_chem_0", 0., true);
   init_k_chem_A = fgetpar(fp, "init_k_chem_A", 0., true);
   init_k_chem_P = fgetpar(fp, "init_k_chem_P", 0., true);
   init_k_chem_C = fgetpar(fp, "init_k_chem_C", 0., true);
+  howmany_makeit_for_nextgen=igetpar(fp, "howmany_makeit_for_nextgen", 1, true);
 }
 
-//creates a rule for lookup table, by setting values, 
+//creates a rule for lookup table, by setting values,
 // and setting a pointer to a function that sums values or multiplies them 8O
 // typical input looks like 10o5_4_3_2_1
 // 10 is the offset, rest is lookup_table, of which we also need to get the length
@@ -357,10 +361,10 @@ void Parameter::CreateRule(const char * Jmed_rule_input)
   char coffset[10]={0};
   char cvalue[10]={0};
   int cvalcounter=0;
-  
+
   while(Jmed_rule_input[i]!='o'){
     coffset[i]=Jmed_rule_input[i];
-    i++;  
+    i++;
   }
   Jmedr.offset=atoi(coffset);
   i++;
@@ -373,14 +377,14 @@ void Parameter::CreateRule(const char * Jmed_rule_input)
       cvalcounter=0;
     }
     cvalue[cvalcounter]=Jmed_rule_input[i];
-    i++;  
+    i++;
     cvalcounter++;
   }
-  if(cvalue[0]!='\0'){ 
+  if(cvalue[0]!='\0'){
     int value = atoi(cvalue);
     Jmedr.lookup_table.push_back(value);
   }
-  
+
   Jmedr.keypos_formedium = static_cast<int>(Jmedr.lookup_table.size()); // this forces conversion from size to INT
                                                            // I can't imagine a way for this to overflow, but you know...
   cerr<<"Offset : "<< Jmedr.offset<<", Table:";
@@ -388,13 +392,13 @@ void Parameter::CreateRule(const char * Jmed_rule_input)
   cerr<<endl;
   cerr<<"Length = "<< Jmedr.keypos_formedium<<endl;
   //exit(1);
-  
+
 }
 
-// In the future the parser for the rules for key to J val tau,medium 
+// In the future the parser for the rules for key to J val tau,medium
 // will be more developed, maybe even evolvable 8O
 // int Parameter::SumLookupTableValue(int *lookup_table){
-//   return -1; 
+//   return -1;
 // }
 // int Parameter::MultiplyLookupTableValue(int *lookup_table){
 //   return -1;
@@ -407,20 +411,20 @@ void Parameter::Read_KeyLock_list_fromfile(const char *filename)
   string line;
   int current_tau=0;
   ifstream file(filename);
-  
+
   cerr<<"Reading Key Lock list file"<<endl;
-  
+
   //getline gets next line in file
   while( getline(file, line) ){
     istringstream iss(line);   // turn this into array of int and put it into an array of arrays...
     int a;
-    
+
     key_lock_pair this_kl;
     vector<int> key;
     vector<int> lock;
-    
+
     if(current_tau==0){
-      if(!(iss >> a)) { 
+      if(!(iss >> a)) {
         cerr<<"Read_KeyLock_list_fromfile(): Error, the file for initial keys and locks seems empty."<<endl;
         exit(1);
       }else{
@@ -431,7 +435,7 @@ void Parameter::Read_KeyLock_list_fromfile(const char *filename)
         this_kl.lock= vector<int>(1, -1);
         keylock_list.push_back(this_kl);
         // end of mockery :P
-        
+
         maxtau=a-1;
         cerr<<"Got maxtau = "<<maxtau<<endl;
         //increase tau
@@ -441,7 +445,7 @@ void Parameter::Read_KeyLock_list_fromfile(const char *filename)
       //cerr<<"Into reading key-lock pairs"<<endl;
       //get key for this tau
       while(iss >> a) key.push_back(a);
-      
+
       //we read key, next line is lock
       if( !getline(file, line) ){
         cerr<<"Read_KeyLock_list_fromfile(): Error, odd number of lines?"<<endl;
@@ -449,37 +453,37 @@ void Parameter::Read_KeyLock_list_fromfile(const char *filename)
       }
       //iss.str("");
       //iss.clear();
-      
+
       istringstream iss( (line) );
       //get lock for this tau
       while(iss >> a) lock.push_back(a);
-      
+
       //assign these values to key lock pair
       this_kl.tau = current_tau;
       this_kl.key = key;
       this_kl.lock = lock;
-      
+
       keylock_list.push_back(this_kl);
-      
+
       cerr<<"New key-lock pairs for tau = "<<this_kl.tau<<endl;
       for (auto i: this_kl.key)
           cerr << i << " ";
-      cerr<<endl;  
+      cerr<<endl;
       for (auto i: this_kl.lock)
           cerr << i << " ";
       cerr<<endl;
-      
+
       key.clear();
       lock.clear();
       //increase tau
       current_tau++;
-      
+
     }
-    
-    
+
+
     // process pair (a,b)
   }
-  
+
 }
 
 const char *sbool(const bool &p) {
@@ -504,7 +508,7 @@ void Parameter::Write(ostream &os) const {
   os << " lambda2 = " << lambda2 << endl;
   if(keylock_list_filename)
     os << " keylock_list_filename = " << keylock_list_filename << endl;
-  //if (Jtable) 
+  //if (Jtable)
   //  os << " Jtable = " << Jtable << endl;
   os << " conn_diss = " << conn_diss << endl;
   os << " vecadherinknockout = " << sbool(vecadherinknockout) << endl;
@@ -555,7 +559,7 @@ void Parameter::Write(ostream &os) const {
   os << " startmu = " << scaling_cell_to_ca_time <<endl;
   os << " backupdir = " << backupdir <<endl;
   os << " save_backup_period = " << save_backup_period <<endl;
-  if (datadir) 
+  if (datadir)
     os << " datadir = " << datadir << endl;
   //os << " init_maintenance_fraction = " << init_maintenance_fraction << endl;
   os << " init_k_mf_0 = " << init_k_mf_0 << endl;

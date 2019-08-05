@@ -1,7 +1,7 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 10000000
+mcs = 100000
 
 ### grid size ###
 sizex = 300
@@ -11,7 +11,7 @@ sizey = 300
 scaling_cell_to_ca_time = 10
 
 # Cellular Potts parameters
-T = 20
+T = 16
 
 #initial target area = to half_div_area
 target_area = 100
@@ -30,18 +30,28 @@ lambda2 = 0
 #make startmu = 0 for no persistent movement
 #default startmu = 0.0 or 10.0
 # mu is now changed depending on metabolism
-startmu = 0.01
+startmu = 3.
 persduration = 50
+init_chemmu = 1.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+<<<<<<< HEAD
 keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
+=======
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
+>>>>>>> alt_chemotaxis
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
-#lookup table for J val with medium: 
+keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+
+#lookup table for J val with medium:
 # e.g if I get 10o4_3_2_1 -> J(tau,medium) = 10 + sum(4*key[0],3*key[1],2*key[2],1*key[3])
 Jmed_rule_input = 10o5_4_3_1_1_1
 
@@ -75,7 +85,9 @@ n_chem = 0
 
 #food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment
 # notice that nowhere zeroes foodinflux
-food_influx_location = specified_experiment
+food_influx_location = boundarygradient
+
+howmany_makeit_for_nextgen=5
 
 # default initial_food_amount = 5
 initial_food_amount = 0
@@ -114,26 +126,30 @@ init_k_ext_P = 0.
 init_k_ext_C = 0.
 
 #regulation for chemotaxis
-init_k_chem_0 = 0.05
+init_k_chem_0 = 1.
 init_k_chem_A = 0.
 init_k_chem_P = 0.
 init_k_chem_C = 0.
 
 #Weight For Chemotaxis vs. (persistence) random walk
-init_weight_for_chemotaxis = 0.05
+init_weight_for_chemotaxis = 1.0
 
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
-size_init_cells = 30000
-#size_init_cells = 10000
+size_init_cells = 20000
+#size_init_cells = 20000
 
 #leave division to 0, this seems buggy
+<<<<<<< HEAD
 divisions = 6
+=======
+divisions = 3
+>>>>>>> alt_chemotaxis
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
 # chancemediumcopied is the chance that instead of copying a pixel with another, cells copy medium from outer space
-# was 0.0001 
+# was 0.0001
 chancemediumcopied = 0.0001
 #chancemediumcopied = 0.0
 subfield = 1.0
@@ -151,6 +167,5 @@ backupdir = backup
 
 #if readcolortable is true, it reads the color table from "colortable_filename", otherwise it generates a pretty one internally
 readcolortable = false
-colortable_filename = default.ctb
-
-
+colortable_filename = ../data/circular.ctb
+#derived from circular colormap "twilight" on github

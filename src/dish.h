@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright 1996-2006 Roeland Merks
 
@@ -23,7 +23,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 /*! \class Dish
   \brief The virtual Petri dish.
-  
+
   Hosts the cells with states and the CA-plane.
 */
 
@@ -51,10 +51,10 @@ class Dish {
 
 public:
   Dish(void);
-  
+
   /*! \brief Init defines the initial state of the virtual
     cell culture.
-    
+
     Define Init() in your main file describing the simulation set up,
     within the block INIT { }. See for examples vessel.cpp and
     sorting.cpp.
@@ -62,42 +62,42 @@ public:
   void Init(void);
 
   void ConstructorBody(void);
-  
+
   virtual ~Dish();
- 
+
   /*! \brief Plot the Dish to graphics window g.
 
   Simply calls CPM->Plot.
   And also colors depnd on food.
   */
   void FoodPlot(Graphics *g);
-  void Plot(Graphics *g);
-  
+  void Plot(Graphics *g, int colour);
+
   void InitKeyLock(void);
   int CalculateJwithMedium( vector<int> key );
   int CalculateJfromKeyLock( vector<int> key1, vector<int> lock1, vector<int> key2, vector<int> lock2 );
   void InitVectorJ(void); //Initialise vector of J values for each cell
   void UpdateVectorJ(vector<int> sigma_to_update);
   void MutateCells(vector<int> sigma_to_update);
-  
+
   void InitContactLength(void);
   void UpdateNeighDuration(void);
   void PrintReality(int which);
   void PrintContactList(int which=-1);
   void PrintCellParticles(void);
-  
+
   void InitMaintenanceFraction(void);
-  
+
   int ZygoteArea(void) const;
-  
+
   //! Returns the number of completed Monte Carlo Steps.
   int Time(void) const;
-  
+
   //! Returns the number of cells in the dish, excluding apoptosed cells.
   int CountCells(void) const;
-  
+
   /*! \brief Stretched induced cell growth and division.
-    
+
   See Hogeweg (2000), Journal of Theoretical Biology.
 
   Find stretched cells, and increase their target area.
@@ -106,13 +106,13 @@ public:
   void CellsEat(void);
   void CellsEat2(void); //chenges cells direction vector based on where more food is
   void Predate(void);
-  
+
   void InitCellMigration(void);
   void CellMigration(void);
   //find cells that ate enough and let them grow; divide big cells and kill small cells
   void CellGrowthAndDivision2(void);
   int CheckWhoMadeit(void);
-  
+
   void RemoveWhoDidNotMakeIt(void);
   void ReproduceWhoMadeIt(void);
   void ReproduceWhoMadeIt2(void); //with particles dependent reproduction
@@ -120,26 +120,26 @@ public:
     who_made_it.clear();
     for(auto &c:cell) c.particles=0;
   }
-  
+
   //void CalculateJTable(void);
-  
+
   //! \brief. Returns the summed area of all cells in the dish
   int Area(void) const;
 
   //! \brief Returns the summed of all cells target area in the dish
   int TargetArea(void) const;
-  
+
   //return number of preys and predators
   // basically just how many are in Tau = 1 and 2
   //there's no error handling, so be careful
   int CountPreys(void);
   int CountPredators(void);
-  
+
   int SaveData(int Time);
   void MakeBackup(int Time);
   //! \brief Returns the horizontal size of the dish.
   int SizeX(void);
-  
+
   //! \brief Returns the horizontal size of the dish.
   int SizeY(void);
 
@@ -147,15 +147,15 @@ public:
   inline Cell &getCell(int c) {
     return cell[c];
   }
-  
+
   PDE *PDEfield;
   IntPlane *Food;
   CellularPotts *CPM;
   std::set<int> who_made_it;
   int the_line = 51;
-  unsigned int howmany_makeit_for_nextgen = 30;
+  //unsigned int howmany_makeit_for_nextgen = 30;
   unsigned int popsize = 100;
-  
+
   // Was used for gradient measurements, not functional now.
   void ClearGrads(void);
 

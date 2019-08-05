@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright 1996-2006 Roeland Merks
 
@@ -27,7 +27,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include <vector>
 using namespace std;
 class Parameter {
- public: 
+ public:
   Parameter();
   ~Parameter();
   void CleanUp(void);
@@ -45,7 +45,7 @@ class Parameter {
   double lambda;
   double lambda2;
   char * keylock_list_filename;
-  char * Jtable; 
+  char * Jtable;
   char * Jmed_rule_input;//see below for rule for J with med
   int conn_diss;
   bool vecadherinknockout;
@@ -94,8 +94,10 @@ class Parameter {
   int maxtau;
   double mut_rate;
   double startmu;
+  double init_chemmu;
   int persduration;
   int scaling_cell_to_ca_time;
+  int howmany_makeit_for_nextgen;
   char * backupdir;
   int save_backup_period;
   double init_maintenance_fraction;
@@ -111,7 +113,7 @@ class Parameter {
   double init_k_chem_A;
   double init_k_chem_P;
   double init_k_chem_C;
-  
+
   double init_weight_for_chemotaxis;
   struct key_lock_pair{
     int tau;
@@ -119,14 +121,14 @@ class Parameter {
     vector<int> lock;
   };
   vector< key_lock_pair > keylock_list;
-  
+
   struct Jmed_rule{
     int offset;
     //char rule; //for now only o //'s' or 'p'
     int keypos_formedium;
     vector<int> lookup_table;
   } Jmedr;
-  
+
  private:
 };
 

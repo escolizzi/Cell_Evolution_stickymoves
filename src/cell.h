@@ -106,11 +106,15 @@ public:
     perstime=src.perstime;
     mu=src.mu;
 
+    chemmu=src.chemmu;
+    chemvecx=src.chemvecx;
+    chemvecy=src.chemvecy;
+
     owner=src.owner;
     particles=src.particles;
     eatprob=src.eatprob;
     growth=src.growth;
-    
+
     //this is copied for if there is a first time step
     // where things depend on it and CellGrowthAndDivision2 is not called yet
     maintenance_fraction = src.maintenance_fraction;
@@ -118,19 +122,19 @@ public:
     k_mf_A = src.k_mf_A;
     k_mf_P = src.k_mf_P;
     k_mf_C = src.k_mf_C;
-    
+
     extprotexpress_fraction = src.extprotexpress_fraction;
     k_ext_0 = src.k_ext_0;
     k_ext_A = src.k_ext_A;
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
-    
+
     weight_for_chemotaxis = src.weight_for_chemotaxis;
     k_chem_0=src.k_chem_0;
     k_chem_A=src.k_chem_A;
     k_chem_P=src.k_chem_P;
     k_chem_C=src.k_chem_C;
-        
+
     jlock = src.jlock;
     jkey = src.jkey;
     vJ = src.vJ;
@@ -188,6 +192,10 @@ public:
     perstime=src.perstime;
     mu=src.mu;
 
+    chemmu=src.chemmu;
+    chemvecx=src.chemvecx;
+    chemvecy=src.chemvecy;
+
     sum_x=src.sum_x;
     sum_y=src.sum_y;
     sum_xx=src.sum_xx;
@@ -203,25 +211,25 @@ public:
     eatprob=src.eatprob;
     growth = src.growth;
     neighbours=src.neighbours;
-    
+
     maintenance_fraction = src.maintenance_fraction;
     k_mf_0 = src.k_mf_0;
     k_mf_A = src.k_mf_A;
     k_mf_P = src.k_mf_P;
     k_mf_C = src.k_mf_C;
-    
+
     extprotexpress_fraction = src.extprotexpress_fraction;
     k_ext_0 = src.k_ext_0;
     k_ext_A = src.k_ext_A;
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
-    
+
     weight_for_chemotaxis = src.weight_for_chemotaxis;
     k_chem_0=src.k_chem_0;
     k_chem_A=src.k_chem_A;
     k_chem_P=src.k_chem_P;
     k_chem_C=src.k_chem_C;
-    
+
     jlock = src.jlock;
     jkey = src.jkey;
     vJ = src.vJ;
@@ -284,6 +292,16 @@ public:
       else */
       return tau+1;
 
+  };
+
+//this function maps migration vector angle to a colour in radial_colour array (see misc.cpp)
+  inline int AngleColour(void) const {
+    double ang=atan(tvecy/tvecx);
+    if(tvecx<0.000) ang+=M_PI;
+    else if(tvecy<0.000) ang+=2*M_PI;
+    ang/=2.*M_PI;
+
+    return (int)(ang*254)+2;
   };
 
   //sets properties of cell
@@ -359,12 +377,27 @@ public:
   inline double getYvec(void){
     return tvecy;
   }
+  inline double getChemXvec(void){
+    return chemvecx;
+  }
+  inline double getChemYvec(void){
+    return chemvecy;
+  }
+  inline double getChemMu(void){
+    //cout<<"numu: "<<mu<<endl;
+    return chemmu;
+  }
   inline double getMu(void){
     //cout<<"numu: "<<mu<<endl;
     return mu;
   }
   inline void setMu(double initmu){
     mu=initmu;
+   // cout<<"initmu: "<<mu<<endl;
+  }
+
+  inline void setChemMu(double initweight){
+    chemmu=initweight;
    // cout<<"initmu: "<<mu<<endl;
   }
   inline void setPersDur(int dur){
@@ -384,8 +417,19 @@ public:
     tvecx=cos(pol);  // try swapping these around
     tvecy=sin(pol);
   }
+  inline void startChemVec(){ //to make sure hamiltonian has something to work with.
 
+    double pol=RANDOM()*2.*M_PI; //random angle
 
+    //pol=0.;
+
+    chemvecx=cos(pol);  // try swapping these around
+    chemvecy=sin(pol);
+  }
+  inline void setChemVec(double xx, double yy){ //to make sure hamiltonian has something to work with.
+    chemvecx=xx;  // try swapping these around
+    chemvecy=yy;
+  }
   //update the target vector with the actual direction of motion
   inline void updateTarVec()
   {
@@ -439,11 +483,11 @@ public:
     if(mu<0) mu= -mu;
     else if(mu>MAXmu) mu=MAXmu-mu;
   }
-  
-  //I am using really the same function twice, 
+
+  //I am using really the same function twice,
   // no point in writing two functions
   double CalculateMaintenance_or_ExtProtExpr_Fraction(double k0, double kA , double kP, double kC);
-  
+
   inline double GetExtProtExpress_Fraction(void){
     return extprotexpress_fraction;
   }
@@ -452,7 +496,7 @@ public:
   //   if(maintenance_fraction<0) maintenance_fraction= -maintenance_fraction;
   //   else if(maintenance_fraction>1.) maintenance_fraction=2.-maintenance_fraction;
   // }
-  
+
   inline void MutateMaintenanceFractionParameters(void){
     //if(RANDOM() < par.mut_rate){
       k_mf_0 += (RANDOM() -0.5)/10.;
@@ -461,7 +505,7 @@ public:
       k_mf_C += (RANDOM() -0.5)/10.;
     // }
   }
-  
+
   inline void MutateExtProtFractionParameters(void){
     // if(RANDOM() < par.mut_rate){
       k_ext_0 += (RANDOM() -0.5)/10.;
@@ -470,7 +514,7 @@ public:
       k_ext_C += (RANDOM() -0.5)/10.;
     // }
   }
-  
+
   inline void MutateChemotaxisParameters(void){
     // if(RANDOM() < par.mut_rate){
       k_chem_0 += (RANDOM() -0.5)/10.;
@@ -479,7 +523,7 @@ public:
       k_chem_C += (RANDOM() -0.5)/10.;
     // }
   }
-  
+
   //! Set cell type of this Cell.
   inline int getHalfDivArea(void) {
     return half_div_area;
@@ -1044,6 +1088,10 @@ protected:
   double prevx;
   double prevy;
 
+  //store direction of chemokine gradient (int plane)
+  double chemvecx;
+  double chemvecy;
+  double chemmu; //this is the max strength of chemotaxis
   //migration parameters
   int persdur; //how long is this cell's persistent walk?
   int perstime; //counter for how long it has walked persistently
@@ -1099,25 +1147,25 @@ protected:
   //fraction of metabolised particles assigned to maintenance
   // 1 - maintenance_fraction is given to movement
   double maintenance_fraction;
-  
+
   double k_mf_0; //intercept of maintenance_fraction function
-  double k_mf_A; //evolvable factor for area component of maint.fract. 
+  double k_mf_A; //evolvable factor for area component of maint.fract.
   double k_mf_P; // as above for particles
   double k_mf_C; // as above for contacts
-  
+
   //fraction of surface proteins (i.e. adhesion) actually used
   double extprotexpress_fraction;
   double k_ext_0;
   double k_ext_A;
   double k_ext_P;
   double k_ext_C;
-  
+
   double weight_for_chemotaxis;
   double k_chem_0;
   double k_chem_A;
   double k_chem_P;
   double k_chem_C;
-  
+
   double v[2];
   int n_copies; // number of expansions of this cell
   // gradient of a chemical (to be extended to the total number chemicals)
