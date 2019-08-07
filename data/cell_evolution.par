@@ -31,7 +31,7 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50
-init_chemmu = 1.
+init_chemmu = 2.0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
@@ -41,9 +41,10 @@ init_chemmu = 1.
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
-keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
-#keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
+#keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
+keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
 #lookup table for J val with medium:
@@ -82,7 +83,7 @@ n_chem = 0
 # notice that nowhere zeroes foodinflux
 food_influx_location = boundarygradient
 
-howmany_makeit_for_nextgen=5
+howmany_makeit_for_nextgen=1
 
 # default initial_food_amount = 5
 initial_food_amount = 0
@@ -131,11 +132,11 @@ init_weight_for_chemotaxis = 1.0
 
 # initial conditions (create a "blob" of cells in the middle)
 n_init_cells = 1
-size_init_cells = 20000
+size_init_cells = 100 
 #size_init_cells = 20000
 
 #leave division to 0, this seems buggy
-divisions = 3
+divisions = 0 #3
 
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
@@ -151,7 +152,7 @@ storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2
-save_text_file_period = 1000
+save_text_file_period = 50
 datafile = data_cellcount.txt
 save_backup_period = 5000
 backupdir = backup
