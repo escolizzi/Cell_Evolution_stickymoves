@@ -62,7 +62,7 @@ INIT {
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
     // THIS IS JUST FOR EXPERIMENTS
-    CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
+    //CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,par.sizey/4, par.size_init_cells, 2);
     //CPM->PlaceOneCellsAtXY(3*par.sizex/4,3*par.sizey/4, par.size_init_cells, 3);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,3*par.sizey/4, par.size_init_cells, 4);
@@ -74,7 +74,7 @@ INIT {
 
     //THIS IS TO USE FOR NORMAL INITIALISATION
     //CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
-
+    CPM->PlaceCellsOrderly(par.n_init_cells,par.size_init_cells);
     CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
 
     // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
@@ -102,6 +102,8 @@ INIT {
       cerr<<"dividing again: "<<howmanydivisions<<endl;
     }
 
+    for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
+
     //PrintContactList();
 
     //Set function pointer for food update, depending on parameters
@@ -123,30 +125,30 @@ INIT {
     exit(1);
   }
 
-  for(int init_time=0;init_time<100;init_time++){
-    // cerr<<"Init Time: "<<init_time<<endl;
-    // for(auto c: cell){
-    //   if(c.AliveP()){
-    //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
-    //   }
-    //   else
-    //     printf(" Cell with sigma %d is dead\n", c.Sigma());
-    // }
-
-
-
+  for(int init_time=0;init_time<10;init_time++){
+  //   // cerr<<"Init Time: "<<init_time<<endl;
+  //   // for(auto c: cell){
+  //   //   if(c.AliveP()){
+  //   //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+  //   //   }
+  //   //   else
+  //   //     printf(" Cell with sigma %d is dead\n", c.Sigma());
+  //   // }
+  //
+  //
+  //
     CPM->AmoebaeMove2(PDEfield);  //this changes neighs
   }
   InitCellMigration();
 
-  std::cerr << "howmany cells? "<< cell.size() << '\n';
-  for(auto c: cell){
-    if(c.AliveP()){
-      printf("Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
-    }
-    else
-      printf("Cell with sigma %d is dead\n", c.Sigma());
-  }
+  // std::cerr << "howmany cells? "<< cell.size() << '\n';
+  // for(auto c: cell){
+  //   if(c.AliveP()){
+  //     printf("Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+  //   }
+  //   else
+  //     printf("Cell with sigma %d is dead\n", c.Sigma());
+  // }
   // std::cerr << "How can it be that weight_for_chemotaxis is different between here and inside the function?" << '\n';
   // it isn't, but there is something weird-
   // exit(1);
@@ -226,20 +228,30 @@ TIMESTEP {
 
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
-      // cerr<<"Time: "<<i<<endl;
       if( dish->CheckWhoMadeit() ){
+
+        //for simple simulations, stop sim when cells reach the border
+        char fname[300];
+        sprintf(fname,"%s/finaltime.txt",par.datadir);
+        ofstream myfile(fname);
+        myfile << i << endl;
+        myfile.close();
+        exit(0);
+
         //reset food
         // clone them with mutations
         // wipe out the previous pop
         // reseed
         //reset whomadeit vector
-        dish->SaveData(i);
-
-        exit(0);
         dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
         dish->ReproduceWhoMadeIt2(); //reproduction
-        dish->ClearWhoMadeItSet(); //zeros the who_made_it set
-        dish->Food->IncreaseVal(*(dish->Food));
+        dish->ClearWhoMadeItSet(); //zeros the who_made_it set,
+                                   // zero the particles eaten
+        dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
+                                                // because we do some AmoebaeMove2 steps in
+                                                // ReproduceWhoMadeIt2 to let cells grow a little
+                                                // but we don't want this to go along the new gradient
+                                                // which would be unfair.
         ;
       }
     }

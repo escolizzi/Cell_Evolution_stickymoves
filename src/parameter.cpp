@@ -87,6 +87,8 @@ Parameter::Parameter() {
   eatprob=0.;
   growth=0;
   ardecay=0.;
+  gradnoise=0.1;
+  gradlength=sizey;
   min_contact_duration_for_preying = 10;
   frac_contlen_eaten = 1.;
   metabolic_conversion = 0.5;
@@ -319,6 +321,8 @@ void Parameter::Read(const char *filename) {
   eatprob = fgetpar(fp, "eatprob", 0., true);
   ardecay = fgetpar(fp, "ardecay", 0., true);
   growth = fgetpar(fp, "growth", 0., true);
+  gradnoise = fgetpar(fp, "gradnoise", 0.1, true);
+  gradlength = igetpar(fp, "gradlength", 1, true);
   min_contact_duration_for_preying = fgetpar(fp, "min_contact_duration_for_preying", 1., true);
   frac_contlen_eaten = fgetpar(fp, "frac_contlen_eaten", 1., true);
   metabolic_conversion = fgetpar(fp, "metabolic_conversion", 0.5, true);
@@ -545,6 +549,8 @@ void Parameter::Write(ostream &os) const {
   os << " eatprob = " << eatprob << endl;
   os << " ardecay = " << ardecay << endl;
   os << " growth = " << growth << endl;
+  os << " gradnoise = " << gradnoise << endl;
+  os << " gradlength = " << gradlength << endl;
   os << " min_contact_duration_for_preying = " << min_contact_duration_for_preying;
   os << " frac_contlen_eaten = " << frac_contlen_eaten << endl;
   os << " metabolic_conversion = " << metabolic_conversion << endl;

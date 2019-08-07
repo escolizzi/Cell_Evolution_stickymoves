@@ -628,13 +628,11 @@ void IntPlane::IncreaseValBoundaryGrad(CellularPotts *cpm)
   peakx=sizex/2;
   peaky=1;
 
-  double noise=0.2;
-
   for(int i=1;i<sizex-1;i++)for(int j=1;j<sizey-1;j++){
     sigma[i][j]=0;
 
-    int maxfood = 1+5.* (1 - (double)j/(double)sizey);
-    double pfood_j =noise+ (1.-noise)* (1 - (double)j/(double)sizey);
+    maxfood = 1+5.* (1 - (double)j/par.gradlength);
+    pfood_j =par.gradnoise+ (1.-par.gradnoise)* (1 - (double)j/par.gradlength);
     if(RANDOM() < pfood_j)  sigma[i][j]=maxfood;
   }
 

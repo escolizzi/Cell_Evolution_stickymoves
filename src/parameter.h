@@ -85,6 +85,8 @@ class Parameter {
   double eatprob;
   double growth;
   double ardecay;
+  double gradnoise;
+  int gradlength;
   int min_contact_duration_for_preying;
   double frac_contlen_eaten;
   double metabolic_conversion;

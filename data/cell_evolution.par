@@ -43,8 +43,8 @@ init_chemmu = 2.0
 
 #keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
-#keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
-keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
+keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
 #lookup table for J val with medium:
@@ -131,8 +131,8 @@ init_k_chem_C = 0.
 init_weight_for_chemotaxis = 1.0
 
 # initial conditions (create a "blob" of cells in the middle)
-n_init_cells = 1
-size_init_cells = 100 
+n_init_cells = 50
+size_init_cells = 25 
 #size_init_cells = 20000
 
 #leave division to 0, this seems buggy

@@ -2774,6 +2774,57 @@ int CellularPotts::PlaceCellsRandomly(int n, int cellsize)
     return count;
 }
 
+// Places cells at regular distance from one another:
+// For square cells of size s, the spatial occupation is sqrt(s). 
+// Since we have to place n of them, we use a square of space of size sqrt(n)*(sqrt(s) + a_little_bit), 
+// centered at the center of grid, which means that the upper left corner of the first cell is at 
+// x=(sizex-sqrt(n)*(sqrt(s) + a_little_bit))/2
+int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
+{
+    int count=0;
+    int a_little_bit=2;
+    int smaller_dimension=( par.sizex < par.sizey)?par.sizex:par.sizey;
+    if( (sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))>smaller_dimension ){
+      std::cerr << "PlaceCellsOrderly(): Error. Too many cells or too large size?" << '\n';
+      exit(1);
+    }
+    
+    int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int step = ( sqrt(size_cells) + a_little_bit );
+    
+    int avrg_area=0;
+    
+    // each x,y point denotes the upper left corner of a cell
+    // with i,j we run through the cell
+    for(int x = begin ; x < end ; x += step ){
+      for(int y = begin ; y < end ; y += step ){
+        //std::cerr << "Cell will be placed at: "<< x<<","<<y << '\n';
+        count++;
+        int this_area=0;
+        for(int i=0; i<sqrt(size_cells); i++){
+          for(int j=0; j<sqrt(size_cells); j++){
+            if(sigma[x+i][y+j]){
+              std::cerr << "Grid point "<< x+i <<","<< y+j <<" is already occupied" << '\n';
+              exit(1);
+            }
+            sigma[x+i][y+j]=count;
+            this_area++;
+            avrg_area++;
+            if(this_area == size_cells) break;
+          }
+          if(this_area == size_cells) break;
+        }
+        if(count == n_cells) break;
+      }
+      if(count == n_cells) break;
+    }
+    
+    
+    cerr<<"Placed "<<count<<" cells out of "<<n_cells<<" requested; avrg area = "<< avrg_area/(double)count<<endl;
+    //exit(1);
+    return count;
+}
 
 /**! Fill the plane with initial cells
  \return actual amount of cells (some are not draw due to overlap) */
