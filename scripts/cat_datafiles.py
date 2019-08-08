@@ -2,6 +2,8 @@
 
 '''
 Script to merge multiple datafiles for concurrent analysis (general stats like MSD, for which sigma is not used)
+Best to use two files from runs with the same parameters, otherwise it makes little sense.
+Probably also better if they start at the same time.
 
 '''
 

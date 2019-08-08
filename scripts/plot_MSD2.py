@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 
 '''
-Plot the MSD over time for a simulation
+Plot the MSD over time for one or more simulations.
 Plot some selected cell tracks, centered at 0,0
 '''
 
@@ -70,7 +70,7 @@ for filename in sys.argv[2:]:
       ypos[-1].append(float(line[4]))
       count+=1
 
-  ##calculate MSD and standard erroe
+  ##calculate MSD and standard error
   maxint=len(xpos)
   nrcells=len(xpos[0])
   print maxint
