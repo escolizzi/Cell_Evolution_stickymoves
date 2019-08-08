@@ -718,7 +718,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     if(RANDOM()<0.05) sigma[i][j]=-1; //food
   }
 
-  std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;
+  // std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;
 
   return;
 

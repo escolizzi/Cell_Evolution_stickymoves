@@ -114,6 +114,8 @@ class Parameter {
   double init_k_chem_A;
   double init_k_chem_P;
   double init_k_chem_C;
+  
+  int the_line;
 
   double init_weight_for_chemotaxis;
   struct key_lock_pair{

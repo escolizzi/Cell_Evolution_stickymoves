@@ -119,6 +119,7 @@ Parameter::Parameter() {
   
   howmany_makeit_for_nextgen=30;
   popsize=100;
+  the_line=50;
 }
 
 Parameter::~Parameter() {
@@ -351,6 +352,7 @@ void Parameter::Read(const char *filename) {
   init_k_chem_C = fgetpar(fp, "init_k_chem_C", 0., true);
   howmany_makeit_for_nextgen = igetpar(fp, "howmany_makeit_for_nextgen", 1, true);
   popsize = igetpar(fp, "popsize", 1, true);
+  the_line = igetpar(fp, "the_line", 1, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -580,6 +582,7 @@ void Parameter::Write(ostream &os) const {
   //os << " init_weight_for_chemotaxis = " << init_weight_for_chemotaxis << endl;
   os << " howmany_makeit_for_nextgen = " <<  howmany_makeit_for_nextgen << endl;
   os << " popsize = " << popsize << endl;
+  os << " the_line = " << the_line <<endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

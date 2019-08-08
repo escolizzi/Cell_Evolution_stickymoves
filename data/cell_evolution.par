@@ -1,11 +1,11 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 100000
+mcs = 100000000
 
 ### grid size ###
-sizex = 500
-sizey = 500
+sizex = 250
+sizey = 250
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -18,7 +18,7 @@ target_area = 50
 
 #Division area
 #half_div_area = 100
-half_div_area = 300
+half_div_area = 500
 #division area for predators, set to -1 if you don't want to use
 half_div_area_2 = -1
 
@@ -54,13 +54,16 @@ Jmed_rule_input = 10o5_4_3_1_1_1
 key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
-howmany_makeit_for_nextgen = 100
-popsize = 250
+howmany_makeit_for_nextgen = 300
+popsize = 500
 
-n_init_cells = 250
-size_init_cells = 50
+n_init_cells = 500
+size_init_cells = 25
 #size_init_cells = 20000
 #size_init_cells = 20000
+
+#radius of the box for cells that make it to next generation
+the_line = 100
 
 #leave division to 0, this seems buggy
 divisions = 0
@@ -73,7 +76,7 @@ extensiononly = false
 border_energy = 100
 
 # min_area_for_life is the minimum area below which we set a cell to apoptose and remove, default 5
-min_area_for_life = 5
+min_area_for_life = 2
 
 # note: do not change the following parameters for "long" cells (lambda2>0)
 # neigh =2 is Moore neigh (#set neighbours to 1 to avoid predators from eating beyond contact <- NO)
@@ -152,7 +155,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 50
+storage_stride = 100
 graphics = false
 store = true
 datadir = data_film2

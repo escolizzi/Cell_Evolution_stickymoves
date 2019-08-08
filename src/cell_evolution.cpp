@@ -202,8 +202,11 @@ TIMESTEP {
 
 
 
-      dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
-      dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
+      //dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
+      
+      dish->UpdateCellParameters(); // SCALED//this changes neighs (via DivideCells)
+      //dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
+      
       //Recalculate the all vs. all J table.
       //this can be optimised by having some intelligent return flags from dish->CellGrowthAndDivision2();
       // for now it's every one vs everyone all the times.
@@ -228,7 +231,7 @@ TIMESTEP {
 
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
-      if( dish->CheckWhoMadeit() ){
+      if( dish->CheckWhoMadeitRadial() ){
         //reset food
         // clone them with mutations
         // wipe out the previous pop
@@ -236,7 +239,7 @@ TIMESTEP {
         //reset whomadeit vector
         // exit(0);
         dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
-        dish->ReproduceWhoMadeIt2(); //reproduction
+        dish->ReproduceWhoMadeIt3(); //reproduction
         dish->ClearWhoMadeItSet(); //zeros the who_made_it set, 
                                    // zero the particles eaten
         dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here 
@@ -244,7 +247,7 @@ TIMESTEP {
                                                 // ReproduceWhoMadeIt2 to let cells grow a little
                                                 // but we don't want this to go along the new gradient
                                                 // which would be unfair.
-        ;
+        std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';;
       }
     }
 
@@ -253,7 +256,7 @@ TIMESTEP {
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
     
     // if( i%25 == 0){
-    //   cerr<<"by this time there are so many cells: "<<dish->CountCells()<<endl;
+    //   cerr<<"by time: "<<i<<" there are so many cells: "<<dish->CountCells()<<endl;
     // }
     
     // if(i%1000==0 ) {

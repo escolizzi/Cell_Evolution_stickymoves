@@ -111,11 +111,14 @@ public:
   void CellMigration(void);
   //find cells that ate enough and let them grow; divide big cells and kill small cells
   void CellGrowthAndDivision2(void);
+  void UpdateCellParameters(void);
   int CheckWhoMadeit(void);
-
+  int CheckWhoMadeitRadial(void);
+  
   void RemoveWhoDidNotMakeIt(void);
   void ReproduceWhoMadeIt(void);
   void ReproduceWhoMadeIt2(void); //with particles dependent reproduction
+  void ReproduceWhoMadeIt3(void); //trying to save cells that reproduce a lot
   inline void ClearWhoMadeItSet(void){
     who_made_it.clear();
     for(auto &c:cell) c.particles=0;
@@ -152,7 +155,10 @@ public:
   IntPlane *Food;
   CellularPotts *CPM;
   std::set<int> who_made_it;
-  int the_line = 51;
+  //if the_line is 100 -> semicircle of area ~ 15000 
+  // in which 300 cells of area 50 can fit
+  //int the_line = 80; 
+  
   //unsigned int howmany_makeit_for_nextgen = 30;
   //unsigned int popsize = 100;
 
