@@ -104,6 +104,8 @@ INIT {
     
     for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area 
 
+    for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
+
     //PrintContactList();
 
     //Set function pointer for food update, depending on parameters
@@ -134,9 +136,7 @@ INIT {
   //   //   else
   //   //     printf(" Cell with sigma %d is dead\n", c.Sigma());
   //   // }
-  // 
-  // 
-  // 
+
     CPM->AmoebaeMove2(PDEfield);  //this changes neighs
   }
   InitCellMigration();
@@ -231,23 +231,37 @@ TIMESTEP {
 
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
-      if( dish->CheckWhoMadeitRadial() ){
-        //reset food
-        // clone them with mutations
-        // wipe out the previous pop
-        // reseed
-        //reset whomadeit vector
-        // exit(0);
-        dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
-        dish->ReproduceWhoMadeIt3(); //reproduction
-        dish->ClearWhoMadeItSet(); //zeros the who_made_it set, 
+      if( dish->CheckWhoMadeit() ){
+
+        //for simple simulations, stop sim when cells reach the border
+        if(!par.evolsim){
+          //for printing switching times
+          //write switching time to file
+          static char timename[300];
+          sprintf(timename,"%s/finaltime.txt",par.datadir);
+          static ofstream myfile(timename, ios::out | ios::app);
+          myfile << i << endl;
+          myfile.close();
+          exit(0);
+        }
+        else{
+
+          //reset food
+          // clone them with mutations
+          // wipe out the previous pop
+          // reseed
+          //reset whomadeit vector
+          dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
+          dish->ReproduceWhoMadeIt3(); //reproduction
+          dish->ClearWhoMadeItSet(); //zeros the who_made_it set,
                                    // zero the particles eaten
-        dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here 
-                                                // because we do some AmoebaeMove2 steps in 
+          dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
+                                                // because we do some AmoebaeMove2 steps in
                                                 // ReproduceWhoMadeIt2 to let cells grow a little
                                                 // but we don't want this to go along the new gradient
                                                 // which would be unfair.
-        std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';;
+         std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';;
+        }
       }
     }
 

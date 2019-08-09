@@ -1720,13 +1720,17 @@ int Dish::SaveData(int Time)
     if( ! icell->AliveP() ) continue; //if cell is not alive, continue
 
     int itau=icell->getTau();
+    int isigma=icell->Sigma();
     if( itau == PREDATOR ) pred++;
     else if(itau == PREY) prey++;
     else{
       cerr<<"SaveData(): Error. Got cell that is neither prey, nor predator"<<endl;
       exit(1);
     }
-    ofs << Time << " "<< itau << " "; // Time now, tau of me
+    ofs << Time << " "<<isigma<<" "<< itau << " "; // Time now, tau of me
+    ofs<< icell->getXpos()<<" "<<icell->getYpos()<<" ";
+    ofs<<icell->getXvec()<<" "<<icell->getYvec()<<" ";
+    ofs<<icell->getChemXvec()<<" "<<icell->getChemYvec()<<" ";
     //date of birth is not a simple thing.
     // DateOfBirth() returns date_of_birth,
     // which is assigned at cell birth (i.e. in the function CellBirth() ) from owner->Time()

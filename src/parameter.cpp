@@ -87,6 +87,8 @@ Parameter::Parameter() {
   eatprob=0.;
   growth=0;
   ardecay=0.;
+  gradnoise=0.1;
+  gradlength=sizey;
   min_contact_duration_for_preying = 10;
   frac_contlen_eaten = 1.;
   metabolic_conversion = 0.5;
@@ -116,10 +118,11 @@ Parameter::Parameter() {
   init_k_chem_A = 0.;
   init_k_chem_P = 0.;
   init_k_chem_C = 0.;
-  
+ 
   howmany_makeit_for_nextgen=30;
   popsize=100;
   the_line=50;
+  evolsim=0;
 }
 
 Parameter::~Parameter() {
@@ -322,12 +325,15 @@ void Parameter::Read(const char *filename) {
   eatprob = fgetpar(fp, "eatprob", 0., true);
   ardecay = fgetpar(fp, "ardecay", 0., true);
   growth = fgetpar(fp, "growth", 0., true);
+  gradnoise = fgetpar(fp, "gradnoise", 0.1, true);
+  gradlength = igetpar(fp, "gradlength", 1, true);
   min_contact_duration_for_preying = fgetpar(fp, "min_contact_duration_for_preying", 1., true);
   frac_contlen_eaten = fgetpar(fp, "frac_contlen_eaten", 1., true);
   metabolic_conversion = fgetpar(fp, "metabolic_conversion", 0.5, true);
   chancemediumcopied = fgetpar(fp, "chancemediumcopied", 0.0001, true);
   readcolortable = bgetpar(fp, "readcolortable", false, true);
   colortable_filename = sgetpar(fp,"colortable_filename" , "default.ctb",true);
+  evolsim = igetpar(fp, "evolsim", 0, true);
   mut_rate = fgetpar(fp, "mut_rate", 0.01, true);
   persduration = igetpar(fp, "persduration", 0, true);
   startmu = fgetpar(fp, "startmu", 0.0, true);
@@ -550,6 +556,8 @@ void Parameter::Write(ostream &os) const {
   os << " eatprob = " << eatprob << endl;
   os << " ardecay = " << ardecay << endl;
   os << " growth = " << growth << endl;
+  os << " gradnoise = " << gradnoise << endl;
+  os << " gradlength = " << gradlength << endl;
   os << " min_contact_duration_for_preying = " << min_contact_duration_for_preying;
   os << " frac_contlen_eaten = " << frac_contlen_eaten << endl;
   os << " metabolic_conversion = " << metabolic_conversion << endl;
@@ -559,9 +567,10 @@ void Parameter::Write(ostream &os) const {
   os << " readcolortable = " << readcolortable <<endl;
   os << " colortable_filename = " << colortable_filename <<endl;
   os << " mut_rate = " << mut_rate <<endl;
+  os << " evolsim = " << evolsim <<endl;
   os << " persduration = " << persduration <<endl;
   os << " startmu = " << startmu <<endl;
-  os << " startmu = " << scaling_cell_to_ca_time <<endl;
+  os << " scaling_cell_to_ca_time = " << scaling_cell_to_ca_time <<endl;
   os << " backupdir = " << backupdir <<endl;
   os << " save_backup_period = " << save_backup_period <<endl;
   if (datadir)
