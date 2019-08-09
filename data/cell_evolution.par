@@ -1,7 +1,7 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 100000
+mcs = 50000
 
 ### grid size ###
 sizex = 500
@@ -41,9 +41,9 @@ init_chemmu = 2.0
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
-#keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
+keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
-keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
@@ -73,6 +73,7 @@ periodic_boundaries = false
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
 mut_rate = 0.0
+evolsim = 1
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0

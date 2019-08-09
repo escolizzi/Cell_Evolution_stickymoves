@@ -119,6 +119,8 @@ Parameter::Parameter() {
   init_k_chem_A = 0.;
   init_k_chem_P = 0.;
   init_k_chem_C = 0.;
+
+  evolsim=0;
 }
 
 Parameter::~Parameter() {
@@ -329,6 +331,7 @@ void Parameter::Read(const char *filename) {
   chancemediumcopied = fgetpar(fp, "chancemediumcopied", 0.0001, true);
   readcolortable = bgetpar(fp, "readcolortable", false, true);
   colortable_filename = sgetpar(fp,"colortable_filename" , "default.ctb",true);
+  evolsim = igetpar(fp, "evolsim", 0, true);
   mut_rate = fgetpar(fp, "mut_rate", 0.01, true);
   persduration = igetpar(fp, "persduration", 0, true);
   startmu = fgetpar(fp, "startmu", 0.0, true);
@@ -560,9 +563,10 @@ void Parameter::Write(ostream &os) const {
   os << " readcolortable = " << readcolortable <<endl;
   os << " colortable_filename = " << colortable_filename <<endl;
   os << " mut_rate = " << mut_rate <<endl;
+  os << " evolsim = " << evolsim <<endl;
   os << " persduration = " << persduration <<endl;
   os << " startmu = " << startmu <<endl;
-  os << " startmu = " << scaling_cell_to_ca_time <<endl;
+  os << " scaling_cell_to_ca_time = " << scaling_cell_to_ca_time <<endl;
   os << " backupdir = " << backupdir <<endl;
   os << " save_backup_period = " << save_backup_period <<endl;
   if (datadir)

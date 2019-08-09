@@ -117,6 +117,9 @@ class Parameter {
   double init_k_chem_C;
 
   double init_weight_for_chemotaxis;
+
+  int evolsim;
+
   struct key_lock_pair{
     int tau;
     vector<int> key;
