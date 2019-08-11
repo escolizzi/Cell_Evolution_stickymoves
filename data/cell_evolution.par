@@ -33,7 +33,7 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50
-init_chemmu = 1.
+init_chemmu = 2.0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
@@ -45,6 +45,7 @@ keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 
 #keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
@@ -90,6 +91,7 @@ periodic_boundaries = false
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
 mut_rate = 0.01
+evolsim = 1
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0
@@ -145,7 +147,6 @@ init_k_chem_C = 0.
 #Weight For Chemotaxis vs. (persistence) random walk
 init_weight_for_chemotaxis = 1.0
 
-
 # rseed deafult = -1, randomises the seed, any natural number is used as seed
 rseed = -1
 # chancemediumcopied is the chance that instead of copying a pixel with another, cells copy medium from outer space
@@ -160,7 +161,7 @@ storage_stride = 100
 graphics = false
 store = true
 datadir = data_film2
-save_text_file_period = 1000
+save_text_file_period = 50
 datafile = data_cellcount.txt
 save_backup_period = 5000
 backupdir = backup
