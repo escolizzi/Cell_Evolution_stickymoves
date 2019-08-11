@@ -894,9 +894,17 @@ void Dish::CellsEat2(void)
         yv=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
 
         double hyphyp=hypot(xv,yv);
-        xv/=hyphyp;
-        yv/=hyphyp;
-        c.setChemVec(xv,yv);
+        
+        // in a homogeneous medium, gradient is zero
+        // we then pick a random direction
+        if(hyphyp > 0.0001){
+          xv/=hyphyp;
+          yv/=hyphyp;
+          c.setChemVec(xv,yv);
+        }else{
+          double theta = 2.*M_PI*RANDOM();
+          c.setChemVec( cos(theta) , sin(theta) );
+        }
       }
       if(c.chemvecx>1 || c.chemvecy>1){
         std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';

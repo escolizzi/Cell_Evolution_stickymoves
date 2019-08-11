@@ -694,9 +694,20 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
 
     // int maxfood = 1.+9.*RANDOM();
     // double pfood_j = 0.125;
+    
     // makes gradient
-    int maxfood = 1+5.* (1 - dist_from_peak/(double)sizey);
-    double pfood_j = 0.1+ 0.9* (1 - dist_from_peak/(double)sizey);
+    // int maxfood = 3;
+    // int maxfood = 1+5.* (1. - dist_from_peak/(double)sizey);
+    
+    double dfood = 1+5.* (1. - dist_from_peak/(double)sizey); //this the usable line
+    int maxfood = (int)dfood;
+    
+    //if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise
+      
+    // noise
+    double pfood_j = 0.1+ 0.9* (1. - dist_from_peak/(double)sizey);  // this is the usable one
+    //double pfood_j = 1.;
+    //pfood_j = 0.3; // also like this is works... but why?
     if(RANDOM() < pfood_j)
       sigma[i][j]=maxfood; //else already set to zero
     // else
@@ -715,7 +726,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // if(RANDOM() < pfood_j) sigma[i][j]=maxfood;
     // else sigma[i][j]=0;
 
-    if(RANDOM()<0.05) sigma[i][j]=-1; //food
+    //if(RANDOM()<0.05) sigma[i][j]=-1; //food
   }
 
   // std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;

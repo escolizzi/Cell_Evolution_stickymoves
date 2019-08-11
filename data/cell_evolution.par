@@ -1,11 +1,12 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 100000000
+#mcs = 100000000
+mcs = 50000
 
 ### grid size ###
-sizex = 250
-sizey = 250
+sizex = 500
+sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -37,9 +38,9 @@ init_chemmu = 1.
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
@@ -54,7 +55,7 @@ Jmed_rule_input = 10o5_4_3_1_1_1
 key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
-howmany_makeit_for_nextgen = 300
+howmany_makeit_for_nextgen = 250
 popsize = 500
 
 n_init_cells = 500
@@ -63,7 +64,7 @@ size_init_cells = 25
 #size_init_cells = 20000
 
 #radius of the box for cells that make it to next generation
-the_line = 100
+the_line = 90
 
 #leave division to 0, this seems buggy
 divisions = 0
