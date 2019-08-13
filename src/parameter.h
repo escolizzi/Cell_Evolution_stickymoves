@@ -118,10 +118,10 @@ class Parameter {
   double init_k_chem_C;
   
   int the_line;
-
   double init_weight_for_chemotaxis;
-
-  int evolsim;
+  int evolsim;  //will the simulation end after the first time cells arrive at target?
+  bool evolreg; //do regulation parameters evolve?
+  bool is_there_food; // is there food?
 
   struct key_lock_pair{
     int tau;

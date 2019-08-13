@@ -123,6 +123,7 @@ Parameter::Parameter() {
   popsize=100;
   the_line=50;
   evolsim=0;
+  is_there_food=false;
 }
 
 Parameter::~Parameter() {
@@ -325,8 +326,8 @@ void Parameter::Read(const char *filename) {
   eatprob = fgetpar(fp, "eatprob", 0., true);
   ardecay = fgetpar(fp, "ardecay", 0., true);
   growth = fgetpar(fp, "growth", 0., true);
-  gradnoise = fgetpar(fp, "gradnoise", 0.1, true);
-  gradlength = igetpar(fp, "gradlength", 1, true);
+  // gradnoise = fgetpar(fp, "gradnoise", 0.1, true); //did I put these in?
+  // gradlength = igetpar(fp, "gradlength", 1, true);
   min_contact_duration_for_preying = fgetpar(fp, "min_contact_duration_for_preying", 1., true);
   frac_contlen_eaten = fgetpar(fp, "frac_contlen_eaten", 1., true);
   metabolic_conversion = fgetpar(fp, "metabolic_conversion", 0.5, true);
@@ -359,6 +360,8 @@ void Parameter::Read(const char *filename) {
   howmany_makeit_for_nextgen = igetpar(fp, "howmany_makeit_for_nextgen", 1, true);
   popsize = igetpar(fp, "popsize", 1, true);
   the_line = igetpar(fp, "the_line", 1, true);
+  is_there_food = bgetpar(fp,"is_there_food",false, true);
+  evolreg = bgetpar(fp,"evolreg",false, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -592,6 +595,8 @@ void Parameter::Write(ostream &os) const {
   os << " howmany_makeit_for_nextgen = " <<  howmany_makeit_for_nextgen << endl;
   os << " popsize = " << popsize << endl;
   os << " the_line = " << the_line <<endl;
+  os << " is_there_food = " << is_there_food << endl;
+  os << " evolreg = " << evolreg <<endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

@@ -1,12 +1,12 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-#mcs = 100000000
-mcs = 50000
+mcs = 100000000
+#mcs = 50000
 
 ### grid size ###
-sizex = 500
-sizey = 500
+sizex = 1000
+sizey = 1000
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -33,12 +33,11 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50
-init_chemmu = 2.0
+init_chemmu = 1.0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_6_10_12_10_41.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
@@ -61,7 +60,6 @@ popsize = 500
 
 n_init_cells = 500
 size_init_cells = 25
-#size_init_cells = 20000
 #size_init_cells = 20000
 
 #radius of the box for cells that make it to next generation
@@ -92,6 +90,7 @@ periodic_boundaries = false
 #mut_rate = 0.01
 mut_rate = 0.01
 evolsim = 1
+evolreg = 0
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0
@@ -102,12 +101,15 @@ n_chem = 0
 # notice that nowhere zeroes foodinflux
 food_influx_location = specified_experiment
 
+# only used in specified_experiment, if true it puts 1 food randomly, with probability foodinflux = 0.05
+is_there_food = 0
+
 # default initial_food_amount = 5
 initial_food_amount = 0
 #default foodinflux=0.2
 #foodinflux = 0.025
 #foodinflux = 0.002
-foodinflux = 0.0001
+foodinflux = 0.05
 # default eatprob = 1.
 eatprob = 1.0
 # default growth = 10.
@@ -161,7 +163,7 @@ storage_stride = 100
 graphics = false
 store = true
 datadir = data_film2
-save_text_file_period = 50
+save_text_file_period = 2000
 datafile = data_cellcount.txt
 save_backup_period = 5000
 backupdir = backup

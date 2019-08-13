@@ -331,7 +331,7 @@ void Dish::MutateCells(vector<int> sigma_to_update)
       cell[upd_sigma].MutateKeyAndLock();
       //cell[upd_sigma].MutateMu();
       //cerr<<"hello from before mutation"<<endl;
-      if(par.mut_rate>0.){
+      if(par.evolreg == true){
         //cell[upd_sigma].MutateMaintenanceFractionParameters();
         cell[upd_sigma].MutateExtProtFractionParameters();
         //cell[upd_sigma].MutateChemotaxisParameters();
