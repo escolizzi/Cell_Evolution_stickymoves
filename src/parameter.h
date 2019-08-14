@@ -86,7 +86,7 @@ class Parameter {
   double growth;
   double ardecay;
   double gradnoise;
-  int gradlength;
+  int gradscale;
   int min_contact_duration_for_preying;
   double frac_contlen_eaten;
   double metabolic_conversion;
@@ -116,7 +116,7 @@ class Parameter {
   double init_k_chem_A;
   double init_k_chem_P;
   double init_k_chem_C;
-  
+
   int the_line;
   double init_weight_for_chemotaxis;
   int evolsim;  //will the simulation end after the first time cells arrive at target?

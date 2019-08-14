@@ -623,7 +623,7 @@ void IntPlane::IncreaseValSelfGrowth(CellularPotts *cpm)
 void IntPlane::IncreaseValBoundaryGrad(CellularPotts *cpm)
 {
   int maxfood;
-  double pfood_j;
+  double pfood_j, dfood;
 
   peakx=sizex/2;
   peaky=1;
@@ -631,8 +631,13 @@ void IntPlane::IncreaseValBoundaryGrad(CellularPotts *cpm)
   for(int i=1;i<sizex-1;i++)for(int j=1;j<sizey-1;j++){
     sigma[i][j]=0;
 
-    maxfood = 1+5.* (1 - (double)j/par.gradlength);
-    pfood_j =par.gradnoise+ (1.-par.gradnoise)* (1 - (double)j/par.gradlength);
+    dfood = par.gradscale*( (double)sizey/100.) * (1. - j/(double)sizey); //this the usable line
+
+    maxfood=(int)dfood;
+    if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise
+
+    //maxfood = 1+5.* (1 - (double)j/par.gradlength);
+    pfood_j =par.gradnoise+ (1.-par.gradnoise)* (1 - (double)j/(double)sizey);
     if(RANDOM() < pfood_j)  sigma[i][j]=maxfood;
   }
 
@@ -694,11 +699,11 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
 
     // int maxfood = 1.+9.*RANDOM();
     // double pfood_j = 0.125;
-    
+
     // makes gradient
     // int maxfood = 3;
     // int maxfood = 1+5.* (1. - dist_from_peak/(double)sizey);
-    
+
     //This is how it was before, worked for field size of 500
     // double dfood = 1+5.* (1. - dist_from_peak/(double)sizey); //this the usable line
     // so maybe - to standardize gradients across field sizes, I could do:
@@ -706,12 +711,12 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // so that the local slope of the gradient stays the same?
     // also- the 1+ part of the equation could go...
     // or even better counter balanced by a lesser gradient in the variable part
-    //final formula: 
-    double dfood = 1. + ( (double)sizey/100. - 1.) * (1. - dist_from_peak/(double)sizey); //this the usable line
-    
+    //final formula:
+    double dfood = par.gradscale*((double)sizey/100.) * (1. - dist_from_peak/(double)sizey); //this the usable line
+
     int maxfood = (int)dfood;
     if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise
-      
+
     // noise
     double pfood_j = 0.1+ 0.9* (1. - dist_from_peak/(double)sizey);  // this is the usable one
     //double pfood_j = 1.;
@@ -733,7 +738,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // double pfood_j = 0.5+ 0.5* (sizey-j)/(double)(sizey);
     // if(RANDOM() < pfood_j) sigma[i][j]=maxfood;
     // else sigma[i][j]=0;
-    
+
     //bool is_there_food = false;
     if(par.is_there_food){
       if(RANDOM()<par.foodinflux) sigma[i][j]=-1; //food
