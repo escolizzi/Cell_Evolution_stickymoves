@@ -30,20 +30,23 @@ filename=""
 fig, ax = plt.subplots()
 if len(sys.argv) <3:
   print "This is the program 'plot_CMdisplacement.py'"
-  print "Usage: ./plot_CMdisplacement.py <timeperiod> <(int) simset <filename(s)>> "
+  print "Usage: ./plot_CMdisplacement.py <figure name> <timeperiod> <(short) simset <filename(s)>> "
   sys.exit(1)
 else:
-  period=int(sys.argv[1])
+  figname=sys.argv[1]
+  period=int(sys.argv[2])
   
 labels=[]
 displace=[]
 offset=[]
 colourset=[]
 totalcounter=0
-for filename in sys.argv[2:]:
+labelset=[]
+for filename in sys.argv[3:]:
 
-  if len(filename)<3:
+  if len(filename)<4:
     totalcounter+=1
+    labelset.append(filename)
   else:
     #now we calculate the center of mass of all cells, and its displacement over x timesteps
     colourset.append(colours[totalcounter])
@@ -95,6 +98,25 @@ for filename in sys.argv[2:]:
 ##start plotting##
 
 ax.scatter(offset,displace, c=colourset,alpha=0.5)
+ax.set_xlim([0,totalcounter+1])
+#custom xlabels
+my_labels=ax.get_xticks().tolist()
+counter=0
+newlab=[]
+for el in my_labels:
+  if el.is_integer() and counter<len(labelset) and el>0.001:
+    newlab.append(labelset[counter])
+    counter+=1
+  else:
+    newlab.append('')
 
+ax.set_xticklabels(newlab)
+#print my_labels
+#print labelset
+#print newlab
 
-plt.show()
+plt.xlabel('simulation')
+ylab='displacement in time period '+str(period)
+plt.ylabel (ylab)
+fig.savefig(figname, bbox_inches='tight')
+#plt.show()

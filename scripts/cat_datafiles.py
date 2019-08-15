@@ -32,6 +32,8 @@ print "first and last time point are ",timepoint, " ", lastpoint
 
 #concatenate the files by timepoint
 nexttime=timepoint
+cellcount=1
+prevcell=0
 while timepoint<=lastpoint:
 
   for filename in sys.argv[2:]:
@@ -40,13 +42,22 @@ while timepoint<=lastpoint:
       for line in fin:
         larr=line.split()
         if int(larr[0])==timepoint:
-          outputfile.write(line)
+          if(int(larr[1])-prevcell>1):
+            cellcount+=1
+          prevcell=int(larr[1])
+          larr[1]=str(cellcount)
+          #print larr
+          outputfile.write(' '.join(larr))
+          outputfile.write("\n")
+          cellcount+=1
         elif int(larr[0])>timepoint:
           nexttime=int(larr[0])
-          print "found nexttime in file ",filename,"it's ",nexttime
+          #print "found nexttime in file ",filename,"it's ",nexttime
           break	
   
   timepoint=nexttime
-  print timepoint
+  cellcount=1
+  prevcell=0
+  #print timepoint
 
 outputfile.close()

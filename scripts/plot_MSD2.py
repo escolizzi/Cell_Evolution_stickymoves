@@ -8,6 +8,7 @@ Plot some selected cell tracks, centered at 0,0
 import sys,math,os,subprocess,random
 #from PIL import Image
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -28,13 +29,14 @@ filename=""
 fig, (ax0, ax1) = plt.subplots(ncols=2)
 if len(sys.argv) <3:
   print "This is the program 'plot_MSD.py'"
-  print "Usage: ./plot_MSD.py <nr of tracks to plot> <filename(s)> "
+  print "Usage: ./plot_MSD.py <nr of tracks to plot> <figure name> <filename(s)> "
   sys.exit(1)
 else:
-  tracknr=int(sys.argv[1])
+  figname=sys.argv[1]
+  tracknr=int(sys.argv[2])
 
 filecounter=0
-for filename in sys.argv[2:]:
+for filename in sys.argv[3:]:
 
   timepoints=[]
   MSD=[]
@@ -81,7 +83,7 @@ for filename in sys.argv[2:]:
     sd=0.0
     xn=[]
     while (count+i<maxint):
-      for c in range(nrcells):  
+      for c in range(len(xpos[count+i])):  #problem when cells die...
         xn.append((xpos[count+i][c]-xpos[count][c])*(xpos[count+i][c]-xpos[count][c])+(ypos[count+i][c]-ypos[count][c])*(ypos[count+i][c]-ypos[count][c]))
         MSD[-1]+=xn[-1]
         count2+=1
@@ -128,5 +130,13 @@ for filename in sys.argv[2:]:
 
   filecounter+=1
 
+ax0.set_xlabel('time (MCS)')
+ax0.set_ylabel('MSD (pix^2)')
+ax0.set_title('Mean squared displacement')
 
-plt.show()
+ax1.set_xlabel('x position')
+ax1.set_ylabel('y position')
+ax1.set_title('Re-centered cell tracks')
+
+fig.savefig(figname, bbox_inches='tight')
+#plt.show()
