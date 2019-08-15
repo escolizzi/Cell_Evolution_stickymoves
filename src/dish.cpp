@@ -29,6 +29,7 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include <algorithm>
 #include <fstream>
 #include <string.h>
+#include <sstream>
 #include <errno.h>
 #include <math.h>
 #include "dish.h"
@@ -55,13 +56,11 @@ Dish::Dish(void) {
   if (par.n_chem)
     PDEfield=new PDE(par.n_chem,par.sizex, par.sizey);
 
+  cout<<"Starting the dish. Initialising..."<<endl;
   // Initial cell distribution is defined by user in INIT {} block
   Init();
 
-  if (par.target_area>0)
-    for(std::vector<Cell>::iterator c=cell.begin();c!=cell.end();c++) {
-      c->SetTargetArea(par.target_area);
-    }
+
 
   //cout<<cell[1].neighbours[0].first<<endl;
   //cout<<cell[1].TargetArea()<<endl;
@@ -74,6 +73,14 @@ Dish::~Dish() {
 
   delete CPM;
   delete Food;
+}
+
+void Dish::InitTargetArea(void)
+{
+  if (par.target_area>0)
+    for(std::vector<Cell>::iterator c=cell.begin();c!=cell.end();c++) {
+      c->SetTargetArea(par.target_area);
+    }
 }
 
 void Dish::InitKeyLock(void)
@@ -595,7 +602,7 @@ void Dish::Plot(Graphics *g, int colour) {
         g->Line(x1,y1,x2, y2, 1);
       }
     }
-    
+
     //get info where the peak is and draw a line for box where who_made_it should register stuff
     // notice that the box is now radial
     int peakx = Food->GetPeakx();
@@ -637,7 +644,7 @@ void Dish::Plot(Graphics *g, int colour) {
     }
     //std::cerr << "minx,maxx " << minx <<" "<< maxx<< '\n';
     //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
-    
+
     for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
       if(i==par.sizex || i==0 || j==par.sizey || j==0) continue; //don't draw on the borders
       int dx = peakx - i;
@@ -894,7 +901,7 @@ void Dish::CellsEat2(void)
         yv=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
 
         double hyphyp=hypot(xv,yv);
-        
+
         // in a homogeneous medium, gradient is zero
         // we then pick a random direction
         if(hyphyp > 0.0001){
@@ -1140,7 +1147,7 @@ void Dish::UpdateCellParameters(void)
    //cout<<"Hello beginning CellGrowthAndDivision2 "<<endl;
   vector<bool> which_cells(cell.size()); //which cells will divide
   vector<int> sigma_newcells;
-    
+
     vector<Cell>::iterator c; //iterator to go over all Cells
     int area;
     double newar;
@@ -1150,7 +1157,7 @@ void Dish::UpdateCellParameters(void)
     //cells grow due to food intake, and shrink constantly due to metabolism
     for( c=cell.begin(), ++c; c!=cell.end(); ++c){
       if( c->AliveP() ){
-        
+
         //in this version, maintenance_fraction is a function of evolvable parameters:
         // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length
         // and bounded inside [0,1]
@@ -1160,16 +1167,16 @@ void Dish::UpdateCellParameters(void)
         // this is just a number that is going to be multiplied to the J values of this cell...
         // ... how? maybe directly in amoebamove? (it'd be easier than updating all J values for this guy
         // and for all those in contact with this guy)
-        
+
         //same function, be careful which parameters you pass
         c->extprotexpress_fraction = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_ext_0,c->k_ext_A,c->k_ext_P,c->k_ext_C);
-        
+
         //same function for regulation of chemotaxis
         c->weight_for_chemotaxis =  c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
-        
-        c->mu = par.startmu; 
+
+        c->mu = par.startmu;
         c->chemmu = par.init_chemmu;
-        
+
         //std::cerr << "Cell with sigma = "<<c->Sigma()<<" has particles: "<<c->particles << '\n';
       }
       //check area:if cell is too small (whether alive or not) we remove its sigma
@@ -1188,13 +1195,13 @@ void Dish::UpdateCellParameters(void)
 // As the one after, except that the reproduction zone is a semicircle around the peak of the gradient
 int Dish::CheckWhoMadeitRadial(void){
   unsigned int howmany_makeit_for_nextgen = par.howmany_makeit_for_nextgen; //we do this to cast the par, which is int, to unsigned int
-  
+
   //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y,
   // while the other is size_y/2_or_x/2
   //we first predetermine a rectangle in which to check, and in the for loop check for actual distance
-  
+
   // in this case, par.the_line is the radius of the semicircle
-  
+
   // static int current_peakx=-1,current_peaky=-1;
   // static int minx,maxx,miny,maxy;
 
@@ -1202,11 +1209,11 @@ int Dish::CheckWhoMadeitRadial(void){
   int peakx = Food->GetPeakx();
   int peaky = Food->GetPeaky();
 
-  
+
   // if(peakx != current_peakx || peaky != current_peaky){
   //   current_peakx=peakx;
   //   current_peaky=peaky;
-  // 
+  //
   //   if(peakx==1) {
   //     //then peaky = sizey/2 and
   //     minx = 1;
@@ -1245,15 +1252,15 @@ int Dish::CheckWhoMadeitRadial(void){
   //     who_made_it.insert( CPM->Sigma(i,j) ); //if already there it will not be duplicated in the set
   //   }
   // }
-  
+
   for(auto c:cell){
     double distx = c.meanx - peakx;
     double disty = c.meany - peaky;
     double dist_from_peak = hypot(distx,disty);
-    if( dist_from_peak <= par.the_line ) 
+    if( dist_from_peak <= par.the_line )
       who_made_it.insert( c.Sigma() ); //if already there it will not be duplicated in the set
   }
-  
+
   // cerr<< "px,py: "<< peakx<<" "<<peaky <<" box mx,My my,My: "<< minx<<" "<<maxx<<" "<<miny<<" "<<maxy<<endl;
   // cerr<< "who_made_it has so many members: "<< who_made_it.size() << endl;
 
@@ -1372,40 +1379,40 @@ void Dish::RemoveWhoDidNotMakeIt(void)
 void Dish::ReproduceWhoMadeIt3(void)
 {
   unsigned int popsize = par.popsize;
-  
+
   vector<bool> which_cells(cell.size()); //which cells will divide
   vector<double> particles_of_those_whomadeit(cell.size());
   vector<int> sigma_of_cells_that_will_divide;
-  vector<int> sigma_newcells; 
-  
+  vector<int> sigma_newcells;
+
   double tot_eaten_particles=0.;
   unsigned int current_popsize = who_made_it.size();
-  
+
   // checked
   // std::cerr << "Just a check" << '\n';
   // for(auto c:cell){
   //   if(c.AliveP() && c.Sigma()) std::cerr << "Sigma: "<< c.Sigma() << ", particles: "<< c.particles << '\n';
   // }
-  
+
   for(auto sig: who_made_it){
     tot_eaten_particles+=cell[sig].particles;
     particles_of_those_whomadeit[sig] = cell[sig].particles; //then use this to iterate
                                                              // the reason is that daughter cells themselves don't replicate
                                                              // so after halving particles with them a mother cell decreases its own exponentially
                                                              // which screws up the probability of replication
-    //cell[sig].SetTargetArea(4*par.target_area); 
+    //cell[sig].SetTargetArea(4*par.target_area);
     cell[sig].mu = 0.;  //also the other mu??
     cell[sig].chemmu = 0.;
   }
-  
+
   // for(int i=0;i<100;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little more
-  
+
   // What happens if no-one ate anything?
   // Should we give a little chance of reprodution to cells that ate nothing?
   // yes: espilon = 0.1
   double epsilon=0.1;
   tot_eaten_particles+= epsilon*current_popsize;
-  
+
   //At this point we have eveybody's fitness ( (particles+epsilon)/tot_eaten_particles )
   // we first generate the sigmas that divide, and then we do the actual divisions
   while(current_popsize<popsize){
@@ -1429,9 +1436,9 @@ void Dish::ReproduceWhoMadeIt3(void)
   // std::cerr << "These are the cells that will divide" << '\n';
   // for(auto sig:sigma_of_cells_that_will_divide) std::cerr << sig<<" ";
   // std::cerr << " " << '\n';
-  // 
+  //
   //At this point we should orchestrate actul cell division:
-  // some cells replicate 10 times, other zero: the idea is that we let cells divide 
+  // some cells replicate 10 times, other zero: the idea is that we let cells divide
   // if they are bigger than a certain amount, if not, we run amoeabeamove until they have expanded enough
   std::vector<int> new_sigma_of_cells_that_will_divide;
   while( ! sigma_of_cells_that_will_divide.empty() ){
@@ -1440,12 +1447,12 @@ void Dish::ReproduceWhoMadeIt3(void)
       //if which_cells[sig] is not already marked
       // std::cerr << "Cell: "<<sig <<" has area "<< cell[sig].area << " and which_cells[sig] = "<<which_cells[sig] ;
       // put in which_cells
-      if(cell[sig].Area() > 30 && which_cells[sig]==false){ 
+      if(cell[sig].Area() > 30 && which_cells[sig]==false){
         which_cells[sig]=true;
         // std::cerr << " therefore yes" << '\n';
       }
       // if not, put in new_sigma_of_cells_that_will_divide
-      else{ 
+      else{
         new_sigma_of_cells_that_will_divide.push_back(sig);
         // std::cerr << " therefore no" << '\n';
       }
@@ -1457,29 +1464,29 @@ void Dish::ReproduceWhoMadeIt3(void)
     sigma_newcells = CPM->DivideCells(which_cells); //replicate cells
     MutateCells(sigma_newcells);
     UpdateVectorJ(sigma_newcells);
-    
+
     // std::cerr << "There are now "<< CountCells() <<" cells" << '\n';
-    
+
     //zero the which_cells vector
     std::fill(which_cells.begin(), which_cells.end(), false);
-    
+
     //reset target area
-    
+
     //just for checking
     //vector<Cell>::iterator c; //iterator to go over all Cells
     // int counter=0;
-    
+
     //reset target area, because cell division changes
     for(auto sig: sigma_of_cells_that_will_divide){
         cell[sig].SetTargetArea(par.target_area); // for good measure
-       
+
     }
     //do a bunch of AmoebaeMove2
     for(int i=0;i<5;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little
     //copy new_sigma_of_cells_that_will_divide into old one
     sigma_of_cells_that_will_divide = new_sigma_of_cells_that_will_divide;
     new_sigma_of_cells_that_will_divide.clear();
-    
+
     //checks - PASSED
     // std::cerr << "Just a check that vector copying went fine\n sigma_of_bla... should not be empty"<<endl;
     // for(auto x: sigma_of_cells_that_will_divide) std::cerr << x <<" ";
@@ -1487,21 +1494,21 @@ void Dish::ReproduceWhoMadeIt3(void)
     // std::cerr << "new_sigma_of_bla... should be empty "<<endl;
     // for(auto x: new_sigma_of_cells_that_will_divide) std::cerr << x <<" ";
     // std::cerr << " " << '\n';
-    // 
-    
+    //
+
     // return;
   }
-  
-  //also needed, to set all daugher cells 
+
+  //also needed, to set all daugher cells
   vector<Cell>::iterator c; //iterator to go over all Cells
   int counter=0;
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
     if(c->AliveP()){
-      c->SetTargetArea(par.target_area); 
+      c->SetTargetArea(par.target_area);
       counter++;
-    } 
+    }
   }
-  
+
   // cerr<<"At the end of ReproduceWhoMadeIt3 there are so many cells: "<<counter<<endl;
 }
 
@@ -1509,11 +1516,11 @@ void Dish::ReproduceWhoMadeIt3(void)
 void Dish::ReproduceWhoMadeIt2(void)
 {
   unsigned int popsize = par.popsize;
-  
+
   vector<bool> which_cells(cell.size()); //which cells will divide
   vector<double> particles_of_those_whomadeit(cell.size());
-  vector<int> sigma_newcells; 
-  
+  vector<int> sigma_newcells;
+
   double tot_eaten_particles=0.;
   unsigned int current_popsize = who_made_it.size();
 
@@ -1523,17 +1530,17 @@ void Dish::ReproduceWhoMadeIt2(void)
                                                              // the reason is that daughter cells themselves don't replicate
                                                              // so after halving particles with them a mother cell decreases its own exponentially
                                                              // which screws up the probability of replication
-    cell[sig].SetTargetArea(4*par.target_area); 
+    cell[sig].SetTargetArea(4*par.target_area);
     cell[sig].mu = 0.;  //also the other mu??
     cell[sig].chemmu = 0.;
   }
-  
+
   // for(auto sig: who_made_it){
-  //   cell[sig].SetTargetArea(  ); 
+  //   cell[sig].SetTargetArea(  );
   // }
-  
+
   for(int i=0;i<100;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little more
-  
+
   // What happens if no-one ate anything?
   // Should we give a little chance of reprodution to cells that ate nothing?
   // yes: espilon = 0.1
@@ -1562,7 +1569,7 @@ void Dish::ReproduceWhoMadeIt2(void)
       exit(1);
     }
     current_popsize++;
-    
+
     if(which_cells[which_sig] == false){
       which_cells[which_sig] = true;
       cell[which_sig].mu = 0.;        // set mu to zero here so that they do not migrate in amoeabeamove later
@@ -1575,13 +1582,13 @@ void Dish::ReproduceWhoMadeIt2(void)
       MutateCells(sigma_newcells);
       UpdateVectorJ(sigma_newcells);
       std::cerr << "There are now "<< CountCells() <<" cells" << '\n';
-      
+
       for(auto a: sigma_newcells){
         if(a) cell[a].SetTargetArea(par.target_area);
       }
       for(int i=0;i<200;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little <- this is not working super well
       // return;
-      
+
       std::fill(which_cells.begin(), which_cells.end(), false); //zero the vector
       which_cells[which_sig] = true; //set the cell to replicate
       cell[which_sig].mu = 0.;  // set mu to zero here so that they do not migrate in amoeabeamove later
@@ -1599,11 +1606,11 @@ void Dish::ReproduceWhoMadeIt2(void)
       for(auto a: sigma_newcells){
         if(a) cell[a].SetTargetArea(par.target_area);
       }
-      
+
       for(int i=0;i<200;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little more
       std::cerr << "Done with repl, resulting cell sizes:" << '\n';
       for(auto c:cell) if(c.Sigma() && c.AliveP() ) std::cerr << c.area << '\n';
-      
+
       break;
     }
 
@@ -1616,9 +1623,9 @@ void Dish::ReproduceWhoMadeIt2(void)
     if(c->AliveP()){
       c->SetTargetArea(par.target_area); // for good measure
       counter++;
-    } 
+    }
   }
-  
+
   // cerr<<"At the end of ReproduceWhoMadeIt2 there are so many cells: "<<counter<<endl;
 }
 
@@ -1814,40 +1821,24 @@ void Dish::MakeBackup(int Time){
   sprintf(filename,"%s/backup_t%07d.txt",par.backupdir,Time);
 
   ofs.open ( filename , std::ofstream::out | std::ofstream::app);
-  ofs<<"Time: "<<Time<<" "<<"size_xy: "<<par.sizex<<" "<<par.sizey<<endl;
+  ofs<<Time<<endl;
+  //each cell's variables are written on a single line.
+  //don't store area or neighbours: can be inferred from the stored plane
   for(auto c: cell){
     if(c.sigma==0) continue;
-    ofs<<"sigma: "<< c.sigma <<endl;
-    ofs<<"tau: "<< c.tau <<endl;
-    ofs<<"alive: "<< c.alive <<endl;
-
-    ofs<<"tvecx: "<< c.tvecx <<endl;
-    ofs<<"tvecy: "<< c.tvecy <<endl;
-    ofs<<"prevx: "<< c.prevx <<endl;
-    ofs<<"prevy: "<< c.prevy <<endl;
-    ofs<<"persdur: "<< c.persdur <<endl;
-    ofs<<"perstime: "<< c.perstime <<endl;
-    ofs<<"mu: "<< c.mu <<endl;
-    ofs<<"keylock: ";
+    ofs<<c.sigma<<" "<< c.tau<<" "<< c.alive<<" "<< c.tvecx<<" "<<c.tvecy<<" "<< c.prevx<<" "<< c.prevy<<" "
+    << c.persdur<<" "<< c.perstime<<" "<< c.mu<<" "<< c.target_area<<" "<< c.half_div_area<<" "<< c.eatprob<<" "<<c.particles<<" "<< c.growth<<" "
+    <<c.k_mf_0<<" "<<c.k_mf_A<<" "<<c.k_mf_P<<" "<<c.k_mf_C<<" "<<c.k_ext_0<<" "<<c.k_ext_A<<" "<<c.k_ext_P<<" "<<c.k_ext_C<<" ";
     for( auto x: c.jkey ) ofs<<x; //key
     ofs << " ";
     for( auto x: c.jlock ) ofs<<x; //lock
     ofs << endl;
-
-    // area is calculated from the CA
-    ofs<<"target_area: "<< c.target_area <<endl;
-    ofs<<"half_div_area: "<< c.half_div_area <<endl;
-
-    ofs<<"eatprob: "<< c.eatprob <<endl;
-    ofs<<"particles: "<< c.particles <<endl;
-    ofs<<"growth: "<< c.growth <<endl;
-    ofs<<endl;
   }
 
   // particle plane
   // ca plane
   // posix files can be at most 2048 characters long on this laptop (LINE_MAX)
-  // so a big field cannot be represented in an obvious way,
+  // so a big field cannot be represented in );an obvious way,
   // however we can save some lines if we print a few sigmas in the same line
   //(anyway, field size is already specified above)... but howmany?
   // well, conceivably I will never run anything larger than in the thousands by thousands pixels
@@ -1856,7 +1847,7 @@ void Dish::MakeBackup(int Time){
   // ok!
   int counter=0;
   int maxperline=100;
-  ofs<<"CA: "<<endl;
+  ofs<<endl;
   for(int x=1; x<par.sizex-1; x++){
     for(int y=1; y<par.sizey-1; y++){
       int isigma=CPM->Sigma(x,y);
@@ -1871,7 +1862,7 @@ void Dish::MakeBackup(int Time){
   ofs<<endl;
 
   counter=0;
-  ofs<<"IntPlane: "<<endl;
+  ofs<<endl;
   for(int x=1; x<par.sizex-1; x++){
     for(int y=1; y<par.sizey-1; y++){
       int isigma=Food->Sigma(x,y);
@@ -1883,6 +1874,90 @@ void Dish::MakeBackup(int Time){
       }
     }
   }
+  ofs<<endl;
+}
+
+int Dish::ReadBackup(char *filename){
+  //for file reading
+  std::ifstream ifs;
+  string line;
+  Cell *rc;
+  //return value: time at which the simulation restarts
+  int starttime;
+
+  string jkey, jlock; //read them first as a string, then put into vector?
+  int pos;
+
+  ifs.open ( filename , std::ifstream::in);
+
+ if (ifs.is_open()){
+   //first read the time stamp
+   getline(ifs, line);
+   stringstream strstr(line);
+   strstr >> starttime;
+
+   //now read all the cell variables
+   getline(ifs, line);
+   while (line.length()){
+     rc=new Cell(*this); //temporary pointer to cell object
+     stringstream strstr(line);
+     //read the straightforward cell variables from the line
+     strstr>>rc->sigma>>rc->tau>>rc->alive>>rc->tvecx>>rc->tvecy>>rc->prevx>>rc->prevy>>rc->persdur
+     >>rc->perstime>>rc->mu>>rc->target_area>>rc->half_div_area>>rc->eatprob>>rc->particles>>rc->growth
+     >>rc->k_mf_0>>rc->k_mf_A>>rc->k_mf_P>>rc->k_mf_C>>rc->k_ext_0>>rc->k_ext_A>>rc->k_ext_P>>rc->k_ext_C>>jkey>>jlock;
+     //read the key and lock into the cell
+     for (char& c : jkey){
+       rc->jkey.push_back(c - '0');
+     }
+     for (char& c : jlock){
+       rc->jlock.push_back(c - '0');
+     }
+     rc->meanx=0.5*par.sizex;
+     rc->meany=0.5*par.sizey;
+     cell.push_back(*rc);
+
+     //read the next line
+     getline(ifs, line);
+   }
+
+   //now read the planes
+   //hopefully, plane allocation already happened during dish creation
+   //this does assume size parameters match, so be careful!
+   getline(ifs, line);
+   while (line.length()){
+    stringstream ss(line);
+    while(ss>>pos){
+      int wrong=CPM->SetNextSigma(pos);
+      if (wrong){
+        cerr<<"ReadBackup error in reading CA plane. more values than fit in plane."<<endl;
+        exit(1);
+      }
+    }
+    getline(ifs, line);
+  }
+
+  //read the food intplane
+  getline(ifs, line);
+  while (line.length()){
+   stringstream ss(line);
+   while(ss>>pos){
+    int wrong=Food->SetNextVal(pos);
+    if (wrong){
+      cerr<<"ReadBackup error in reading Food plane. more values than fit in plane."<<endl;
+      exit(1);
+    }
+   }
+   getline(ifs, line);
+  }
+ }
+ else{
+   cerr<<"ReadBackup error: could not open file. exiting..."<<endl;
+   exit(1);
+ }
+
+
+ return starttime;
+
 }
 
 void Dish::SetCellOwner(Cell &which_cell){

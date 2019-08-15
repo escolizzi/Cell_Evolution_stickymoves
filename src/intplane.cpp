@@ -229,7 +229,24 @@ void IntPlane::DiffuseParticles(void)
   for(int i=1;i<sizex;i++)for(int j=1;j<sizey;j++){
     sigma[i][j]+=diff[i][j];
   }
+}
+//copy of this function in ca.cpp
+int IntPlane::SetNextVal(int pos){
+  //the plane has a 1 px boundary on all size, therefore we place the pixels
+  //within that boundary
+  static int xcount=1, ycount=1;
 
+  if(xcount>=sizex-1 ||ycount>=sizey-1){
+    return 1;
+  }
+
+  sigma[xcount][ycount]=pos;
+  ycount++;
+  if(ycount==sizey-1){
+    ycount=1;
+    xcount++;
+  }
+  return 0;
 }
 
 // This function initialises a functional (from <function>)

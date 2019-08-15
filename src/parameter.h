@@ -102,6 +102,8 @@ class Parameter {
   int howmany_makeit_for_nextgen;
   int popsize;
   char * backupdir;
+  char * backupfile;
+  int starttime;
   int save_backup_period;
   double init_maintenance_fraction;
   double init_k_mf_0;

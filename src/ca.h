@@ -187,6 +187,9 @@ public:
     return sigma[x][y];
   }
 
+  //this function facilitates creation from a backup file
+  int SetNextSigma(int sig);
+
   // Was used to make it possible to enlarge the Graphics window in
   // X11 and replace the contents interactively. Not currently supported.
   void Replace(Graphics *g);

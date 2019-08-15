@@ -398,8 +398,7 @@ ca.o: ca.cpp sticky.h \
 		intplane.h \
 		sqr.h \
 		crash.h \
-		hull.h \
-		init.xpm
+		hull.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ca.o ca.cpp
 
 hull.o: hull.cpp hull.h

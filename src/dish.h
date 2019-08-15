@@ -74,6 +74,7 @@ public:
   void Plot(Graphics *g, int colour);
 
   void InitKeyLock(void);
+  void InitTargetArea(void);
   int CalculateJwithMedium( vector<int> key );
   int CalculateJfromKeyLock( vector<int> key1, vector<int> lock1, vector<int> key2, vector<int> lock2 );
   void InitVectorJ(void); //Initialise vector of J values for each cell
@@ -114,7 +115,7 @@ public:
   void UpdateCellParameters(void);
   int CheckWhoMadeit(void);
   int CheckWhoMadeitRadial(void);
-  
+
   void RemoveWhoDidNotMakeIt(void);
   void ReproduceWhoMadeIt(void);
   void ReproduceWhoMadeIt2(void); //with particles dependent reproduction
@@ -140,6 +141,7 @@ public:
 
   int SaveData(int Time);
   void MakeBackup(int Time);
+  int ReadBackup(char *filename);
   //! \brief Returns the horizontal size of the dish.
   int SizeX(void);
 
@@ -155,10 +157,10 @@ public:
   IntPlane *Food;
   CellularPotts *CPM;
   std::set<int> who_made_it;
-  //if the_line is 100 -> semicircle of area ~ 15000 
+  //if the_line is 100 -> semicircle of area ~ 15000
   // in which 300 cells of area 50 can fit
-  //int the_line = 80; 
-  
+  //int the_line = 80;
+
   //unsigned int howmany_makeit_for_nextgen = 30;
   //unsigned int popsize = 100;
 
