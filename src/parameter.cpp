@@ -160,7 +160,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<"Usage is: "<<endl;
   cerr<<"./cell_evolution path/to/data [optional arguments]"<<endl;
   cerr<<"Arguments: "<<endl;
-  cerr<<" -datafile path/to/datafile"<<endl;
+  cerr<<" -datafile path/to/datafile" <<endl;
   cerr<<" -datadir path/to/datadir"<<endl;
   cerr<<" -backupdir path/to/backupdir"<<endl;
   cerr<<" -keylockfilename path/to/keylockfilename"<<endl;
@@ -168,7 +168,8 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -maxtime INT_NUMBER"<<endl;
   cerr<<" -halfdiv_area_predator INT_NUMBER"<<endl;
   cerr<<" -persduration INT_NUMBER"<<endl;
-  cerr<<" -mutrate FLOAT_NUMBER [0,1)"<<endl;
+  cerr<<" -mutrate FLOAT_NUMBER [0,1) #mutation rate for key and lock"<<endl;
+  cerr<<" -backupfile path/to/backupfile #to start simulation from backup"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
