@@ -27,9 +27,11 @@ import numpy as np
 colours=["firebrick","royalblue", "darkgoldenrod", "green", "salmon", "lightskyblue","orchid"]
 filename=""
 fig, (ax0, ax1) = plt.subplots(ncols=2)
+#fig, ax0 = plt.subplots()
+
 if len(sys.argv) <3:
   print "This is the program 'plot_MSD.py'"
-  print "Usage: ./plot_MSD.py <nr of tracks to plot> <figure name> <filename(s)> "
+  print "Usage: ./plot_MSD.py <figure name> <nr of tracks to plot> <filename(s)> "
   sys.exit(1)
 else:
   figname=sys.argv[1]
@@ -38,6 +40,7 @@ else:
 filecounter=0
 for filename in sys.argv[3:]:
 
+  print "reading file ",filename
   timepoints=[]
   MSD=[]
   SDEV=[]
@@ -64,12 +67,16 @@ for filename in sys.argv[3:]:
     for line in fin:
       line=line.split()
       if int(line[0])!=timepoints[-1]:
-        xpos.append([])
-        ypos.append([])
+        xpos.append([-1.]*len(xpos[0]))
+        ypos.append([-1.]*len(xpos[0]))
         count=0
         timepoints.append(int(line[0]))
-      xpos[-1].append(float(line[3]))
-      ypos[-1].append(float(line[4]))
+      if (timepoints[-1]==timepoints[0]):
+        xpos[-1].append(float(line[3]))
+        ypos[-1].append(float(line[4]))
+      else:
+        xpos[-1][int(line[1])-1]=float(line[3])
+        ypos[-1][int(line[1])-1]=float(line[4])
       count+=1
 
   ##calculate MSD and standard error
@@ -83,10 +90,14 @@ for filename in sys.argv[3:]:
     sd=0.0
     xn=[]
     while (count+i<maxint):
-      for c in range(len(xpos[count+i])):  #problem when cells die...
-        xn.append((xpos[count+i][c]-xpos[count][c])*(xpos[count+i][c]-xpos[count][c])+(ypos[count+i][c]-ypos[count][c])*(ypos[count+i][c]-ypos[count][c]))
-        MSD[-1]+=xn[-1]
-        count2+=1
+      
+      for c in range(nrcells):  #problem when cells die...
+        if xpos[count+i][c]>-1:
+          xn.append((xpos[count+i][c]-xpos[count][c])*(xpos[count+i][c]-xpos[count][c])+(ypos[count+i][c]-ypos[count][c])*(ypos[count+i][c]-ypos[count][c]))
+          MSD[-1]+=xn[-1]
+          count2+=1
+        else:
+          print "cell ",c,"is no more"
       count+=1
     MSD[-1]=MSD[-1]/float(count2)
     for el in xn:
@@ -96,9 +107,13 @@ for filename in sys.argv[3:]:
   #center cell track start at 0,0  
 
   for i in range(1,len(xpos)):
-    for j in range(len(xpos[0])): 
-      xpos[i][j]-=xpos[0][j]
-      ypos[i][j]-=ypos[0][j] 
+    for j in range(len(xpos[0])):
+      if xpos[i][j]>-1: 
+        xpos[i][j]-=xpos[0][j]
+        ypos[i][j]-=ypos[0][j] 
+      else:
+        xpos[i][j]=xpos[i-1][j]
+        ypos[i][j]=ypos[i-1][j] 
 
   for j in range(len(xpos[0])): 
     xpos[0][j]-=xpos[0][j]
@@ -108,8 +123,9 @@ for filename in sys.argv[3:]:
 
   
   #ax0.plot(timepoints,MSD)
-  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='o', c=colours[filecounter])
+  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='o', c=colours[filecounter],errorevery=20)
   #ax0.set_yscale('log')
+
 
   #plot cell tracks
   #invert position matrices for plotting (each row is 1 cell instead of 1 timepoint)
@@ -117,8 +133,8 @@ for filename in sys.argv[3:]:
   yy=zip(*ypos)
   toplot=range(0,len(xx))
   random.shuffle(toplot)
-  for el in toplot[:tracknr]:
-    print el
+  #for el in toplot[:tracknr]:
+  #  print el
 
   count=0
   count2=0
