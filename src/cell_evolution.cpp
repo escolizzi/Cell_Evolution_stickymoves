@@ -322,13 +322,13 @@ TIMESTEP {
     if (par.store && !(i%par.storage_stride)) {
       if(par.readcolortable){
         char fname[300];
-        sprintf(fname,"%s/angle%07d.png",par.datadir,i);
+        sprintf(fname,"%s/angle%09d.png",par.datadir,i);
         BeginScene(); //this is an empty function for X11
         ClearImage(); //
         dish->Plot(this,1); //everything contained here
         EndScene();
         Write(fname);
-        sprintf(fname,"%s/order%07d.png",par.datadir,i);
+        sprintf(fname,"%s/order%09d.png",par.datadir,i);
         BeginScene(); //this is an empty function for X11
         ClearImage(); //
         dish->Plot(this,2); //everything contained here
@@ -338,7 +338,7 @@ TIMESTEP {
       }
       else{
         char fname[300];
-        sprintf(fname,"%s/tau%07d.png",par.datadir,i);
+        sprintf(fname,"%s/tau%09d.png",par.datadir,i);
         BeginScene(); //this is an empty function for X11
         ClearImage(); //
         dish->Plot(this,0); //everything contained here
