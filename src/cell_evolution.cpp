@@ -78,69 +78,69 @@ INIT {
 
     if (! strlen(par.backupfile)) {
 
-    //THIS IS TO USE FOR NORMAL INITIALISATION
-    //CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
-    CPM->PlaceCellsOrderly(par.n_init_cells,par.size_init_cells);
-    CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
+      //THIS IS TO USE FOR NORMAL INITIALISATION
+      //CPM->PlaceCellsRandomly(par.n_init_cells,par.size_init_cells);
+      CPM->PlaceCellsOrderly(par.n_init_cells,par.size_init_cells);
+      CPM->ConstructInitCells(*this); //within an object, 'this' is the object itself
 
-    // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
-    CPM->SetRandomTypes();
-    //cerr<<"Hello bla 0"<<endl;
-    //Initialise key-lock pairs - we do it after types, because we need the information
-   InitKeyLock();
-   // cerr<<"Hello bla 1"<<endl;
-    //Initialise vector of J values for each cell
-   InitVectorJ();
-    //cerr<<"Hello bla 2"<<endl;
-    //Initialise the contactlength bookkeeping now that the cells are placed
-    // at this stage, cells are only surrounded by medium
-    InitContactLength();  // see dish.cpp - you don't need dish->InitContactLength because this part IS in dish
-    //cerr<<"Hello bla 2.5"<<endl;
-    InitMaintenanceFraction();
-    // If we have only one big cell and divide it a few times
-    // we start with a nice initial clump of cells.
-    //
-    //The behavior can be changed in the parameter file using
-    //parameters n_init_cells, size_init_cells and divisions
-    for(int howmanydivisions=0;howmanydivisions<par.divisions;howmanydivisions++){
-      vector<int> sigma_newcells = CPM->DivideCells();
-      UpdateVectorJ(sigma_newcells);
-      cerr<<"dividing again: "<<howmanydivisions<<endl;
-    }
+      // Assign a random type to each of the cells, i.e. PREYS and PREDATORS
+      CPM->SetRandomTypes();
+      //cerr<<"Hello bla 0"<<endl;
+      //Initialise key-lock pairs - we do it after types, because we need the information
+     InitKeyLock();
+     // cerr<<"Hello bla 1"<<endl;
+      //Initialise vector of J values for each cell
+     InitVectorJ();
+      //cerr<<"Hello bla 2"<<endl;
+      //Initialise the contactlength bookkeeping now that the cells are placed
+      // at this stage, cells are only surrounded by medium
+      InitContactLength();  // see dish.cpp - you don't need dish->InitContactLength because this part IS in dish
+      //cerr<<"Hello bla 2.5"<<endl;
+      InitMaintenanceFraction();
+      // If we have only one big cell and divide it a few times
+      // we start with a nice initial clump of cells.
+      //
+      //The behavior can be changed in the parameter file using
+      //parameters n_init_cells, size_init_cells and divisions
+      for(int howmanydivisions=0;howmanydivisions<par.divisions;howmanydivisions++){
+        vector<int> sigma_newcells = CPM->DivideCells();
+        UpdateVectorJ(sigma_newcells);
+        cerr<<"dividing again: "<<howmanydivisions<<endl;
+      }
 
-    for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
+      for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
 
-    for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
+      for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
 
-    //PrintContactList();
+      //PrintContactList();
 
-      //Set function pointer for food update, depending on parameters
-      Food->InitIncreaseVal(CPM); //a pointer to CPM is an argument to InitIncreaseVal
-                                   // but NOT to IncreaseVal if it points to IncreaseValEverywhere
+        //Set function pointer for food update, depending on parameters
+        Food->InitIncreaseVal(CPM); //a pointer to CPM is an argument to InitIncreaseVal
+                                     // but NOT to IncreaseVal if it points to IncreaseValEverywhere
 
-    // Initialises food plane
-    // for(int i=0;i<par.sizex;i++)
-    //   for(int j=0;j<par.sizey;j++)
-    //     Food->addtoValue(i,j,par.initial_food_amount);  //add initial amount of food for preys
+      // Initialises food plane
+      // for(int i=0;i<par.sizex;i++)
+      //   for(int j=0;j<par.sizey;j++)
+      //     Food->addtoValue(i,j,par.initial_food_amount);  //add initial amount of food for preys
 
-    Food->IncreaseVal(*(Food));
-    //cout<<"Hello bla 3"<<endl;
-    // exit(1);
-    for(int init_time=0;init_time<10;init_time++){
-    //   // cerr<<"Init Time: "<<init_time<<endl;
-    //   // for(auto c: cell){
-    //   //   if(c.AliveP()){
-    //   //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
-    //   //   }
-    //   //   else
-    //   //     printf(" Cell with sigma %d is dead\n", c.Sigma());
-    //   // }
+      Food->IncreaseVal(*(Food));
+      //cout<<"Hello bla 3"<<endl;
+      // exit(1);
+      for(int init_time=0;init_time<10;init_time++){
+      //   // cerr<<"Init Time: "<<init_time<<endl;
+      //   // for(auto c: cell){
+      //   //   if(c.AliveP()){
+      //   //     printf(" Sigma %d, weight_for_chemotaxis: %.15f\n", c.Sigma(), cell[c.Sigma()].weight_for_chemotaxis);
+      //   //   }
+      //   //   else
+      //   //     printf(" Cell with sigma %d is dead\n", c.Sigma());
+      //   // }
 
-      CPM->AmoebaeMove2(PDEfield);  //this changes neighs
-    }
-    InitCellMigration();
+        CPM->AmoebaeMove2(PDEfield);  //this changes neighs
+      }
+      InitCellMigration();
 
-    par.starttime=0;
+      par.starttime=0;
     }
     else {
       par.starttime=ReadBackup(par.backupfile);
@@ -322,13 +322,13 @@ TIMESTEP {
     if (par.store && !(i%par.storage_stride)) {
       if(par.readcolortable){
         char fname[300];
-        sprintf(fname,"%s/angle%07d.png",par.datadir,i);
+        sprintf(fname,"%s/angle%09d.png",par.datadir,i);
         BeginScene(); //this is an empty function for X11
         ClearImage(); //
         dish->Plot(this,1); //everything contained here
         EndScene();
         Write(fname);
-        sprintf(fname,"%s/order%07d.png",par.datadir,i);
+        sprintf(fname,"%s/order%09d.png",par.datadir,i);
         BeginScene(); //this is an empty function for X11
         ClearImage(); //
         dish->Plot(this,2); //everything contained here
@@ -338,7 +338,7 @@ TIMESTEP {
       }
       else{
         char fname[300];
-        sprintf(fname,"%s/tau%07d.png",par.datadir,i);
+        sprintf(fname,"%s/tau%09d.png",par.datadir,i);
         BeginScene(); //this is an empty function for X11
         ClearImage(); //
         dish->Plot(this,0); //everything contained here

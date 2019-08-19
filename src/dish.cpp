@@ -1822,6 +1822,7 @@ void Dish::MakeBackup(int Time){
 
   ofs.open ( filename , std::ofstream::out | std::ofstream::app);
   ofs<<Time<<endl;
+  ofs<<Food->GetPeakx()<<" "<<Food->GetPeaky()<<endl;
   //each cell's variables are written on a single line.
   //don't store area or neighbours: can be inferred from the stored plane
   for(auto c: cell){
@@ -1888,14 +1889,21 @@ int Dish::ReadBackup(char *filename){
   string jkey, jlock; //read them first as a string, then put into vector?
   int pos;
 
-  ifs.open ( filename , std::ifstream::in);
+  ifs.open( filename , std::ifstream::in );
 
  if (ifs.is_open()){
    //first read the time stamp
    getline(ifs, line);
    stringstream strstr(line);
    strstr >> starttime;
-
+   
+   //second read peakx and peaky
+   getline(ifs, line);
+   stringstream strstr2(line); 
+   int px,py;
+   strstr2>> px>> py;
+   Food->SetPeakx(px); Food->SetPeaky(py); 
+   
    //now read all the cell variables
    getline(ifs, line);
    while (line.length()){

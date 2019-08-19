@@ -228,6 +228,12 @@ class IntPlane {
   inline int GetPeaky(void){
     return peaky;
   }
+  inline void SetPeakx(int px){
+    peakx=px;
+  }
+  inline void SetPeaky(int py){
+    peaky=py;
+  }
 
  protected:
 
