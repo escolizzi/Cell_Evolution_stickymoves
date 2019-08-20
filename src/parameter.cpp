@@ -68,7 +68,7 @@ Parameter::Parameter() {
   dx = 2.0e-6;
   pde_its = 15;
   n_init_cells = 100;
-  size_init_cells = 10;
+  size_init_cells = 25;
   sizex = 200;
   sizey = 200;
   divisions = 0;
@@ -160,16 +160,22 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<"Usage is: "<<endl;
   cerr<<"./cell_evolution path/to/data [optional arguments]"<<endl;
   cerr<<"Arguments: "<<endl;
-  cerr<<" -datafile path/to/datafile" <<endl;
-  cerr<<" -datadir path/to/datadir"<<endl;
-  cerr<<" -backupdir path/to/backupdir"<<endl;
+  cerr<<" -datafile path/to/datafile # output file" <<endl;
+  cerr<<" -datadir path/to/datadir # output movie dir"<<endl;
+  cerr<<" -backupdir path/to/backupdir # output backup dir"<<endl;
   cerr<<" -keylockfilename path/to/keylockfilename"<<endl;
-  cerr<<" -seed INT_NUMBER"<<endl;
+  cerr<<" -seed INT_NUMBER # for random number generator"<<endl;
   cerr<<" -maxtime INT_NUMBER"<<endl;
-  cerr<<" -halfdiv_area_predator INT_NUMBER"<<endl;
+  // cerr<<" -halfdiv_area_predator INT_NUMBER"<<endl;
   cerr<<" -persduration INT_NUMBER"<<endl;
-  cerr<<" -mutrate FLOAT_NUMBER [0,1) #mutation rate for key and lock"<<endl;
-  cerr<<" -backupfile path/to/backupfile #to start simulation from backup"<<endl;
+  cerr<<" -mutrate FLOAT_NUMBER [0,1) # mutation rate for key and lock"<<endl;
+  cerr<<" -casize INT_NUMBER INT_NUMBER # dimensions of the CA"<<endl;
+  cerr<<" -popsize INT_NUMBER [-pop_as_initpop] # population size, optional same as n_init_cells"<<endl;
+  cerr<<" -pop_as_initpop # initial population size = popsize"<<endl;
+  cerr<<" -n_nextgen INT_NUMBER # number of cells that are taken to next generation"<<endl;
+  cerr<<" -nofood # No food distributed in the simulation"<<endl;
+  cerr<<" -noevolreg # No evolution of regulation parameters"<<endl;
+  cerr<<" -backupfile path/to/backupfile # to start simulation from backup"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -233,7 +239,7 @@ int Parameter::ReadArguments(int argc, char *argv[])
         return 1;  //check if end of arguments, exit with error in case
       }
       rseed = atoi( argv[i] );
-      cerr<<"New value for rseed: "<<rseed<<endl;
+      cerr<<"New value for seed: "<<rseed<<endl;
     }else if( 0==strcmp(argv[i],"-maxtime") ){
       i++; if(i==argc){
         cerr<<"Something odd in maxtime?"<<endl;
@@ -241,13 +247,6 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       mcs = atoi( argv[i] );
       cerr<<"New value for maxtime (mcs in the code): "<<mcs<<endl;
-    }else if( 0==strcmp(argv[i],"-halfdiv_area_predator") ){
-      i++; if(i==argc){
-        cerr<<"Something odd in halfdiv_area_predator?"<<endl;
-        return 1;  //check if end of arguments, exit with error in case
-      }
-      half_div_area_2 = atoi( argv[i] );
-      cerr<<"New value for half division area of predators (half_div_area_2 in the code): "<<half_div_area_2<<endl;
     }else if( 0==strcmp(argv[i],"-mutrate") ){
       i++; if(i==argc){
         cerr<<"Something odd in mutrate?"<<endl;
@@ -272,6 +271,49 @@ int Parameter::ReadArguments(int argc, char *argv[])
       backupfile = strdup(argv[i]);
 
       cerr<<"New value for backupfile: "<<backupfile<<endl;
+    }else if( 0==strcmp(argv[i],"-popsize") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in popsize?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      popsize = atoi( argv[i] );
+      cerr<<"New value for population size: "<<popsize<<endl;
+      i++;
+      if(i==argc) return 0;
+      if( 0==strcmp(argv[i],"-pop_as_initpop") ){
+        n_init_cells = popsize;
+        cerr<<"n_init_cells = Pop size"<<popsize<<endl;
+      }
+      else{
+        i--;
+      }
+    }else if( 0==strcmp(argv[i],"-casize") ){
+      i++; 
+      if(i==argc){
+        cerr<<"Something odd in casize?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      sizex = atoi( argv[i] );
+      i++;
+      if(i==argc){
+        cerr<<"Something odd in casize?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      sizey = atoi( argv[i] );
+      cerr<<"New value for CA size x and y: "<<sizex<<" "<<sizey<<endl;
+    }else if( 0==strcmp(argv[i],"-n_nextgen") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in n_nextgen?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      howmany_makeit_for_nextgen = atoi( argv[i] );
+      cerr<<"New value for n_nextgen (howmany_makeit_for_nextgen in the code): "<<howmany_makeit_for_nextgen<<endl;
+    }else if( 0==strcmp(argv[i],"-nofood") ){
+      is_there_food = false;
+      cerr<<"No food in this simulation"<<endl;
+    }else if( 0==strcmp(argv[i],"-noevolreg") ){
+      evolreg = false;
+      cerr<<"No evolution of regulation parameters"<<endl;
     }else
       return 1;
   }

@@ -5,8 +5,8 @@ mcs = 100000000
 #mcs = 50000
 
 ### grid size ###
-sizex = 500
-sizey = 500
+sizex = 750
+sizey = 750
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -37,9 +37,9 @@ init_chemmu = 1.0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
 #keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
@@ -56,9 +56,9 @@ key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 50
-popsize = 100
+popsize = 50
 
-n_init_cells = 100
+n_init_cells = 50
 size_init_cells = 25
 #size_init_cells = 20000
 
@@ -104,7 +104,7 @@ gradnoise = 0.5
 gradscale = 1.0
 
 # only used in specified_experiment, if true it puts 1 food randomly, with probability foodinflux = 0.05
-is_there_food = 1
+is_there_food = 0
 
 # default initial_food_amount = 5
 initial_food_amount = 0
