@@ -932,7 +932,14 @@ void Dish::InitCellMigration(void)
   {
     icell->setMu(par.startmu);
     icell->startTarVec();
-    icell->setPersTime(int(par.persduration*RANDOM())); //so that cells don't all start turning at the same time...
+    if (par.persduration<par.mcs){
+      icell->setPersTime(int(par.persduration*RANDOM())); //so that cells don't all start turning at the same time...
+    }
+    else{
+      icell->setPersTime(0); //special type of experiment
+      icell->tvecx=1.;
+      icell->tvecy=0.;
+    }
     icell->setPersDur(par.persduration);
 
     icell->setChemMu(par.init_chemmu);
@@ -1896,14 +1903,14 @@ int Dish::ReadBackup(char *filename){
    getline(ifs, line);
    stringstream strstr(line);
    strstr >> starttime;
-   
+
    //second read peakx and peaky
    getline(ifs, line);
-   stringstream strstr2(line); 
+   stringstream strstr2(line);
    int px,py;
    strstr2>> px>> py;
-   Food->SetPeakx(px); Food->SetPeaky(py); 
-   
+   Food->SetPeakx(px); Food->SetPeaky(py);
+
    //now read all the cell variables
    getline(ifs, line);
    while (line.length()){
