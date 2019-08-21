@@ -582,11 +582,12 @@ void Dish::Plot(Graphics *g, int colour) {
       CPM->Plot(g, colour);
     }
     
-    return;
+    // return;
 
 
     //here food plotting, with info from cpm and cell
     FoodPlot(g);
+    // return;
     //Plot direction arrows, with line function from X11?
     if(par.startmu>0){
       for(auto c: cell){
@@ -601,9 +602,11 @@ void Dish::Plot(Graphics *g, int colour) {
         else if(y2<0) y2=0;
         //now we have to wrap this
         // do we really? we could just truncate vectors up to the max size..
-        g->Line(x1,y1,x2, y2, 1);
+        g->Line(x1,y1,x2, y2, 1); //notice that Line just calls Point for drawing, 
+                                  // so it does not intrinsically suffer from x,y inversion
       }
     }
+    // return;
 
     //get info where the peak is and draw a line for box where who_made_it should register stuff
     // notice that the box is now radial
@@ -646,9 +649,11 @@ void Dish::Plot(Graphics *g, int colour) {
     }
     //std::cerr << "minx,maxx " << minx <<" "<< maxx<< '\n';
     //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
+    
+    // return;
 
     for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
-      if(i==par.sizex || i==0 || j==par.sizey || j==0) continue; //don't draw on the borders
+      if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders
       int dx = peakx - i;
       int dy = peaky - j;
       double dist = hypot(dx,dy);

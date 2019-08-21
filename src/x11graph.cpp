@@ -473,8 +473,13 @@ void X11Graphics::InitGraphics(int xsize, int ysize)
 {
   char **argv=0;
   int i;
-  hsize=xfield=xsize;
-  vsize=yfield=ysize;
+  
+  vsize=xfield=xsize; // v (vertical) size is the number of rows
+  hsize=yfield=ysize;
+  
+  // Original code: this rotates picture - which is confusing
+  // hsize=xfield=xsize;
+  // vsize=yfield=ysize;
 
 
   if (par.graphics) {
@@ -678,9 +683,10 @@ void X11Graphics::Point( int color, int x, int y)
   //  (image_data)[i+j*xfield] = (char)color;
   //} else {
   if (color<0) color=0;
-  if (par.graphics)
-    XPutPixel(image,x,y,colors[color].pixel);
-  movie_data[x+y*xfield]=(unsigned char)color;
+  if (par.graphics) XPutPixel(image,x,y,colors[color].pixel);
+  
+  // movie_data[x+y*xfield]=(unsigned char)color;
+  movie_data[x*yfield+y]=(unsigned char)color;
   //}
 }
 
@@ -1176,14 +1182,16 @@ void X11Graphics::Write(char *fname, int quality) {
 						(png_error_ptr)NULL);
   png_infop info_ptr = png_create_info_struct (png_ptr);
   png_init_io(png_ptr, fp);
-  png_set_IHDR(png_ptr, info_ptr, xfield, yfield,
-	       8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-	       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+  // png_set_IHDR(png_ptr, info_ptr, xfield, yfield,
+	//        8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+	//        PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+  png_set_IHDR(png_ptr, info_ptr, yfield, xfield,
+         8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+         PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
   png_write_info(png_ptr,info_ptr);
 
   // data to hold true colour image
-  unsigned char *png_image =
-    (unsigned char *)malloc(3*xfield*yfield*sizeof(unsigned char));
+  unsigned char *png_image = (unsigned char *)malloc(3*xfield*yfield*sizeof(unsigned char));
 
   int colormap_size=256;
   static XColor *png_colors=0;
@@ -1210,12 +1218,14 @@ void X11Graphics::Write(char *fname, int quality) {
 
   }
 
-//  for (j=0; j < yfield; j++) {
-//    for (i=0; i < xfield; i++) {
+ // for (j=0; j < yfield; j++) {
+ //   for (i=0; i < xfield; i++) {
   for (i=0; i < xfield; i++) {
     for (j=0; j < yfield; j++) {
   	  XColor col;
-  	  col=png_colors[movie_data[i+j*xfield]];
+  	  // col=png_colors[movie_data[i+j*xfield]];
+      // std::cerr << "Hello0 i,j: " << i<<", "<<j << "; png_bla..movie_data[i*yfield+j].red= "<<png_colors[ movie_data[i*yfield+j] ].red<< '\n';
+      col=png_colors[ movie_data[i*yfield+j] ];
 
   	  //png_image[j*3*xfield + i*3] = col.red/256; //this is the old command... but why?
 
@@ -1233,8 +1243,10 @@ void X11Graphics::Write(char *fname, int quality) {
     png_bytep ptr = png_image + i*3*yfield;
 
     png_write_rows(png_ptr, &ptr, 1);
+    // std::cerr << "Hello1" << '\n';
     }
     png_write_end(png_ptr, info_ptr);
+    // std::cerr << "Hello2" << '\n';
     png_destroy_write_struct(&png_ptr,(png_infopp)NULL);
     free(png_image);
     fflush(fp);

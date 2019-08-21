@@ -325,8 +325,14 @@ TIMESTEP {
         char fname[300];
         sprintf(fname,"%s/tau%09d.png",par.datadir,i);
         // BeginScene(); //this is an empty function for X11
-        // ClearImage(); //
-        dish->Plot(this,0); //everything contained here
+        ClearImage(); //
+        
+        //test
+        // Point(1, 2*10,2*par.sizey/2);
+        // Point(1, 2*10+1,2*par.sizey/2);
+        // Point(1, 2*10,2*par.sizey/2+1);
+        // Point(1, 2*10+1,2*par.sizey/2+1);
+        dish->Plot(this,0); // this is g //everything contained here
         EndScene();
         Write(fname);
       }

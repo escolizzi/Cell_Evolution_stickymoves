@@ -61,9 +61,9 @@ key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 50
-popsize = 100
+popsize = 1
 
-n_init_cells = 100
+n_init_cells = 1
 size_init_cells = 25
 #size_init_cells = 20000
 
@@ -170,7 +170,7 @@ storage_stride = 100
 graphics = false
 store = true
 datadir = data_film2
-save_text_file_period = 2000
+save_text_file_period = 50
 datafile = data_cellcount.txt
 save_backup_period = 100000
 backupdir = backup
