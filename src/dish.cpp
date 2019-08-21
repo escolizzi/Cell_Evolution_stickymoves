@@ -581,10 +581,13 @@ void Dish::Plot(Graphics *g, int colour) {
     if (CPM){
       CPM->Plot(g, colour);
     }
+    
+    // return;
 
 
     //here food plotting, with info from cpm and cell
     FoodPlot(g);
+    // return;
     //Plot direction arrows, with line function from X11?
     if(par.startmu>0){
       for(auto c: cell){
@@ -599,9 +602,11 @@ void Dish::Plot(Graphics *g, int colour) {
         else if(y2<0) y2=0;
         //now we have to wrap this
         // do we really? we could just truncate vectors up to the max size..
-        g->Line(x1,y1,x2, y2, 1);
+        g->Line(x1,y1,x2, y2, 1); //notice that Line just calls Point for drawing, 
+                                  // so it does not intrinsically suffer from x,y inversion
       }
     }
+    // return;
 
     //get info where the peak is and draw a line for box where who_made_it should register stuff
     // notice that the box is now radial
@@ -644,9 +649,11 @@ void Dish::Plot(Graphics *g, int colour) {
     }
     //std::cerr << "minx,maxx " << minx <<" "<< maxx<< '\n';
     //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
+    
+    // return;
 
     for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
-      if(i==par.sizex || i==0 || j==par.sizey || j==0) continue; //don't draw on the borders
+      if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders
       int dx = peakx - i;
       int dy = peaky - j;
       double dist = hypot(dx,dy);
@@ -1161,7 +1168,6 @@ void Dish::UpdateCellParameters(void)
     int newarint;
     int celldivisions=0;
 
-    //cells grow due to food intake, and shrink constantly due to metabolism
     for( c=cell.begin(), ++c; c!=cell.end(); ++c){
       if( c->AliveP() ){
 
@@ -1181,8 +1187,8 @@ void Dish::UpdateCellParameters(void)
         //same function for regulation of chemotaxis
         c->weight_for_chemotaxis =  c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
 
-        c->mu = par.startmu;
-        c->chemmu = par.init_chemmu;
+        //c->mu = par.startmu;
+        //c->chemmu = par.init_chemmu;
 
         //std::cerr << "Cell with sigma = "<<c->Sigma()<<" has particles: "<<c->particles << '\n';
       }
@@ -1203,69 +1209,29 @@ void Dish::UpdateCellParameters(void)
 int Dish::CheckWhoMadeitRadial(void){
   unsigned int howmany_makeit_for_nextgen = par.howmany_makeit_for_nextgen; //we do this to cast the par, which is int, to unsigned int
 
-  //as gradients are now, there is always a coordinate that is either 1 or size_x_or_y,
-  // while the other is size_y/2_or_x/2
-  //we first predetermine a rectangle in which to check, and in the for loop check for actual distance
-
-  // in this case, par.the_line is the radius of the semicircle
-
-  // static int current_peakx=-1,current_peaky=-1;
-  // static int minx,maxx,miny,maxy;
-
   //get info where the peak is
   int peakx = Food->GetPeakx();
   int peaky = Food->GetPeaky();
-
-
-  // if(peakx != current_peakx || peaky != current_peaky){
-  //   current_peakx=peakx;
-  //   current_peaky=peaky;
-  //
-  //   if(peakx==1) {
-  //     //then peaky = sizey/2 and
-  //     minx = 1;
-  //     maxx = par.the_line;
-  //     miny = par.sizey/2 - par.the_line; // <- included
-  //     maxy = par.sizey/2 + par.the_line; // <- excluded
-  //   }else if(peakx==par.sizex-1){
-  //     minx = par.sizex-par.the_line;
-  //     maxx = par.sizex-1;
-  //     miny = par.sizey/2 - par.the_line; // <- included
-  //     maxy = par.sizey/2 + par.the_line; // <- excluded
-  //   }else if(peaky==1){
-  //     minx = par.sizex/2 - par.the_line; // <- included
-  //     maxx = par.sizex/2 + par.the_line; // <- excluded
-  //     miny = 1;
-  //     maxy = par.the_line;
-  //   }else if(peaky==par.sizey-1){
-  //     minx = par.sizex/2 - par.the_line; // <- included
-  //     maxx = par.sizex/2 + par.the_line; // <- excluded
-  //     miny = par.sizey-par.the_line;
-  //     maxy = par.sizey-1;
-  //   }else{
-  //     cerr<<"CheckWhoMadeit(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
-  //     std::cerr << "Don't know what to do with this, program exits now." << '\n';
-  //     exit(1);
-  //   }
-  // }
-
+  
   //find if cells in some area around the peak are already in the list
-  //easy: go in order through CPM and check the sigmas
-  //perhaps best should be to loop through cells and check if center of mass is at distance smaller than the)line from peak
-  // it would save from having to check where the box is, and we would have to call who_made_it.insert() A LOT less.
-  // for(int i=minx;i<maxx;i++)for(int j=miny;j<maxy;j++){
-  //   if( /*Distance small than par.the_line*/ )
-  //   if( CPM->Sigma(i,j)!=0 ){
-  //     who_made_it.insert( CPM->Sigma(i,j) ); //if already there it will not be duplicated in the set
-  //   }
-  // }
-
-  for(auto c:cell){
+  for(auto &c:cell){
+    if( ! c.AliveP() ) continue;
     double distx = c.meanx - peakx;
     double disty = c.meany - peaky;
     double dist_from_peak = hypot(distx,disty);
-    if( dist_from_peak <= par.the_line )
+    
+    //cerr<< "Sigma: "<< c.Sigma()<<". Dist = "<<dist_from_peak<< ", mu = "<<c.mu<< endl;
+    
+    //cerr<< "Sigma: "<< c.Sigma()<<". Dist = "<<dist_from_peak<< ", persdur = "<<c.persdur<<", perstime = "<<c.perstime<< endl;
+    
+    if( dist_from_peak <= par.the_line ){
       who_made_it.insert( c.Sigma() ); //if already there it will not be duplicated in the set
+      if( par.zero_persistence_past_theline ) {
+        c.setPersDur(1); //zero persistence - hence moving - when you cross the line
+                         // don't forget that this has to be reset to a value >0 after replication
+        c.setPersTime(0);
+      }
+    }
   }
 
   // cerr<< "px,py: "<< peakx<<" "<<peaky <<" box mx,My my,My: "<< minx<<" "<<maxx<<" "<<miny<<" "<<maxy<<endl;
@@ -1512,6 +1478,8 @@ void Dish::ReproduceWhoMadeIt3(void)
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
     if(c->AliveP()){
       c->SetTargetArea(par.target_area);
+      if(par.zero_persistence_past_theline ) c->setPersDur(par.persduration); //de-zero persistence so they can move again
+                                                                              // might have to randomzie this
       counter++;
     }
   }

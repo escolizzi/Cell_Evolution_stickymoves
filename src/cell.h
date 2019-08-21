@@ -454,9 +454,7 @@ public:
 
   inline void updatePersTime(void){
    perstime++;
-   if(perstime==persdur)
-   {
-
+   if(perstime==persdur){
      updateTarVec();
      //cerr<<"persdur="<<persdur<<endl;
      //cerr<<"Cell "<<sigma<<" geupdate, "<<tvecx<<" "<<tvecy<<endl;

@@ -56,26 +56,15 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 using namespace std;
 
 INIT {
-
-
-
   try {
-
+    
     // Define initial distribution of cells
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
     // THIS IS JUST FOR EXPERIMENTS
     //CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,par.sizey/4, par.size_init_cells, 2);
-    //CPM->PlaceOneCellsAtXY(3*par.sizex/4,3*par.sizey/4, par.size_init_cells, 3);
-    //CPM->PlaceOneCellsAtXY(par.sizex/4,3*par.sizey/4, par.size_init_cells, 4);
-    //CPM->PlaceOneCellsAtXY(3*par.sizex/4,par.sizey/4, par.size_init_cells, 5);
-    //CPM->PlaceOneCellsAtXY(par.sizex-3-(int)(sqrt(par.size_init_cells/3.14)),par.sizey/3, par.size_init_cells, 1);
-    //CPM->PlaceOneCellsAtXY(par.sizey/3 , par.sizex-3-(int)(sqrt(par.size_init_cells/3.14)), par.size_init_cells , 2);
-    //CPM->PlaceOneCellsAtXY((int)(sqrt(par.size_init_cells/3.14))+3,(2/3.)*par.sizey, par.size_init_cells, 3);
-    //CPM->PlaceOneCellsAtXY((2/3.)*par.sizey, (int)(sqrt(par.size_init_cells/3.14))+3, par.size_init_cells, 4);
-
-
+    
     if (! strlen(par.backupfile)) {
 
       //THIS IS TO USE FOR NORMAL INITIALISATION
@@ -110,7 +99,7 @@ INIT {
 
       for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
 
-      for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
+      // for(auto &c: cell) c.SetTargetArea(par.target_area); //sets target area because in dividecells the new target area = area
 
       //PrintContactList();
 
@@ -231,11 +220,7 @@ TIMESTEP {
    // }
 
 
-    //deal with cell migration
-    // if(i==100){
-    //   dish->InitCellMigration();
-    // } done at initialisation
-
+    
     // if(i>100){
      dish->CellMigration();//updates persistence time and targetvectors
     // }
@@ -250,7 +235,8 @@ TIMESTEP {
 
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
-      if( dish->CheckWhoMadeit() ){
+      if( dish->CheckWhoMadeitRadial() ){
+      // if( dish->CheckWhoMadeit() ){
 
         //for simple simulations, stop sim when cells reach the border
         if(!par.evolsim){
@@ -335,13 +321,18 @@ TIMESTEP {
       //dish->Food->Plot(this,dish->CPM); //will this work?  YES !!!
         EndScene();
         Write(fname); //FIXED SO THAT CODE AND IMAGE MATCH!
-      }
-      else{
+      }else{
         char fname[300];
         sprintf(fname,"%s/tau%09d.png",par.datadir,i);
-        BeginScene(); //this is an empty function for X11
+        // BeginScene(); //this is an empty function for X11
         ClearImage(); //
-        dish->Plot(this,0); //everything contained here
+        
+        //test
+        // Point(1, 2*10,2*par.sizey/2);
+        // Point(1, 2*10+1,2*par.sizey/2);
+        // Point(1, 2*10,2*par.sizey/2+1);
+        // Point(1, 2*10+1,2*par.sizey/2+1);
+        dish->Plot(this,0); // this is g //everything contained here
         EndScene();
         Write(fname);
       }
@@ -393,7 +384,7 @@ int main(int argc, char *argv[]) {
     QTimer g;
     //QApplication a2(argc, argv);
 #endif
-
+    
     par.Read(argv[1]); // Read parameters from file
 
     //command line arguments overwrite whatever is in the parameter file
@@ -462,7 +453,7 @@ int main(int argc, char *argv[]) {
     //a2.exec();
     cerr<<"Hello 3"<<endl;
 #else
-    cerr <<"Using X11 graphics (batch mode)..."<<endl;
+    cerr <<"Using X11 graphics (batch mode). sizex and y are "<<par.sizex<<" "<< par.sizey <<endl;
     X11Graphics g(par.sizex*2,par.sizey*2);
     int t;
 
