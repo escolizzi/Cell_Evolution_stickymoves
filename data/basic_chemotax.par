@@ -1,12 +1,12 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-#mcs = 100000000
-mcs = 10000
+mcs = 100000000
+#mcs = 10000
 
 ### grid size ###
-sizex = 350
-sizey = 350
+sizex = 500
+sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -35,9 +35,9 @@ startmu = 3.
 #default = 50
 persduration = 50
 init_chemmu = 1.0
-#if true, persdur is set to zero when line is reached
 
-#please don't use this
+#please DON'T use this
+#if true, persdur is set to zero when line is reached
 zero_persistence_past_theline = 0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
@@ -94,7 +94,7 @@ periodic_boundaries = false
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
 mut_rate = 0.01
-evolsim = 1
+evolsim = 0
 evolreg = 0
 
 # PDE parameters (irrelevant for this simulation)
@@ -166,7 +166,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 100
+storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2

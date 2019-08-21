@@ -124,7 +124,8 @@ class Parameter {
   int evolsim;  //will the simulation end after the first time cells arrive at target?
   bool evolreg; //do regulation parameters evolve?
   bool is_there_food; // is there food?
-
+  bool zero_persistence_past_theline; // set persdur to zero after line is crossed
+  
   struct key_lock_pair{
     int tau;
     vector<int> key;

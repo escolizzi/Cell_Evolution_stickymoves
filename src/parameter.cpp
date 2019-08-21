@@ -125,6 +125,7 @@ Parameter::Parameter() {
   the_line=50;
   evolsim=0;
   is_there_food=false;
+  zero_persistence_past_theline=false;
 }
 
 Parameter::~Parameter() {
@@ -420,6 +421,7 @@ void Parameter::Read(const char *filename) {
   the_line = igetpar(fp, "the_line", 1, true);
   is_there_food = bgetpar(fp,"is_there_food",false, true);
   evolreg = bgetpar(fp,"evolreg",false, true);
+  zero_persistence_past_theline = bgetpar(fp,"zero_persistence_past_theline",false, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -655,6 +657,7 @@ void Parameter::Write(ostream &os) const {
   os << " the_line = " << the_line <<endl;
   os << " is_there_food = " << is_there_food << endl;
   os << " evolreg = " << evolreg <<endl;
+  os<< " zero_persistence_past_theline = " << zero_persistence_past_theline << endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {
