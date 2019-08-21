@@ -654,7 +654,8 @@ void IntPlane::IncreaseValBoundaryGrad(CellularPotts *cpm)
     if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise
 
     //maxfood = 1+5.* (1 - (double)j/par.gradlength);
-    pfood_j =par.gradnoise+ (1.-par.gradnoise)* (1 - (double)j/(double)sizey);
+    // pfood_j =par.gradnoise+ (1.-par.gradnoise)* (1 - (double)j/(double)sizey);
+    pfood_j = par.gradnoise;
     if(RANDOM() < pfood_j)  sigma[i][j]=maxfood;
   }
 

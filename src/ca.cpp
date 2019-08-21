@@ -2818,16 +2818,23 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
       exit(1);
     }
     
-    int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    // int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    // int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    
+    int beginx = (par.sizex -  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int endx =   (par.sizex +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int beginy = (par.sizey -  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int endy =   (par.sizey +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    
+    
     int step = ( sqrt(size_cells) + a_little_bit );
     
     int avrg_area=0;
     
     // each x,y point denotes the upper left corner of a cell
     // with i,j we run through the cell
-    for(int x = begin ; x < end ; x += step ){
-      for(int y = begin ; y < end ; y += step ){
+    for(int x = beginx ; x < endx ; x += step ){
+      for(int y = beginy ; y < endy ; y += step ){
         //std::cerr << "Cell will be placed at: "<< x<<","<<y << '\n';
         count++;
         int this_area=0;
