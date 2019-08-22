@@ -1253,7 +1253,7 @@ int Dish::CheckWhoMadeitRadial(void){
 //if length of list is large enough -> returns 1
 // should create a new list of cells based on some fitness function,
 // kill everybody, place these new cells, change gradient direction + add new food
-int Dish::CheckWhoMadeit(void){
+int Dish::CheckWhoMadeitLinear(void){
   unsigned int howmany_makeit_for_nextgen = par.howmany_makeit_for_nextgen; //we do this to cast the par, which is int, to unsigned int
   // int par.the_line = 41;
 

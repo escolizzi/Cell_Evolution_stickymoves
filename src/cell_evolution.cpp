@@ -235,22 +235,8 @@ TIMESTEP {
 
     // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
-      if( dish->CheckWhoMadeitRadial() ){
-      // if( dish->CheckWhoMadeit() ){
-
-        //for simple simulations, stop sim when cells reach the border
-        if(!par.evolsim){
-          //for printing switching times
-          //write switching time to file
-          static char timename[300];
-          sprintf(timename,"%s/finaltime.txt",par.datadir);
-          static ofstream myfile(timename, ios::out | ios::app);
-          myfile << i << endl;
-          myfile.close();
-          exit(0);
-        }
-        else{
-
+      if(par.evolsim){
+        if( dish->CheckWhoMadeitRadial() ){
           //reset food
           // clone them with mutations
           // wipe out the previous pop
@@ -265,12 +251,24 @@ TIMESTEP {
                                                 // ReproduceWhoMadeIt2 to let cells grow a little
                                                 // but we don't want this to go along the new gradient
                                                 // which would be unfair.
-         std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';;
+         std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';
+        }
+      }else{
+        //not evolutionary simulation
+        if( dish->CheckWhoMadeitLinear() ){
+          //for printing switching times
+          //write switching time to file
+          static char timename[300];
+          sprintf(timename,"%s/finaltime.txt",par.datadir);
+          static ofstream myfile(timename, ios::out | ios::app);
+          myfile << i << endl;
+          myfile.close();
+          exit(0);
         }
       }
     }
-
-
+      
+      
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
 
