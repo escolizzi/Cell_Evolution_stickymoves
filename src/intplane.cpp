@@ -739,7 +739,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // double pfood_j = 0.1+ 0.9* (1. - dist_from_peak/(double)sizey);  // this is the usable one
     //double pfood_j = 1.;
     //pfood_j = 0.3; // also like this is works... but why?
-    pfood_j = par.gradnoise;
+    double pfood_j = par.gradnoise;
     
     if(RANDOM() < pfood_j)
       sigma[i][j]=maxfood; //else already set to zero
