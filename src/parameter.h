@@ -126,6 +126,9 @@ class Parameter {
   bool is_there_food; // is there food?
   bool zero_persistence_past_theline; // set persdur to zero after line is crossed
   
+  bool season_experiment;
+  int season_duration;
+  
   struct key_lock_pair{
     int tau;
     vector<int> key;

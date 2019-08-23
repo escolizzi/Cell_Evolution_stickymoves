@@ -126,6 +126,8 @@ Parameter::Parameter() {
   evolsim=0;
   is_there_food=false;
   zero_persistence_past_theline=false;
+  season_experiment = true;
+  season_duration = 100000;
 }
 
 Parameter::~Parameter() {
@@ -422,6 +424,8 @@ void Parameter::Read(const char *filename) {
   is_there_food = bgetpar(fp,"is_there_food",false, true);
   evolreg = bgetpar(fp,"evolreg",false, true);
   zero_persistence_past_theline = bgetpar(fp,"zero_persistence_past_theline",false, true);
+  season_experiment= bgetpar(fp,"season_experiment",false, true);
+  season_duration= igetpar(fp, "season_duration", 1, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -658,6 +662,8 @@ void Parameter::Write(ostream &os) const {
   os << " is_there_food = " << is_there_food << endl;
   os << " evolreg = " << evolreg <<endl;
   os<< " zero_persistence_past_theline = " << zero_persistence_past_theline << endl;
+  os<< " season_experiment = " << season_experiment << endl;
+  os<< " season_duration = " << season_duration << endl;  
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

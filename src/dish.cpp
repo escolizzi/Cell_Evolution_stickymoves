@@ -1346,6 +1346,190 @@ void Dish::RemoveWhoDidNotMakeIt(void)
   }
 }
 
+double Dish::FitnessFunction(int particles, double meanx, double meany)
+{
+  //get info where the peak is
+  int peakx = Food->GetPeakx();
+  int peaky = Food->GetPeaky();
+  
+  double dx = meanx - peakx;
+  double dy = meany - peaky;
+  double dist = hypot( dx,dy );
+  
+  double epsilon = 0.05;
+  double h_food = 10;
+  double h_dist = par.the_line;
+  
+  double fitness_food = ( particles + epsilon*h_food/(1.-2.*epsilon)  )/(particles + h_food/(1.-2.*epsilon)); //looks weird, it's not
+  double fitness_distance = 1. / ( 1. + pow( dist/h_dist , 2.) );
+  // std::cerr << "particles: "<< particles <<", fitness food = " <<fitness_food<<", distance: "<<dist<<", fitness distance" << fitness_distance<<", tot = "<<fitness_food*fitness_distance<<'\n';
+  return fitness_food*fitness_distance;
+  
+}
+
+//Based on ReproduceWhoMadeIt3, this reproduces all cells, 
+// with fitness dependent on food and distance from target
+void Dish::ReproduceEndOfSeason(void)
+{
+  vector<bool> which_cells(cell.size()); //which cells will divide
+  vector<double> particles_of_those_whomadeit(cell.size());
+  vector<int> sigma_of_cells_that_will_divide;
+  vector<int> sigma_newcells;
+  std::vector<double> fitness(cell.size(), 0.); //as many as there are cells (dead or alive), all with value 0.
+  double tot_fitness = 0.;
+  
+  for(auto &c : cell){
+    if(c.AliveP() && c.Sigma()>0){
+      double cell_fitness = FitnessFunction( c.particles, c.getXpos(), c.getYpos());
+      fitness[ c.Sigma() ] = cell_fitness;
+      tot_fitness += cell_fitness;
+      
+      c.mu = 0.;  //also the other mu? yes-
+      c.chemmu = 0.;
+    }
+  }
+  // std::cerr << "tot fitness: "<<tot_fitness << '\n';
+  //for(auto &f:fitness) f/=tot_fitness;  <- what the hell?
+  for(int i = 0; i<par.howmany_makeit_for_nextgen; ++i){
+    double sum_fitness=0.;
+    double rn = tot_fitness*RANDOM(); //random choice of who replicates proportional to fitness
+    // std::cerr << "rn = " <<rn << '\n';
+    int which_sig=-1; //guaranteed to be initialised by the end of the loop
+    int fitness_vector_size=(int)fitness.size(); // so that compiler stops whining about this
+    for(int sig =1; sig< fitness_vector_size; ++sig ){
+      //if(fitness[sig] < 0.) continue; //fitness vector is as big as cell, and contains -1 where sigma is not alive in cell
+      sum_fitness+= fitness[sig];
+      // std::cerr << "sum so far = " <<sum_fitness << '\n';
+      if(sum_fitness>rn){
+        which_sig=sig; //we found that sigma that replicates
+        break;
+      }
+    }
+    if(which_sig==-1){
+      std::cerr << "ReproduceEndOfSeason(): Error. which_sig is still uninitialised" << '\n';
+      exit(1);
+    }
+    sigma_of_cells_that_will_divide.push_back(which_sig);
+  }
+  
+  
+  
+  // std::cerr << "These are the cells that will divide" << '\n';
+  // for(auto sig:sigma_of_cells_that_will_divide) std::cerr << sig<<" ";
+  // std::cerr << " " << '\n';
+  
+  //At this point we should orchestrate actual cell division:
+  // some cells replicate 10 times, other zero: the idea is that we let cells divide
+  // if they are bigger than a certain amount, if not, we run amoeabeamove until they have expanded enough
+  std::vector<int> new_sigma_of_cells_that_will_divide;
+  while( ! sigma_of_cells_that_will_divide.empty() ){
+    for(auto sig: sigma_of_cells_that_will_divide){
+      //if cell[sig] is large enough
+      //if which_cells[sig] is not already marked
+      // std::cerr << "Cell: "<<sig <<" has area "<< cell[sig].area << " and which_cells[sig] = "<<which_cells[sig] ;
+      // put in which_cells
+      if(cell[sig].Area() > 30 && which_cells[sig]==false){
+        which_cells[sig]=true;
+        // std::cerr << " therefore yes" << '\n';
+      }
+      // if not, put in new_sigma_of_cells_that_will_divide
+      else{
+        new_sigma_of_cells_that_will_divide.push_back(sig);
+        // std::cerr << " therefore no" << '\n';
+      }
+    }
+    //make cell division
+    // std::cerr << "\nThese are the sigmas that replicate this round"<<endl;
+    // for(auto x: which_cells) std::cerr << x <<" ";
+    // std::cerr << " " << '\n';
+    // std::cerr <<"cell.size()="<<cell.size()<< ", vector size = " << which_cells.size() << '\n';
+    //it can still be that which cells is empty because cells that should divide are still too small
+    // it is VERY unlikely that this happens, but it can happen:
+    if(!which_cells.empty()){
+      sigma_newcells = CPM->DivideCells2(which_cells); //replicate cells
+      MutateCells(sigma_newcells);
+      UpdateVectorJ(sigma_newcells);
+      //zero the which_cells vector
+      std::fill(which_cells.begin(), which_cells.end(), false);
+      //vector has to be resized because new cells are born
+      which_cells.resize(cell.size(),false);
+    } 
+    //reset target area
+
+    //just for checking
+    //vector<Cell>::iterator c; //iterator to go over all Cells
+    // int counter=0;
+
+    //reset target area, because cell division changes
+    for(auto sig: sigma_of_cells_that_will_divide){
+        cell[sig].SetTargetArea(par.target_area); // for good measure
+
+    }
+    //do a bunch of AmoebaeMove2
+    for(int i=0;i<5;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little
+    //copy new_sigma_of_cells_that_will_divide into old one
+    sigma_of_cells_that_will_divide = new_sigma_of_cells_that_will_divide;
+    new_sigma_of_cells_that_will_divide.clear();
+
+    //checks - PASSED
+    // std::cerr << "Just a check that vector copying went fine\n sigma_of_bla... should not be empty"<<endl;
+    // for(auto x: sigma_of_cells_that_will_divide) std::cerr << x <<" ";
+    // std::cerr << " " << '\n';
+    // std::cerr << "new_sigma_of_bla... should be empty "<<endl;
+    // for(auto x: new_sigma_of_cells_that_will_divide) std::cerr << x <<" ";
+    // std::cerr << " " << '\n';
+    //
+
+    // return;
+  }
+
+  //also needed, to set all daugher cells
+  vector<Cell>::iterator c; //iterator to go over all Cells
+  int counter=0;
+  for( c=cell.begin(), ++c; c!=cell.end(); ++c){
+    if(c->AliveP()){
+      c->SetTargetArea(par.target_area);
+      c->particles = 0;
+      
+      c->mu = par.startmu;  
+      c->chemmu = par.init_chemmu;
+      
+      if(par.zero_persistence_past_theline ) c->setPersDur(par.persduration); //de-zero persistence so they can move again
+                                                                              // might have to randomzie this
+      counter++;
+    }
+  }
+
+}
+
+//random death until popsize is restored
+void Dish::RemoveCellsUntilPopIs(int popsize)
+{
+  int current_popsize=0;
+  std::vector<int> alivesigma;
+  for(const auto c: cell){
+    if(c.Sigma()>0 && c.AliveP()){ 
+      current_popsize++;
+      alivesigma.push_back(c.Sigma());
+    }
+  }
+  
+  while(current_popsize>popsize){
+    // std::cerr << "# alive cells = " << current_popsize << '\n';
+    
+    int rn = current_popsize*RANDOM();
+    int sigtorm = alivesigma[rn];
+    // std::cerr << "sig to rm = " << rn << '\n';
+    
+    alivesigma[rn] = alivesigma.back();
+    current_popsize--; //so that next time rn interval is reduced
+    
+    cell[sigtorm].SetTargetArea(0);
+    cell[sigtorm].Apoptose(); //set alive to false
+    CPM->RemoveCell(&cell[sigtorm] ,par.min_area_for_life,cell[sigtorm].meanx,cell[sigtorm].meany);
+  }
+}
+
 //give cells a target area proportional to how many particles they have (relative to others)
 // so that cell division does not lead to cells with zero area?
 // the trick is: we let cells divide if their area is large enough
