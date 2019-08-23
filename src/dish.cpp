@@ -1446,7 +1446,7 @@ void Dish::ReproduceEndOfSeason(void)
     //it can still be that which cells is empty because cells that should divide are still too small
     // it is VERY unlikely that this happens, but it can happen:
     if(!which_cells.empty()){
-      sigma_newcells = CPM->DivideCells2(which_cells); //replicate cells
+      sigma_newcells = CPM->DivideCells(which_cells); //replicate cells
       MutateCells(sigma_newcells);
       UpdateVectorJ(sigma_newcells);
       //zero the which_cells vector
