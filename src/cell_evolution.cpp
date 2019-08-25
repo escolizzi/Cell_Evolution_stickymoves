@@ -240,8 +240,12 @@ TIMESTEP {
             //reproduce people based on fitness criterion
             //remove random cells until popsize is back to normal
             //reset food and gradient
+            std::cerr << "End of season: there are "<< dish->CountCells() <<" cells" << '\n';
             dish->ReproduceEndOfSeason();
+            std::cerr << "After reproduction there are "<< dish->CountCells() <<" cells" << '\n';
             dish->RemoveCellsUntilPopIs(par.popsize);
+            std::cerr << "After remove there are "<< dish->CountCells() <<" cells" << '\n';
+
             dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
             std::cout << "End of season: Gradient switching at time (+/- 25 MCS) = "<< i << '\n';
           }

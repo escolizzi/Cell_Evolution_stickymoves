@@ -8,7 +8,7 @@ mcs = 200000000
 # duration of season could then be larger than field size/ speed
 season_experiment = 1
 #season_duration = 100000
-season_duration = 30000
+season_duration = 10000
 
 ### grid size ###
 sizex = 200
@@ -87,7 +87,7 @@ extensiononly = false
 border_energy = 100
 
 # min_area_for_life is the minimum area below which we set a cell to apoptose and remove, default 5
-min_area_for_life = 2
+min_area_for_life = 4
 
 # note: do not change the following parameters for "long" cells (lambda2>0)
 # neigh =2 is Moore neigh (#set neighbours to 1 to avoid predators from eating beyond contact <- NO)

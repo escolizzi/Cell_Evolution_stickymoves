@@ -1412,8 +1412,15 @@ void Dish::ReproduceEndOfSeason(void)
     sigma_of_cells_that_will_divide.push_back(which_sig);
   }
   
-  
-  
+  // std::cerr << "These are the sigmas of the cells alive now, before cell division" << '\n';
+  // for(auto c: cell) 
+  //   if(c.AliveP()) std::cerr << c.Sigma()<<" ";
+  // std::cerr << " " << '\n';
+  // std::cerr << "These are the sigmas of the cells dead now, before cell division" << '\n';
+  // for(auto c: cell) 
+  //   if(!c.AliveP()) std::cerr << c.Sigma()<<" ";
+  // std::cerr << " " << '\n';
+  // 
   // std::cerr << "These are the cells that will divide" << '\n';
   // for(auto sig:sigma_of_cells_that_will_divide) std::cerr << sig<<" ";
   // std::cerr << " " << '\n';
@@ -1447,12 +1454,26 @@ void Dish::ReproduceEndOfSeason(void)
     // it is VERY unlikely that this happens, but it can happen:
     if(!which_cells.empty()){
       sigma_newcells = CPM->DivideCells(which_cells); //replicate cells
+      // sigma_newcells is an int vector as long as there are cells,
+      // it is zero everywhere, except at the positions of a mother cell's sigma,
+      // where it contains as value the sigma of the daughter cell
       MutateCells(sigma_newcells);
       UpdateVectorJ(sigma_newcells);
+      
+      // std::cerr << "\nThese are the sigmas of new born cells"<<endl;
+      // for(auto x: sigma_newcells) std::cerr << x <<" ";
+      // std::cerr << " " << '\n';
+      // std::cerr << "There are now so many alive cells: "<<CountCells() << '\n';
       //zero the which_cells vector
       std::fill(which_cells.begin(), which_cells.end(), false);
       //vector has to be resized because new cells are born
       which_cells.resize(cell.size(),false);
+      
+      // std::cerr << "\nNow the vector which cells has to be resized to cell.size() and all zeroed. check:"<<endl;
+      // for(auto x: which_cells) std::cerr << x <<" ";
+      // std::cerr << " " << '\n';
+      // if(which_cells.size() == cell.size()) std::cerr << "The two vectors have the same size" << '\n';
+      // exit(1);
     } 
     //reset target area
 
@@ -1461,13 +1482,19 @@ void Dish::ReproduceEndOfSeason(void)
     // int counter=0;
 
     //reset target area, because cell division changes
-    for(auto sig: sigma_of_cells_that_will_divide){
-        cell[sig].SetTargetArea(par.target_area); // for good measure
-
-    }
+    // for(auto sig: sigma_of_cells_that_will_divide){
+    //     cell[sig].SetTargetArea(par.target_area); // for good measure
+    // 
+    // }
+    //return;
+    
+    
     //do a bunch of AmoebaeMove2
     for(int i=0;i<5;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little
     //copy new_sigma_of_cells_that_will_divide into old one
+    // std::cerr << "After AmoebaeMove2 there are so many alive cells: "<<CountCells() << '\n';
+    
+    
     sigma_of_cells_that_will_divide = new_sigma_of_cells_that_will_divide;
     new_sigma_of_cells_that_will_divide.clear();
 
@@ -1478,7 +1505,7 @@ void Dish::ReproduceEndOfSeason(void)
     // std::cerr << "new_sigma_of_bla... should be empty "<<endl;
     // for(auto x: new_sigma_of_cells_that_will_divide) std::cerr << x <<" ";
     // std::cerr << " " << '\n';
-    //
+    
 
     // return;
   }
@@ -1488,7 +1515,7 @@ void Dish::ReproduceEndOfSeason(void)
   int counter=0;
   for( c=cell.begin(), ++c; c!=cell.end(); ++c){
     if(c->AliveP()){
-      c->SetTargetArea(par.target_area);
+      // c->SetTargetArea(par.target_area);
       c->particles = 0;
       
       c->mu = par.startmu;  
@@ -1499,6 +1526,7 @@ void Dish::ReproduceEndOfSeason(void)
       counter++;
     }
   }
+  // std::cerr << "Counter sees so many cells: "<<counter << '\n';
 
 }
 
@@ -1513,20 +1541,21 @@ void Dish::RemoveCellsUntilPopIs(int popsize)
       alivesigma.push_back(c.Sigma());
     }
   }
-  
+  // std::cerr << "going to remove cells until I get popsize = "<<popsize << '\n';
   while(current_popsize>popsize){
-    // std::cerr << "# alive cells = " << current_popsize << '\n';
+    // std::cerr << "current_popsize (faulty) = " << current_popsize << '\n';
     
     int rn = current_popsize*RANDOM();
     int sigtorm = alivesigma[rn];
-    // std::cerr << "sig to rm = " << rn << '\n';
-    
-    alivesigma[rn] = alivesigma.back();
+    // std::cerr << "sig to rm = " << sigtorm << '\n';
+    // std::cerr << "sig.back() that takes its place = "<< alivesigma.back() << '\n';
+    alivesigma[rn] = alivesigma[current_popsize-1];
     current_popsize--; //so that next time rn interval is reduced
     
     cell[sigtorm].SetTargetArea(0);
     cell[sigtorm].Apoptose(); //set alive to false
     CPM->RemoveCell(&cell[sigtorm] ,par.min_area_for_life,cell[sigtorm].meanx,cell[sigtorm].meany);
+    // std::cerr << "There are now so many cells: "<< CountCells() << '\n';
   }
 }
 
