@@ -233,7 +233,6 @@ TIMESTEP {
 
     //dish->Food->IncreaseVal(*(dish->Food));
 
-    // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
       if(par.evolsim){
         if(par.season_experiment){

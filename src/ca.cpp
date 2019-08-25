@@ -2591,13 +2591,13 @@ vector<int> CellularPotts::DivideCells(vector<bool> which_cells)
             //exit(1);
             //count_pix++;
             motherp->DecrementArea();
-            motherp->DecrementTargetArea();
+            //motherp->DecrementTargetArea();
             motherp->RemoveSiteFromMoments(i,j);
 
             //cout << "Hello6" << endl;
             sigma[i][j]=daughterp->Sigma();  // WHERE is daughterp->Sigma() defined?
             daughterp->IncrementArea();
-            daughterp->IncrementTargetArea();
+            // daughterp->IncrementTargetArea();
             //cerr << "Adding site (i,j)="<<i<<" "<<j << endl;
             daughterp->AddSiteToMoments(i,j);
             //cout << "Hello8" << endl;
