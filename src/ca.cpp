@@ -2814,8 +2814,11 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
 {
     int count=0;
     int a_little_bit=2;
+    
     int smaller_dimension=( par.sizex < par.sizey)?par.sizex:par.sizey;
-    if( (sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))>smaller_dimension ){
+    int sqrt_n_cells = 1+sqrt(n_cells);
+    //to avoid having 49 cells when you want 50, I'm rounding sqrt(n_cells) to +1
+    if( (  sqrt_n_cells  *(sqrt(size_cells) + a_little_bit))>smaller_dimension ){
       std::cerr << "PlaceCellsOrderly(): Error. Too many cells or too large size?" << '\n';
       exit(1);
     }
@@ -2823,10 +2826,10 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
     // int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     // int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     
-    int beginx = (par.sizex -  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    int endx =   (par.sizex +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    int beginy = (par.sizey -  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    int endy =   (par.sizey +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int beginx = (par.sizex -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
+    int endx =   (par.sizex +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
+    int beginy = (par.sizey -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
+    int endy =   (par.sizey +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
     
     
     int step = ( sqrt(size_cells) + a_little_bit );
