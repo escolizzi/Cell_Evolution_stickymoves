@@ -27,19 +27,21 @@ import numpy as np
 
 colours=["firebrick","royalblue", "darkgoldenrod", "green", "salmon", "lightskyblue","orchid"]
 filename=""
-fig, (ax0, ax1) = plt.subplots(nrows=2)
+fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True)
+fig.subplots_adjust(hspace=0)
 #fig, ax0 = plt.subplots()
 
 if len(sys.argv) <3:
   print "This is the program 'plot_speed.py'"
-  print "Usage: ./plot_speed.py <figure name> <nr of cells to plot> filename"
+  print "Usage: ./plot_speed.py <figure name> <nr of cells to plot> <plot center of mass?> filename"
   sys.exit(1)
 else:
   figname=sys.argv[1]
   tracknr=int(sys.argv[2])
+  b_centerofmass = int(sys.argv[3])
 
 filecounter=0
-for filename in sys.argv[3:]:
+for filename in sys.argv[4:]:
 
   print "reading file ",filename
   timepoints=[]
@@ -91,7 +93,6 @@ for filename in sys.argv[3:]:
   totav=0.
   cellstdev=[0.0]*nrcells
   
-  b_centerofmass = True
   lcmx = []
   lcmy = []
   lcmspeed =[]
@@ -157,7 +158,8 @@ for filename in sys.argv[3:]:
   #ax0.plot(timepoints,MSD)
   #print stdevspeed
   if not b_centerofmass:
-    ax0.errorbar(timepoints[1:],avspeed, yerr=stdevspeed, fmt='-o', c=colours[filecounter],errorevery=20)
+    #ax0.errorbar(timepoints[1:],avspeed, yerr=stdevspeed, fmt='-o', c=colours[filecounter],errorevery=20, linewidth=0.75,ms=0.5)
+    ax0.plot(timepoints[1:],avspeed, c=colours[filecounter], linewidth=0.75)
   else:
     print "last time point:",timepoints[-1]   
     ax0.plot(timepoints[2:],lcmspeed,c=colours[filecounter],lw=0.5)
@@ -178,7 +180,7 @@ for filename in sys.argv[3:]:
   count=0
   for cel in cellspeed:
     if count in toplot[:tracknr]:
-      ax1.plot(timepoints[1:],cel, c=colours[filecounter], alpha=0.5)
+      ax1.plot(timepoints[1:],cel, c=colours[filecounter], alpha=0.5, linewidth=0.75)
     count+=1
 
   ##speed histograms
@@ -190,17 +192,17 @@ for filename in sys.argv[3:]:
   filecounter+=1
 
 
-ax0.set_xlabel('time (MCS)')
-ax0.set_ylabel('average cell speed (pix/MCS)')
-ax0.set_title('Average speed through simulation')
+#ax0.set_xlabel('time (MCS)')
+ax0.set_ylabel('av. cell speed (pix/MCS)')
+ax0.set_title('Instaneous cell speed')
 if not b_centerofmass:
-    ax0.set_xlim(0., 20000.)
+    ax0.set_xlim(0., 10000.)
 
-ax1.set_xlabel('lag (MCS)')
-ax1.set_ylabel('autocorrelation')
+ax1.set_xlabel('time (MCS)')
+ax1.set_ylabel('ind. cell speed (pix/MCS)')
 #ax1.set_ylabel('instantaneous speed (pix/MCS)')
-ax1.set_title('NOT Speed autocorrelation')
-ax1.set_xlim(0., 20000.)
+#ax1.set_title('Individual cell speed')
+ax1.set_xlim(0., 10000.)
 
 
 

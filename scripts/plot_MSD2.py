@@ -123,7 +123,7 @@ for filename in sys.argv[3:]:
 
   
   #ax0.plot(timepoints,MSD)
-  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='o', c=colours[filecounter],errorevery=20)
+  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='-', c=colours[filecounter],errorevery=100)
   #ax0.set_yscale('log')
 
 
@@ -138,9 +138,10 @@ for filename in sys.argv[3:]:
 
   count=0
   count2=0
+  
   for xrow,yrow in zip(xx,yy):
     if count in toplot[:tracknr]:
-      ax1.plot(xrow,yrow, c=colours[filecounter])
+      ax1.plot(xrow,yrow, c=colours[filecounter], alpha=1./tracknr*(count2+1))
       count2+=1
     count+=1
 
@@ -152,6 +153,7 @@ ax0.set_title('Mean squared displacement')
 
 ax1.set_xlabel('x position')
 ax1.set_ylabel('y position')
+ax1.axis('equal')
 ax1.set_title('Re-centered cell tracks')
 
 fig.savefig(figname, bbox_inches='tight')
