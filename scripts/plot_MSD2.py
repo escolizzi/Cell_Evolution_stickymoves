@@ -123,7 +123,7 @@ for filename in sys.argv[3:]:
 
   
   #ax0.plot(timepoints,MSD)
-  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='o', c=colours[filecounter],errorevery=20)
+  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=100)
   #ax0.set_yscale('log')
 
 
@@ -140,7 +140,7 @@ for filename in sys.argv[3:]:
   count2=0
   for xrow,yrow in zip(xx,yy):
     if count in toplot[:tracknr]:
-      ax1.plot(xrow,yrow, c=colours[filecounter])
+      ax1.plot(xrow,yrow, lw=0.5 ,c=colours[filecounter])
       count2+=1
     count+=1
 

@@ -509,9 +509,9 @@ public:
   inline void MutateExtProtFractionParameters(void){
     // if(RANDOM() < par.mut_rate){
       k_ext_0 += (RANDOM() -0.5)/10.;
-      k_ext_A += (RANDOM() -0.5)/10.;
+      // k_ext_A += (RANDOM() -0.5)/10.;
       k_ext_P += (RANDOM() -0.5)/10.;
-      k_ext_C += (RANDOM() -0.5)/10.;
+      // k_ext_C += (RANDOM() -0.5)/10.;
     // }
   }
 
