@@ -180,6 +180,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -noevolreg # No evolution of regulation parameters"<<endl;
   cerr<<" -backupfile path/to/backupfile # to start simulation from backup"<<endl;
   cerr<<" -season [INT_NUMBER] # season duration"<<endl;
+  cerr<<" -foodinflux [FLOAT_NUMBER] # howmuchfood"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -325,6 +326,13 @@ int Parameter::ReadArguments(int argc, char *argv[])
     }else if( 0==strcmp(argv[i],"-noevolreg") ){
       evolreg = false;
       cerr<<"No evolution of regulation parameters"<<endl;
+    }else if( 0==strcmp(argv[i],"-foodinflux") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in foodinflux?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      foodinflux = atof( argv[i] );
+      cerr<<"New value for foodinflux: "<<mut_rate<<endl;
     }else
       return 1;
   }
@@ -396,7 +404,7 @@ void Parameter::Read(const char *filename) {
   ardecay = fgetpar(fp, "ardecay", 0., true);
   growth = fgetpar(fp, "growth", 0., true);
   gradnoise = fgetpar(fp, "gradnoise", 0.1, true); //did I put these in?
-  gradscale = igetpar(fp, "gradscale", 1, true);
+  gradscale = fgetpar(fp, "gradscale", 1.0, true);
   min_contact_duration_for_preying = fgetpar(fp, "min_contact_duration_for_preying", 1., true);
   frac_contlen_eaten = fgetpar(fp, "frac_contlen_eaten", 1., true);
   metabolic_conversion = fgetpar(fp, "metabolic_conversion", 0.5, true);

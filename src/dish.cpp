@@ -651,9 +651,9 @@ void Dish::Plot(Graphics *g, int colour) {
     //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
     
     // return;
-
+    // Draw the_line, but only if it's inside the field
     for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
-      if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders
+      if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders, or beyond them
       int dx = peakx - i;
       int dy = peaky - j;
       double dist = hypot(dx,dy);
@@ -2006,7 +2006,7 @@ void Dish::MakeBackup(int Time){
   //filename, c++11 strings are concatenated by summing them
   // but because we live in the middle age we are going to use sprintf;
   char filename[300];
-  sprintf(filename,"%s/backup_t%07d.txt",par.backupdir,Time);
+  sprintf(filename,"%s/backup_t%09d.txt",par.backupdir,Time);
 
   ofs.open ( filename , std::ofstream::out | std::ofstream::app);
   ofs<<Time<<endl;

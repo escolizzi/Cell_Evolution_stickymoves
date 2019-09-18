@@ -11,8 +11,8 @@ season_experiment = 1
 season_duration = 10000
 
 ### grid size ###
-sizex = 500
-sizey = 500
+sizex = 300
+sizey = 300
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -48,7 +48,7 @@ zero_persistence_past_theline = 0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
@@ -56,7 +56,7 @@ zero_persistence_past_theline = 0
 #keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
-keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
 #lookup table for J val with medium:
@@ -67,9 +67,9 @@ key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 200
-popsize = 50
+popsize = 100
 
-n_init_cells = 50
+n_init_cells = 100
 size_init_cells = 25
 #size_init_cells = 20000
 
@@ -110,20 +110,20 @@ n_chem = 0
 
 #food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment,boundarygradient
 # notice that nowhere zeroes foodinflux
-food_influx_location = boundarygradient
-#food_influx_location = specified_experiment
+#food_influx_location = boundarygradient
+food_influx_location = specified_experiment
 gradnoise = 0.9
 gradscale = 1.0
 
 # only used in specified_experiment, if true it puts 1 food randomly, with probability foodinflux = 0.05
-is_there_food = 0
+is_there_food = 1
 
 # default initial_food_amount = 5
 initial_food_amount = 0
 #default foodinflux=0.2
 #foodinflux = 0.025
 #foodinflux = 0.002
-foodinflux = 0.05
+foodinflux = 0.2
 # default eatprob = 1.
 eatprob = 1.0
 # default growth = 10.
@@ -173,7 +173,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 10
+storage_stride = 100
 graphics = false
 store = true
 datadir = data_film2
@@ -183,6 +183,6 @@ save_backup_period = 100000
 backupdir = backup
 
 #if readcolortable is true, it reads the color table from "colortable_filename", otherwise it generates a pretty one internally
-readcolortable = true
+readcolortable = false
 colortable_filename = ../data/circular.ctb
 #derived from circular colormap "twilight" on github
