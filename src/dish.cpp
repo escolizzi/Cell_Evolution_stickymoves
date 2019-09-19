@@ -581,7 +581,7 @@ void Dish::Plot(Graphics *g, int colour) {
     if (CPM){
       CPM->Plot(g, colour);
     }
-    
+
     // return;
 
 
@@ -602,7 +602,7 @@ void Dish::Plot(Graphics *g, int colour) {
         else if(y2<0) y2=0;
         //now we have to wrap this
         // do we really? we could just truncate vectors up to the max size..
-        g->Line(x1,y1,x2, y2, 1); //notice that Line just calls Point for drawing, 
+        g->Line(x1,y1,x2, y2, 1); //notice that Line just calls Point for drawing,
                                   // so it does not intrinsically suffer from x,y inversion
       }
     }
@@ -649,7 +649,7 @@ void Dish::Plot(Graphics *g, int colour) {
     }
     //std::cerr << "minx,maxx " << minx <<" "<< maxx<< '\n';
     //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
-    
+
     // return;
 
     for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
@@ -907,23 +907,23 @@ void Dish::CellsEat2(void)
         xv=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx;
         yv=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
 
-        double hyphyp=hypot(xv,yv);
+        //double hyphyp=hypot(xv,yv);
 
         // in a homogeneous medium, gradient is zero
         // we then pick a random direction
-        if(hyphyp > 0.0001){
-          xv/=hyphyp;
-          yv/=hyphyp;
-          c.setChemVec(xv,yv);
-        }else{
-          double theta = 2.*M_PI*RANDOM();
-          c.setChemVec( cos(theta) , sin(theta) );
-        }
+        //if(hyphyp > 0.0001){
+        //  xv/=hyphyp;
+        //  yv/=hyphyp;
+        c.setChemVec(xv,yv);
+        //}else{
+        //  double theta = 2.*M_PI*RANDOM();
+        //  c.setChemVec( cos(theta) , sin(theta) );
+        //}
       }
-      if(c.chemvecx>1 || c.chemvecy>1){
-        std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
-        exit(1);
-      }
+      //if(c.chemvecx>1 || c.chemvecy>1){
+      //  std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
+      //  exit(1);
+      //}
     }
 
 }
@@ -1212,18 +1212,18 @@ int Dish::CheckWhoMadeitRadial(void){
   //get info where the peak is
   int peakx = Food->GetPeakx();
   int peaky = Food->GetPeaky();
-  
+
   //find if cells in some area around the peak are already in the list
   for(auto &c:cell){
     if( ! c.AliveP() ) continue;
     double distx = c.meanx - peakx;
     double disty = c.meany - peaky;
     double dist_from_peak = hypot(distx,disty);
-    
+
     //cerr<< "Sigma: "<< c.Sigma()<<". Dist = "<<dist_from_peak<< ", mu = "<<c.mu<< endl;
-    
+
     //cerr<< "Sigma: "<< c.Sigma()<<". Dist = "<<dist_from_peak<< ", persdur = "<<c.persdur<<", perstime = "<<c.perstime<< endl;
-    
+
     if( dist_from_peak <= par.the_line ){
       who_made_it.insert( c.Sigma() ); //if already there it will not be duplicated in the set
       if( par.zero_persistence_past_theline ) {

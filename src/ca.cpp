@@ -172,24 +172,24 @@ int CellularPotts::SetNextSigma(int sig) {
   //the plane has a 1 px boundary on all size, therefore we place the pixels
   //within that
   static int xcount=1, ycount=1;
-  
+
   if(xcount>=sizex-1 ||ycount>=sizey-1){
     return 1;
   }
-  
+
   sigma[xcount][ycount]=sig;
   if (sig){
     (*cell)[sig].area++;
     (*cell)[sig].AddSiteToMoments(xcount, ycount);
   }
-    
+
   ycount++;
   if(ycount==sizey-1){
     ycount=1;
     xcount++;
   }
   return 0;
-  
+
 }
 
 void CellularPotts::IndexShuffle() {
@@ -400,9 +400,14 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
           }
         }
 
+        double vx=(*cell)[sxy].getChemXvec();
+        double vy=(*cell)[sxy].getChemYvec();
+        double hyphyp=hypot(vx,vy);
+        vx/=hyphyp;
+        vy/=hyphyp;
         ax=x-smeanx;
         ay=y-smeany;
-        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+        DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vy + ay*vy)/hypot(ax,ay);
 
 
       // cout << "Migrating1!"<<endl;
@@ -624,6 +629,7 @@ double ax, ay;
     if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
       if(sxy!=MEDIUM){
         //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
+
         double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
         double smeany = (*cell)[sxy].getYpos();
 
@@ -650,9 +656,14 @@ double ax, ay;
           }
         }
 
+        double vx=(*cell)[sxy].getChemXvec();
+        double vy=(*cell)[sxy].getChemYvec();
+        double hyphyp=hypot(vx,vy);
+        vx/=hyphyp;
+        vy/=hyphyp;
         ax=x-smeanx;
         ay=y-smeany;
-        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+        DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
       }
       if(sxyp!=MEDIUM){
          double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
@@ -1417,64 +1428,64 @@ int **CellularPotts::SearchNandPlot(Graphics *g, bool get_neighbours)
 
 
 // void CellularPotts::ReadZygotePicture(void) {
-// 
-// 
-// 
+//
+//
+//
 //   int pix,cells,i,j,c,p,checkx,checky;
 //   char **pixelmap;
 //   char pixel[3];
-// 
+//
 //   sscanf(ZYGXPM(ZYGOTE)[0],"%d %d %d %d",&checkx,&checky,&cells,&pix);
-// 
+//
 //   if ((checkx>sizex)||(checky>sizey)) {
 //     std::cerr <<  "ReadZygote: The included xpm picture is smaller than the grid!\n";
 //     std::cerr << "\n Please adjust either the grid size or the picture size.\n";
 //     std::cerr << sizex << "," << sizey << "," << checkx << "," << checky << "\n";
 //     exit(1);
 //   }
-// 
+//
 //   pixelmap=(char **)malloc(cells*sizeof(char *));
 //   if (pixelmap==NULL) MemoryWarning();
-// 
+//
 //   pixelmap[0]=(char *)malloc(cells*3*sizeof(char));
 //   if (pixelmap[0]==NULL) MemoryWarning();
-// 
+//
 //   for(i=1;i<cells;i++)
 //     pixelmap[i]=pixelmap[i-1]+3;
-// 
+//
 //   for (i=0;i<cells;i++) {
 //     for (j=0;j<pix;j++)
 //       pixelmap[i][j]=ZYGXPM(ZYGOTE)[i+1][j];
 //     pixelmap[i][pix]='\0';
 //   }
-// 
+//
 //   for (i=0;i<sizex*sizey;i++) sigma[0][i]=0;
 //   fprintf(stderr,"[%d %d]\n",checkx,checky);
-// 
+//
 //   int offs_x, offs_y;
 //   offs_x=(sizex-checkx)/2;
 //   offs_y=(sizey-checky)/2;
-// 
+//
 //   for (i=0;i<checkx;i++)
 //     for (j=0;j<checky;j++) {
 //       for (p=0;p<pix;p++)
 //         pixel[p]=ZYGXPM(ZYGOTE)[cells+1+j][i*pix+p];
-// 
+//
 //       pixel[pix]='\0';
-// 
+//
 //       for (c=0;c<cells;c++) {
 // 	if (!(strcmp(pixelmap[c],pixel))) {
 // 	  if ( (sigma[offs_x+i][offs_y+j]=c) ) {
-// 
+//
 // 	    // if c is _NOT_ medium (then c=0)
 // 	    // assign pixel values from "sigmamax"
 // 	    sigma[offs_x+i][offs_y+j]+=(Cell::MaxSigma()-1);
 // 	  }
 // 	}
-// 
+//
 //       }
 //     }
-// 
+//
 //   free(pixelmap[0]);
 //   free(pixelmap);
 // }
@@ -1664,7 +1675,7 @@ Dir *CellularPotts::FindCellDirections3(void) const
 
         double tmpx=x; //because we may change them if wrapped
         double tmpy=y;
-        
+
         double meanx = (*cell)[isigma].meanx;
         double meany = (*cell)[isigma].meany;
 
@@ -1713,7 +1724,7 @@ Dir *CellularPotts::FindCellDirections3(void) const
   //     ( sxy syy )
   // We diagonalise this and find eigenvalues lb1 and lb2
   //recalculate the means while we're at it
-  
+
 
   double small_number = 0.0000001;
   double large_enough_number = 1./small_number;
@@ -2804,9 +2815,9 @@ int CellularPotts::PlaceCellsRandomly(int n, int cellsize)
 }
 
 // Places cells at regular distance from one another:
-// For square cells of size s, the spatial occupation is sqrt(s). 
-// Since we have to place n of them, we use a square of space of size sqrt(n)*(sqrt(s) + a_little_bit), 
-// centered at the center of grid, which means that the upper left corner of the first cell is at 
+// For square cells of size s, the spatial occupation is sqrt(s).
+// Since we have to place n of them, we use a square of space of size sqrt(n)*(sqrt(s) + a_little_bit),
+// centered at the center of grid, which means that the upper left corner of the first cell is at
 // x=(sizex-sqrt(n)*(sqrt(s) + a_little_bit))/2
 int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
 {
@@ -2817,20 +2828,20 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
       std::cerr << "PlaceCellsOrderly(): Error. Too many cells or too large size?" << '\n';
       exit(1);
     }
-    
+
     // int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     // int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    
+
     int beginx = (par.sizex -  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     int endx =   (par.sizex +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     int beginy = (par.sizey -  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     int endy =   (par.sizey +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    
-    
+
+
     int step = ( sqrt(size_cells) + a_little_bit );
-    
+
     int avrg_area=0;
-    
+
     // each x,y point denotes the upper left corner of a cell
     // with i,j we run through the cell
     for(int x = beginx ; x < endx ; x += step ){
@@ -2855,8 +2866,8 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
       }
       if(count == n_cells) break;
     }
-    
-    
+
+
     cerr<<"Placed "<<count<<" cells out of "<<n_cells<<" requested; avrg area = "<< avrg_area/(double)count<<endl;
     //exit(1);
     return count;

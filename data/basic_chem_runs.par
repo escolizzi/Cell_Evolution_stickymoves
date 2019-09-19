@@ -1,12 +1,12 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 10000
+mcs = 50000
 #mcs = 50000
 
 ### grid size ###
-sizex = 750
-sizey = 750
+sizex = 500
+sizey = 500
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -15,7 +15,7 @@ scaling_cell_to_ca_time = 10
 T = 16
 
 # set the target area to half_div_area
-target_area = 50
+target_area = 100
 
 #Division area
 #half_div_area = 100
@@ -32,17 +32,17 @@ lambda2 = 0
 #default startmu = 0.0 or 10.0
 # mu is now changed depending on metabolism
 startmu = 3.
-persduration = 500 #50
-init_chemmu = 1.0
+persduration = 50 #50
+init_chemmu = 0.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
 
-keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
+#keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
@@ -56,10 +56,10 @@ key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 1
-popsize = 1
+popsize = 50
 
-n_init_cells = 1
-size_init_cells = 25
+n_init_cells = 50
+size_init_cells = 50
 #size_init_cells = 20000
 
 #radius of the box for cells that make it to next generation
@@ -100,8 +100,8 @@ n_chem = 0
 #food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment,boundarygradient
 # notice that nowhere zeroes foodinflux
 food_influx_location = boundarygradient
-gradnoise = 0.5
-gradscale = 1.0
+gradnoise = 0.6
+gradscale = 0.0
 
 # only used in specified_experiment, if true it puts 1 food randomly, with probability foodinflux = 0.05
 is_there_food = 0
@@ -161,7 +161,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 10
+storage_stride = 50
 graphics = false
 store = true
 datadir = data_film2
