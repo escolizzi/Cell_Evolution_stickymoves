@@ -403,11 +403,14 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
         double vx=(*cell)[sxy].getChemXvec();
         double vy=(*cell)[sxy].getChemYvec();
         double hyphyp=hypot(vx,vy);
-        vx/=hyphyp;
-        vy/=hyphyp;
-        ax=x-smeanx;
-        ay=y-smeany;
-        DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vy + ay*vy)/hypot(ax,ay);
+        if (hyphyp>0.00001){
+          vx/=hyphyp;
+          vy/=hyphyp;
+          ax=x-smeanx;
+          ay=y-smeany;
+          DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vy + ay*vy)/hypot(ax,ay);
+        }
+
 
 
       // cout << "Migrating1!"<<endl;
@@ -558,12 +561,12 @@ int CellularPotts::DeltaH(int x,int y, int xp, int yp, PDE *PDEfield)
 //   }
 /*cell migration */
 //Joost's method
-double ax, ay;
+double ax, ay, vx, vy,smeanx,smeany,spmeanx,spmeany,hyphyp;
   if((*cell)[sxy].getMu()>0.0001 || (*cell)[sxyp].getMu()>0.0001){
     if(sxy!=MEDIUM){
       //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
-      double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-      double smeany = (*cell)[sxy].getYpos();
+      smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+      smeany = (*cell)[sxy].getYpos();
 
       if(par.periodic_boundaries){
         // if x is on the right and meanx is on the left
@@ -593,8 +596,8 @@ double ax, ay;
       DH+=(*cell)[sxy].getMu()*(ax*(*cell)[sxy].getXvec() + ay*(*cell)[sxy].getYvec())/hypot(ax,ay);
     }
     if(sxyp!=MEDIUM){
-       double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-       double spmeany = (*cell)[sxyp].getYpos();
+       spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+       spmeany = (*cell)[sxyp].getYpos();
 
        if(par.periodic_boundaries){
          if( (x-spmeanx)>0 && (x-spmeanx)>(spmeanx-(x-(par.sizex-2))) ){
@@ -630,8 +633,8 @@ double ax, ay;
       if(sxy!=MEDIUM){
         //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
 
-        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-        double smeany = (*cell)[sxy].getYpos();
+        smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+        smeany = (*cell)[sxy].getYpos();
 
         if(par.periodic_boundaries){
           // if x is on the right and meanx is on the left
@@ -656,18 +659,21 @@ double ax, ay;
           }
         }
 
-        double vx=(*cell)[sxy].getChemXvec();
-        double vy=(*cell)[sxy].getChemYvec();
-        double hyphyp=hypot(vx,vy);
-        vx/=hyphyp;
-        vy/=hyphyp;
-        ax=x-smeanx;
-        ay=y-smeany;
-        DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
+        vx=(*cell)[sxy].getChemXvec();
+        vy=(*cell)[sxy].getChemYvec();
+        hyphyp=hypot(vx,vy);
+        if (hyphyp>0.00001){
+          vx/=hyphyp;
+          vy/=hyphyp;
+          ax=x-smeanx;
+          ay=y-smeany;
+          DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
+        }
+
       }
       if(sxyp!=MEDIUM){
-         double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-         double spmeany = (*cell)[sxyp].getYpos();
+         spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+         spmeany = (*cell)[sxyp].getYpos();
 
          if(par.periodic_boundaries){
            if( (x-spmeanx)>0 && (x-spmeanx)>(spmeanx-(x-(par.sizex-2))) ){
@@ -691,9 +697,16 @@ double ax, ay;
          }
          //ax=x-(*cell)[sxyp].getXpos(); //returns meanx
          //ay=y-(*cell)[sxyp].getYpos(); //returns meany
-         ax=x-spmeanx;
-         ay=y-spmeany;
-         DH-=(*cell)[sxyp].getChemMu()*(ax*(*cell)[sxyp].getChemXvec() + ay*(*cell)[sxyp].getChemYvec())/hypot(ax,ay);
+         vx=(*cell)[sxyp].getChemXvec();
+         vy=(*cell)[sxyp].getChemYvec();
+         hyphyp=hypot(vx,vy);
+         if (hyphyp>0.00001){
+           vx/=hyphyp;
+           vy/=hyphyp;
+           ax=x-spmeanx;
+           ay=y-spmeany;
+           DH-=(*cell)[sxyp].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
+         }
       }
     }
 //
