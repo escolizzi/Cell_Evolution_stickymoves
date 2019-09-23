@@ -15,7 +15,7 @@ scaling_cell_to_ca_time = 10
 T = 16
 
 # set the target area to half_div_area
-target_area = 100
+target_area = 50
 
 #Division area
 #half_div_area = 100
@@ -33,7 +33,7 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50 #50
-init_chemmu = 0.
+init_chemmu = 4.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
@@ -56,9 +56,9 @@ key_lock_length = 25
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 1
-popsize = 50
+popsize = 100
 
-n_init_cells = 50
+n_init_cells = 100
 size_init_cells = 50
 #size_init_cells = 20000
 
@@ -101,7 +101,7 @@ n_chem = 0
 # notice that nowhere zeroes foodinflux
 food_influx_location = boundarygradient
 gradnoise = 0.6
-gradscale = 0.0
+gradscale = 1.0
 
 # only used in specified_experiment, if true it puts 1 food randomly, with probability foodinflux = 0.05
 is_there_food = 0

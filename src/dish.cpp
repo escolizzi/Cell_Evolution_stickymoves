@@ -920,6 +920,9 @@ void Dish::CellsEat2(void)
         //  c.setChemVec( cos(theta) , sin(theta) );
         //}
       }
+      else if (c.sigma){
+        c.setChemVec(0.0,0.0);
+      }
       //if(c.chemvecx>1 || c.chemvecy>1){
       //  std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
       //  exit(1);
