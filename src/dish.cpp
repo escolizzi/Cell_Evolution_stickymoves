@@ -919,6 +919,9 @@ void Dish::CellsEat2(void)
           double theta = 2.*M_PI*RANDOM();
           c.setChemVec( cos(theta) , sin(theta) );
         }
+      }else if(!ftotal[c.sigma]){
+        double theta = 2.*M_PI*RANDOM();
+        c.setChemVec( cos(theta) , sin(theta) );
       }
       if(c.chemvecx>1 || c.chemvecy>1){
         std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
