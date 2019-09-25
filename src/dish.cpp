@@ -184,7 +184,10 @@ int Dish::CalculateJfromKeyLock( vector<int> key1, vector<int> lock1, vector<int
   // with 0 you should get high J val (low adh)
   //This is a arbitrary function 3+40*exp(-0.01*x^2)
   //add 0.5 before truncation to int makes it apprx to closest integer
-  int Jfromkeylock = 3 + (int)(0.5+ 40.*exp( -pow( (score/double(par.key_lock_length)) , 2.) ));
+  
+  int Jfromkeylock =(int)( 52. - 48. * ((double)score) /(2.*par.key_lock_length) );
+  // int Jfromkeylock = 3 + (int)(0.5+ 40.*exp( -pow( (score/double(par.key_lock_length)) , 2.) ));
+  
 
   /*
   cout<<"CalculateJfromKeyLock: I got:"<<endl<< "key1: ";

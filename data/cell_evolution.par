@@ -2,17 +2,17 @@
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
 #mcs = 200000000
-mcs = 10000
+mcs = 10000000
 
 #cells in blobs move at 0.0055 px/mcs
 # duration of season could then be larger than field size/ speed
 season_experiment = 1
-#season_duration = 100000
-season_duration = 10000
+season_duration = 100000
+#season_duration = 10000
 
 ### grid size ###
-sizex = 300
-sizey = 300
+sizex = 350
+sizey = 350
 
 ### scaling factor for: freq update food plane, predation, feeding and growth/divide ###
 scaling_cell_to_ca_time = 10
@@ -47,29 +47,24 @@ init_chemmu = 1.0
 zero_persistence_past_theline = 0
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
+#keylock_list_filename = ../data/KL_l25_12_12.dat
+keylock_list_filename = ../data/KL_l25_12_24.dat
+#keylock_list_filename = ../data/KL_l25_12_48.dat
 
-#keylock_list_filename =  ../data/KL_chemo_11_14_g4.dat
-#keylock_list_filename =  ../data/KL_chemo_19_30_g4.dat
-#keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
-#keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
-#keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 
 #lookup table for J val with medium:
 # e.g if I get 10o4_3_2_1 -> J(tau,medium) = 10 + sum(4*key[0],3*key[1],2*key[2],1*key[3])
-Jmed_rule_input = 10o5_4_3_1_1_1
+#Jmed_rule_input = 10o5_4_3_1_1_1
+Jmed_rule_input = 8o4_3_2_1_1_1
 
-key_lock_length = 25
+# THIS WAS 25. recently changed!
+key_lock_length = 24
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 200
-popsize = 100
+popsize = 200
 
-n_init_cells = 100
+n_init_cells = 200
 size_init_cells = 25
 #size_init_cells = 20000
 
