@@ -90,6 +90,7 @@ void Cell::CellBirth(Cell &mother_cell) {
   alive=mother_cell.alive;
 
   tau=mother_cell.tau;
+  target_area = mother_cell.target_area;
   target_length = mother_cell.target_length;
   half_div_area = mother_cell.half_div_area;
 

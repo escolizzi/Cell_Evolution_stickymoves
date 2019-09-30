@@ -77,6 +77,7 @@ public:
     target_area=src.target_area;
     half_div_area=src.half_div_area;
     length=src.length;
+    target_area = src.target_area;
     target_length=src.target_length;
     growth_threshold=src.growth_threshold;
     mother=src.mother;
@@ -203,6 +204,7 @@ public:
     sum_xy=src.sum_xy;
 
     length=src.length;
+    target_area = src.target_area;
     target_length=src.target_length;
     amount++;
     owner=src.owner;
@@ -507,9 +509,9 @@ public:
   inline void MutateExtProtFractionParameters(void){
     // if(RANDOM() < par.mut_rate){
       k_ext_0 += (RANDOM() -0.5)/10.;
-      k_ext_A += (RANDOM() -0.5)/10.;
+      // k_ext_A += (RANDOM() -0.5)/10.;
       k_ext_P += (RANDOM() -0.5)/10.;
-      k_ext_C += (RANDOM() -0.5)/10.;
+      // k_ext_C += (RANDOM() -0.5)/10.;
     // }
   }
 

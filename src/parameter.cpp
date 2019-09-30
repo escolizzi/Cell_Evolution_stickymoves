@@ -126,6 +126,8 @@ Parameter::Parameter() {
   evolsim=0;
   is_there_food=false;
   zero_persistence_past_theline=false;
+  season_experiment = true;
+  season_duration = 100000;
 }
 
 Parameter::~Parameter() {
@@ -177,6 +179,8 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -nofood # No food distributed in the simulation"<<endl;
   cerr<<" -noevolreg # No evolution of regulation parameters"<<endl;
   cerr<<" -backupfile path/to/backupfile # to start simulation from backup"<<endl;
+  cerr<<" -season [INT_NUMBER] # season duration"<<endl;
+  cerr<<" -foodinflux [FLOAT_NUMBER] # howmuchfood"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -309,12 +313,26 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       howmany_makeit_for_nextgen = atoi( argv[i] );
       cerr<<"New value for n_nextgen (howmany_makeit_for_nextgen in the code): "<<howmany_makeit_for_nextgen<<endl;
+    }else if( 0==strcmp(argv[i],"-season") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in season?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      season_duration = atoi( argv[i] );
+      cerr<<"New value for season (season_duration in the code): "<<season_duration<<endl;
     }else if( 0==strcmp(argv[i],"-nofood") ){
       is_there_food = false;
       cerr<<"No food in this simulation"<<endl;
     }else if( 0==strcmp(argv[i],"-noevolreg") ){
       evolreg = false;
       cerr<<"No evolution of regulation parameters"<<endl;
+    }else if( 0==strcmp(argv[i],"-foodinflux") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in foodinflux?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      foodinflux = atof( argv[i] );
+      cerr<<"New value for foodinflux: "<<mut_rate<<endl;
     }else
       return 1;
   }
@@ -386,7 +404,7 @@ void Parameter::Read(const char *filename) {
   ardecay = fgetpar(fp, "ardecay", 0., true);
   growth = fgetpar(fp, "growth", 0., true);
   gradnoise = fgetpar(fp, "gradnoise", 0.1, true); //did I put these in?
-  gradscale = igetpar(fp, "gradscale", 1, true);
+  gradscale = fgetpar(fp, "gradscale", 1.0, true);
   min_contact_duration_for_preying = fgetpar(fp, "min_contact_duration_for_preying", 1., true);
   frac_contlen_eaten = fgetpar(fp, "frac_contlen_eaten", 1., true);
   metabolic_conversion = fgetpar(fp, "metabolic_conversion", 0.5, true);
@@ -422,6 +440,8 @@ void Parameter::Read(const char *filename) {
   is_there_food = bgetpar(fp,"is_there_food",false, true);
   evolreg = bgetpar(fp,"evolreg",false, true);
   zero_persistence_past_theline = bgetpar(fp,"zero_persistence_past_theline",false, true);
+  season_experiment= bgetpar(fp,"season_experiment",false, true);
+  season_duration= igetpar(fp, "season_duration", 1, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -658,6 +678,8 @@ void Parameter::Write(ostream &os) const {
   os << " is_there_food = " << is_there_food << endl;
   os << " evolreg = " << evolreg <<endl;
   os<< " zero_persistence_past_theline = " << zero_persistence_past_theline << endl;
+  os<< " season_experiment = " << season_experiment << endl;
+  os<< " season_duration = " << season_duration << endl;  
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

@@ -233,26 +233,41 @@ TIMESTEP {
 
     //dish->Food->IncreaseVal(*(dish->Food));
 
-    // RE-DO this when you are done fixing bugs
     if( i%25 == 0){
       if(par.evolsim){
-        if( dish->CheckWhoMadeitRadial() ){
-          //reset food
-          // clone them with mutations
-          // wipe out the previous pop
-          // reseed
-          //reset whomadeit vector
-          dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
-          dish->ReproduceWhoMadeIt3(); //reproduction
-          dish->ClearWhoMadeItSet(); //zeros the who_made_it set,
-                                   // zero the particles eaten
-          dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
-                                                // because we do some AmoebaeMove2 steps in
-                                                // ReproduceWhoMadeIt2 to let cells grow a little
-                                                // but we don't want this to go along the new gradient
-                                                // which would be unfair.
-         std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';
-        }
+        if(par.season_experiment){
+          if(i>0 && i%par.season_duration==0){
+            //reproduce people based on fitness criterion
+            //remove random cells until popsize is back to normal
+            //reset food and gradient
+            std::cerr << "End of season: there are "<< dish->CountCells() <<" cells" << '\n';
+            dish->ReproduceEndOfSeason();
+            std::cerr << "After reproduction there are "<< dish->CountCells() <<" cells" << '\n';
+            dish->RemoveCellsUntilPopIs(par.popsize);
+            std::cerr << "After remove there are "<< dish->CountCells() <<" cells" << '\n';
+
+            dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
+            std::cout << "End of season: Gradient switching at time (+/- 25 MCS) = "<< i << '\n';
+          }
+        }else{
+          if( dish->CheckWhoMadeitRadial() ){
+            //reset food
+            // clone them with mutations
+            // wipe out the previous pop
+            // reseed
+            //reset whomadeit vector
+            dish->RemoveWhoDidNotMakeIt(); //remove those that did not makeit
+            dish->ReproduceWhoMadeIt3(); //reproduction
+            dish->ClearWhoMadeItSet(); //zeros the who_made_it set,
+                                     // zero the particles eaten
+            dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
+                                                  // because we do some AmoebaeMove2 steps in
+                                                  // ReproduceWhoMadeIt2 to let cells grow a little
+                                                  // but we don't want this to go along the new gradient
+                                                  // which would be unfair.
+           std::cout << "Gradient switching at time (+/- 25 MCS) = "<< i << '\n';
+         }
+       }
       }else{
         //not evolutionary simulation
         if( dish->CheckWhoMadeitLinear() ){

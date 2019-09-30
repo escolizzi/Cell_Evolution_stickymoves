@@ -86,7 +86,7 @@ class Parameter {
   double growth;
   double ardecay;
   double gradnoise;
-  int gradscale;
+  double gradscale;
   int min_contact_duration_for_preying;
   double frac_contlen_eaten;
   double metabolic_conversion;
@@ -125,6 +125,9 @@ class Parameter {
   bool evolreg; //do regulation parameters evolve?
   bool is_there_food; // is there food?
   bool zero_persistence_past_theline; // set persdur to zero after line is crossed
+  
+  bool season_experiment;
+  int season_duration;
   
   struct key_lock_pair{
     int tau;
