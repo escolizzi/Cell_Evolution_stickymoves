@@ -668,41 +668,45 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
   // static int first_time=1;
   // if(!first_time) return;
   // first_time=0;
-
-
-  static int gradient_dir=-1;
-  //static int here_time=-1; //so that it ++ to zero and sets the gradient
-  //int peakx,peaky;
-
-  // here_time++;
-  // if(here_time%45000 != 0) return;
-
-
-  // else we re-set the gradient to a random direction
-  int rn = (int)(4.*RANDOM());
-  while(rn == gradient_dir) rn = (int)(4.*RANDOM());
-  gradient_dir=rn;
-
-  switch (gradient_dir) {
-    case 0 : peakx = sizex/2;
-             peaky = 1;
-             break;
-    case 1 : peakx = sizex/2;
-             peaky = sizey-1;
-             break;
-    case 2 : peakx = 1;
-             peaky = sizey/2;
-             break;
-    case 3 : peakx = sizex-1;
-             peaky = sizey/2;
-             break;
-    default: peakx = sizex/2;
-             peaky = sizey/2;
-             cerr<<"How could you possibly get an error here?"<<endl;
-             exit(1);
-             break;
+  
+  if(!par.evolsim){
+    peakx=sizex/2;
+    peaky=1;
   }
+  else{
+    static int gradient_dir=-1;
+    //static int here_time=-1; //so that it ++ to zero and sets the gradient
+    //int peakx,peaky;
 
+    // here_time++;
+    // if(here_time%45000 != 0) return;
+
+
+    // else we re-set the gradient to a random direction
+    int rn = (int)(4.*RANDOM());
+    while(rn == gradient_dir) rn = (int)(4.*RANDOM());
+    gradient_dir=rn;
+
+    switch (gradient_dir) {
+      case 0 : peakx = sizex/2;
+               peaky = 1;
+               break;
+      case 1 : peakx = sizex/2;
+               peaky = sizey-1;
+               break;
+      case 2 : peakx = 1;
+               peaky = sizey/2;
+               break;
+      case 3 : peakx = sizex-1;
+               peaky = sizey/2;
+               break;
+      default: peakx = sizex/2;
+               peaky = sizey/2;
+               cerr<<"How could you possibly get an error here?"<<endl;
+               exit(1);
+               break;
+    }
+  }
   // std::cerr<< '\n'<< '\n' << "HELLO"<< '\n' << '\n';
   //we go from right border to left
   // for(int i=1;i<sizex-1;i++)for(int j=sizey -2;j>0;j--){
