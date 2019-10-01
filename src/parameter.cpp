@@ -176,6 +176,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -popsize INT_NUMBER [-pop_as_initpop] # population size, optional same as n_init_cells"<<endl;
   cerr<<" -pop_as_initpop # initial population size = popsize"<<endl;
   cerr<<" -n_nextgen INT_NUMBER # number of cells that are taken to next generation"<<endl;
+  cerr<<" -noevolsim # No evolution at all: sim ends in 1 season, when [howmany_makeit_for_nextgen] cells pass [the_line])"<<endl;
   cerr<<" -nofood # No food distributed in the simulation"<<endl;
   cerr<<" -noevolreg # No evolution of regulation parameters"<<endl;
   cerr<<" -backupfile path/to/backupfile # to start simulation from backup"<<endl;
@@ -323,6 +324,9 @@ int Parameter::ReadArguments(int argc, char *argv[])
     }else if( 0==strcmp(argv[i],"-nofood") ){
       is_there_food = false;
       cerr<<"No food in this simulation"<<endl;
+    }else if( 0==strcmp(argv[i],"-noevolsim") ){
+      evolsim = false;
+      cerr<<"No evolution in this simulation (sim ends when [howmany_makeit_for_nextgen] cells pass [the_line])"<<endl;
     }else if( 0==strcmp(argv[i],"-noevolreg") ){
       evolreg = false;
       cerr<<"No evolution of regulation parameters"<<endl;
