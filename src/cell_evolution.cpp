@@ -270,7 +270,8 @@ TIMESTEP {
        }
       }else{
         //not evolutionary simulation
-        if( dish->CheckWhoMadeitLinear() ){
+        if( ((strcmp(par.food_influx_location,"boundarygradient") == 0) && dish->CheckWhoMadeitLinear() ) || 
+            ((strcmp(par.food_influx_location,"specified_experiment") == 0) && dish->CheckWhoMadeitRadial() )){
           //for printing switching times
           //write switching time to file
           static char timename[300];
