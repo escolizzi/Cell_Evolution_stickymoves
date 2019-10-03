@@ -57,14 +57,14 @@ using namespace std;
 
 INIT {
   try {
-    
+
     // Define initial distribution of cells
     //CPM->GrowInCells(par.n_init_cells,par.size_init_cells,par.subfield);
 
     // THIS IS JUST FOR EXPERIMENTS
     //CPM->PlaceOneCellsAtXY(par.sizex/2,par.sizey/2., par.size_init_cells, 1);
     //CPM->PlaceOneCellsAtXY(par.sizex/4,par.sizey/4, par.size_init_cells, 2);
-    
+
     if (! strlen(par.backupfile)) {
 
       //THIS IS TO USE FOR NORMAL INITIALISATION
@@ -220,7 +220,7 @@ TIMESTEP {
    // }
 
 
-    
+
     // if(i>100){
      dish->CellMigration();//updates persistence time and targetvectors
     // }
@@ -270,7 +270,7 @@ TIMESTEP {
        }
       }else{
         //not evolutionary simulation
-        if( dish->CheckWhoMadeitLinear() ){
+        if( dish->CheckWhoMadeitRadial() ){
           //for printing switching times
           //write switching time to file
           static char timename[300];
@@ -282,8 +282,8 @@ TIMESTEP {
         }
       }
     }
-      
-      
+
+
     //BY THE WAY THIS IS HOW YOU CALLED CELL FROM HERE
     //cout<<i<<" "<<dish->getCell(1).getXpos()<<" "<<dish->getCell(1).getYpos()<<endl;
 
@@ -339,7 +339,7 @@ TIMESTEP {
         sprintf(fname,"%s/tau%09d.png",par.datadir,i);
         // BeginScene(); //this is an empty function for X11
         ClearImage(); //
-        
+
         //test
         // Point(1, 2*10,2*par.sizey/2);
         // Point(1, 2*10+1,2*par.sizey/2);
@@ -397,7 +397,7 @@ int main(int argc, char *argv[]) {
     QTimer g;
     //QApplication a2(argc, argv);
 #endif
-    
+
     par.Read(argv[1]); // Read parameters from file
 
     //command line arguments overwrite whatever is in the parameter file

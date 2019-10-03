@@ -33,7 +33,7 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50 #50
-init_chemmu = 32.
+init_chemmu = 6.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
@@ -101,7 +101,7 @@ n_chem = 0
 
 #food_influx_location options: everywhere, notonprey, nowhere, patchy, somewhere, somewhere_notonprey, patchy_random, patchy_random_persistence, food_growth, specified_experiment,boundarygradient
 # notice that nowhere zeroes foodinflux
-food_influx_location = boundarygradient
+food_influx_location = specified_experiment
 gradnoise = 0.6
 gradscale = 1.0
 
