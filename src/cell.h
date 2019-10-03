@@ -110,6 +110,7 @@ public:
     chemmu=src.chemmu;
     chemvecx=src.chemvecx;
     chemvecy=src.chemvecy;
+    chemveclength=src.chemveclength;
 
     owner=src.owner;
     particles=src.particles;
@@ -196,6 +197,7 @@ public:
     chemmu=src.chemmu;
     chemvecx=src.chemvecx;
     chemvecy=src.chemvecy;
+    chemveclength=src.chemveclength;
 
     sum_x=src.sum_x;
     sum_y=src.sum_y;
@@ -384,6 +386,14 @@ public:
   }
   inline double getChemYvec(void){
     return chemvecy;
+  }
+  inline void setChemVecLength(double length){
+    //cout<<"numu: "<<mu<<endl;
+    chemveclength=length;
+  }
+  inline double getChemVecLength(void){
+    //cout<<"numu: "<<mu<<endl;
+    return chemveclength;
   }
   inline double getChemMu(void){
     //cout<<"numu: "<<mu<<endl;
@@ -1092,6 +1102,7 @@ protected:
   double chemvecx;
   double chemvecy;
   double chemmu; //this is the max strength of chemotaxis
+  double chemveclength;
   //migration parameters
   int persdur; //how long is this cell's persistent walk?
   int perstime; //counter for how long it has walked persistently

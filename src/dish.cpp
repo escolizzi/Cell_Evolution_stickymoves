@@ -184,10 +184,10 @@ int Dish::CalculateJfromKeyLock( vector<int> key1, vector<int> lock1, vector<int
   // with 0 you should get high J val (low adh)
   //This is a arbitrary function 3+40*exp(-0.01*x^2)
   //add 0.5 before truncation to int makes it apprx to closest integer
-  
+
   int Jfromkeylock =(int)( 52. - 48. * ((double)score) /(2.*par.key_lock_length) );
   // int Jfromkeylock = 3 + (int)(0.5+ 40.*exp( -pow( (score/double(par.key_lock_length)) , 2.) ));
-  
+
 
   /*
   cout<<"CalculateJfromKeyLock: I got:"<<endl<< "key1: ";
@@ -612,56 +612,117 @@ void Dish::Plot(Graphics *g, int colour) {
     // return;
 
     //get info where the peak is and draw a line for box where who_made_it should register stuff
-    // notice that the box is now radial
     int peakx = Food->GetPeakx();
     int peaky = Food->GetPeaky();
     //std::cerr << "peak is at "<<peakx<<" "<<peaky << '\n';
     int minx,maxx,miny,maxy;
+    // notice that the box is now radial
+    if(strcmp(par.food_influx_location,"specified_experiment") == 0){
 
-    if(peakx==1) {
-      //then peaky = sizey/2 and
-      minx = 1;
-      maxx = par.the_line;
-      miny = par.sizey/2 - par.the_line; //circle
-      maxy = par.sizey/2 + par.the_line;
-      // miny = 1;
-      // maxy = par.sizey-1;
-      // g->Line(2*par.the_line, 1 , 2*maxx , 2*par.sizey-1 , 1);
-    }else if(peakx==par.sizex-1){
-      minx = par.sizex-par.the_line;
-      maxx = par.sizex-1;
-      miny = par.sizey/2 - par.the_line; //circle
-      maxy = par.sizey/2 + par.the_line;
-      // g->Line(2*minx,1,2*minx, 2*par.sizey-1, 1);
-    }else if(peaky==1){
-      minx = par.sizex/2 - par.the_line; //circle
-      maxx = par.sizex/2 + par.the_line;
-      miny = 1;
-      maxy = par.the_line;
-      // g->Line(1,2*par.the_line,2*par.sizex-1, 2*par.the_line, 1);
-    }else if(peaky==par.sizey-1){
-      minx = par.sizex/2 - par.the_line; //circle
-      maxx = par.sizex/2 + par.the_line;
-      miny = par.sizey-par.the_line;
-      maxy = par.sizey-1;
-      // g->Line(1, 2*(par.sizey-par.the_line) , 2*par.sizex-1  , 2*(par.sizey-par.the_line), 1);
-    }else{
-      cerr<<"Plot(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
-      std::cerr << "Don't know what to do with this, program exits now." << '\n';
-      exit(1);
-    }
-    //std::cerr << "minx,maxx " << minx <<" "<< maxx<< '\n';
-    //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
 
-    // return;
-    // Draw the_line, but only if it's inside the field
-    for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
-      if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders, or beyond them
-      int dx = peakx - i;
-      int dy = peaky - j;
-      double dist = hypot(dx,dy);
-      if(par.the_line - 0.5 < dist && dist < par.the_line+0.5) g->Point(1,2*i,2*j);
+      if(peakx==1) {
+        //then peaky = sizey/2 and
+        minx = 1;
+        maxx = par.the_line;
+        miny = par.sizey/2 - par.the_line; //circle
+        maxy = par.sizey/2 + par.the_line;
+        // miny = 1;
+        // maxy = par.sizey-1;
+        // g->Line(2*par.the_line, 1 , 2*maxx , 2*par.sizey-1 , 1);
+      }else if(peakx==par.sizex-1){
+        minx = par.sizex-par.the_line;
+        maxx = par.sizex-1;
+        miny = par.sizey/2 - par.the_line; //circle
+        maxy = par.sizey/2 + par.the_line;
+        // g->Line(2*minx,1,2*minx, 2*par.sizey-1, 1);
+      }else if(peaky==1){
+        minx = par.sizex/2 - par.the_line; //circle
+        maxx = par.sizex/2 + par.the_line;
+        miny = 1;
+        maxy = par.the_line;
+        // g->Line(1,2*par.the_line,2*par.sizex-1, 2*par.the_line, 1);
+      }else if(peaky==par.sizey-1){
+        minx = par.sizex/2 - par.the_line; //circle
+        maxx = par.sizex/2 + par.the_line;
+        miny = par.sizey-par.the_line;
+        maxy = par.sizey-1;
+        // g->Line(1, 2*(par.sizey-par.the_line) , 2*par.sizex-1  , 2*(par.sizey-par.the_line), 1);
+      }else{
+        cerr<<"Plot(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
+        std::cerr << "Don't know what to do with this, program exits now." << '\n';
+        exit(1);
+      }
+
+      // return;
+      // Draw the_line, but only if it's inside the field
+      int dx,dy;
+      double dist;
+      for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
+        if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders, or beyond them
+        dx = peakx - i;
+        dy = peaky - j;
+        dist = hypot(dx,dy);
+        if(par.the_line - 0.5 < dist && dist < par.the_line+0.5) g->Point(1,2*i,2*j);
+      }
     }
+
+    else if (strcmp(par.food_influx_location,"boundarygradient") == 0){
+
+      if(peakx==1) {
+        //then peaky = sizey/2 and
+        minx = 1;
+        maxx = par.the_line;
+        miny = 1;
+        maxy = par.sizey-1;
+      }else if(peakx==par.sizex-1){
+        minx = par.sizex-par.the_line;
+        maxx = par.sizex-1;
+        miny = 1;
+        maxy = par.sizey-1;
+      }else if(peaky==1){
+        minx = 1;
+        maxx = par.sizex-1;
+        miny = 1;
+        maxy = par.the_line;
+      }else if(peaky==par.sizey-1){
+        minx = 1;
+        maxx = par.sizex-1;
+        miny = par.sizey-par.the_line;
+        maxy = par.sizey-1;
+        // g->Line(1, 2*(par.sizey-par.the_line) , 2*par.sizex-1  , 2*(par.sizey-par.the_line), 1);
+      }else{
+        cerr<<"Plot(): Error. Got weird peakx and peaky position: peakx, peaky = "<<peakx<<", "<<peaky<<endl;
+        std::cerr << "Don't know what to do with this, program exits now." << '\n';
+        exit(1);
+      }
+      // return;
+      // Draw the_line, but only if it's inside the field
+      int dx, dy;
+      for(int i=minx-0; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
+        if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders, or beyond them
+        //dx = peakx - i;
+        //dy = peaky - j;
+
+        if(peakx==1 || peakx==par.sizex-1){
+          if(par.the_line - 0.5 < i && i < par.the_line+0.5){
+            g->Point(1,2*i,2*j);
+            //cerr<<"yes!";
+          }
+        }
+        else if(peaky==1 || peaky==par.sizex-1){
+          if(par.the_line - 0.5 < j && j < par.the_line+0.5){
+            g->Point(1,2*i,2*j);
+            //cerr<<"yes2!";
+          }
+        }
+      }
+
+    }
+    else{
+      return;
+    }
+
+
 
  }
 
@@ -903,6 +964,8 @@ void Dish::CellsEat2(void)
 
     //update the cell's movement vector with respect to the location of food
     int count=0;
+
+    double hyphyp;
     double xv,yv;
     for(auto &c: cell){
       if(c.sigma && ftotal[c.sigma]){
@@ -910,14 +973,16 @@ void Dish::CellsEat2(void)
         xv=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx;
         yv=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
 
-        //double hyphyp=hypot(xv,yv);
+        hyphyp=hypot(xv,yv);
 
         // in a homogeneous medium, gradient is zero
         // we then pick a random direction
         //if(hyphyp > 0.0001){
         //  xv/=hyphyp;
         //  yv/=hyphyp;
-        c.setChemVec(xv,yv);
+        c.setChemVec(xv/hyphyp,yv/hyphyp);
+
+        c.setChemVecLength(hyphyp);
         //}else{
         //  double theta = 2.*M_PI*RANDOM();
         //  c.setChemVec( cos(theta) , sin(theta) );
@@ -925,6 +990,7 @@ void Dish::CellsEat2(void)
       }
       else if (c.sigma){
         c.setChemVec(0.0,0.0);
+        c.setChemVecLength(0.0);
       }
       //if(c.chemvecx>1 || c.chemvecy>1){
       //  std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
@@ -1357,23 +1423,23 @@ double Dish::FitnessFunction(int particles, double meanx, double meany)
   //get info where the peak is
   int peakx = Food->GetPeakx();
   int peaky = Food->GetPeaky();
-  
+
   double dx = meanx - peakx;
   double dy = meany - peaky;
   double dist = hypot( dx,dy );
-  
+
   double epsilon = 0.05;
   double h_food = 10;
   double h_dist = par.the_line;
-  
+
   double fitness_food = ( particles + epsilon*h_food/(1.-2.*epsilon)  )/(particles + h_food/(1.-2.*epsilon)); //looks weird, it's not (if you plot it)
   double fitness_distance = 1. / ( 1. + pow( dist/h_dist , 2.) );
   // std::cerr << "particles: "<< particles <<", fitness food = " <<fitness_food<<", distance: "<<dist<<", fitness distance" << fitness_distance<<", tot = "<<fitness_food*fitness_distance<<'\n';
   return fitness_food*fitness_distance;
-  
+
 }
 
-//Based on ReproduceWhoMadeIt3, this reproduces all cells, 
+//Based on ReproduceWhoMadeIt3, this reproduces all cells,
 // with fitness dependent on food and distance from target
 void Dish::ReproduceEndOfSeason(void)
 {
@@ -1383,13 +1449,13 @@ void Dish::ReproduceEndOfSeason(void)
   vector<int> sigma_newcells;
   std::vector<double> fitness(cell.size(), 0.); //as many as there are cells (dead or alive), all with value 0.
   double tot_fitness = 0.;
-  
+
   for(auto &c : cell){
     if(c.AliveP() && c.Sigma()>0){
       double cell_fitness = FitnessFunction( c.particles, c.getXpos(), c.getYpos());
       fitness[ c.Sigma() ] = cell_fitness;
       tot_fitness += cell_fitness;
-      
+
       c.mu = 0.;  //also the other mu? yes-
       c.chemmu = 0.;
     }
@@ -1417,20 +1483,20 @@ void Dish::ReproduceEndOfSeason(void)
     }
     sigma_of_cells_that_will_divide.push_back(which_sig);
   }
-  
+
   // std::cerr << "These are the sigmas of the cells alive now, before cell division" << '\n';
-  // for(auto c: cell) 
+  // for(auto c: cell)
   //   if(c.AliveP()) std::cerr << c.Sigma()<<" ";
   // std::cerr << " " << '\n';
   // std::cerr << "These are the sigmas of the cells dead now, before cell division" << '\n';
-  // for(auto c: cell) 
+  // for(auto c: cell)
   //   if(!c.AliveP()) std::cerr << c.Sigma()<<" ";
   // std::cerr << " " << '\n';
-  // 
+  //
   // std::cerr << "These are the cells that will divide" << '\n';
   // for(auto sig:sigma_of_cells_that_will_divide) std::cerr << sig<<" ";
   // std::cerr << " " << '\n';
-  
+
   //At this point we should orchestrate actual cell division:
   // some cells replicate 10 times, other zero: the idea is that we let cells divide
   // if they are bigger than a certain amount, if not, we run amoeabeamove until they have expanded enough
@@ -1465,7 +1531,7 @@ void Dish::ReproduceEndOfSeason(void)
       // where it contains as value the sigma of the daughter cell
       MutateCells(sigma_newcells);
       UpdateVectorJ(sigma_newcells);
-      
+
       // std::cerr << "\nThese are the sigmas of new born cells"<<endl;
       // for(auto x: sigma_newcells) std::cerr << x <<" ";
       // std::cerr << " " << '\n';
@@ -1474,13 +1540,13 @@ void Dish::ReproduceEndOfSeason(void)
       std::fill(which_cells.begin(), which_cells.end(), false);
       //vector has to be resized because new cells are born
       which_cells.resize(cell.size(),false);
-      
+
       // std::cerr << "\nNow the vector which cells has to be resized to cell.size() and all zeroed. check:"<<endl;
       // for(auto x: which_cells) std::cerr << x <<" ";
       // std::cerr << " " << '\n';
       // if(which_cells.size() == cell.size()) std::cerr << "The two vectors have the same size" << '\n';
       // exit(1);
-    } 
+    }
     //reset target area
 
     //just for checking
@@ -1490,17 +1556,17 @@ void Dish::ReproduceEndOfSeason(void)
     //reset target area, because cell division changes
     // for(auto sig: sigma_of_cells_that_will_divide){
     //     cell[sig].SetTargetArea(par.target_area); // for good measure
-    // 
+    //
     // }
     //return;
-    
-    
+
+
     //do a bunch of AmoebaeMove2
     for(int i=0;i<5;i++) CPM->AmoebaeMove2(PDEfield); // let them expand a little
     //copy new_sigma_of_cells_that_will_divide into old one
     // std::cerr << "After AmoebaeMove2 there are so many alive cells: "<<CountCells() << '\n';
-    
-    
+
+
     sigma_of_cells_that_will_divide = new_sigma_of_cells_that_will_divide;
     new_sigma_of_cells_that_will_divide.clear();
 
@@ -1511,7 +1577,7 @@ void Dish::ReproduceEndOfSeason(void)
     // std::cerr << "new_sigma_of_bla... should be empty "<<endl;
     // for(auto x: new_sigma_of_cells_that_will_divide) std::cerr << x <<" ";
     // std::cerr << " " << '\n';
-    
+
 
     // return;
   }
@@ -1523,10 +1589,10 @@ void Dish::ReproduceEndOfSeason(void)
     if(c->AliveP()){
       // c->SetTargetArea(par.target_area);
       c->particles = 0;
-      
-      c->mu = par.startmu;  
+
+      c->mu = par.startmu;
       c->chemmu = par.init_chemmu;
-      
+
       if(par.zero_persistence_past_theline ) c->setPersDur(par.persduration); //de-zero persistence so they can move again
                                                                               // might have to randomzie this
       counter++;
@@ -1542,7 +1608,7 @@ void Dish::RemoveCellsUntilPopIs(int popsize)
   int current_popsize=0;
   std::vector<int> alivesigma;
   for(const auto c: cell){
-    if(c.Sigma()>0 && c.AliveP()){ 
+    if(c.Sigma()>0 && c.AliveP()){
       current_popsize++;
       alivesigma.push_back(c.Sigma());
     }
@@ -1550,14 +1616,14 @@ void Dish::RemoveCellsUntilPopIs(int popsize)
   // std::cerr << "going to remove cells until I get popsize = "<<popsize << '\n';
   while(current_popsize>popsize){
     // std::cerr << "current_popsize (faulty) = " << current_popsize << '\n';
-    
+
     int rn = current_popsize*RANDOM();
     int sigtorm = alivesigma[rn];
     // std::cerr << "sig to rm = " << sigtorm << '\n';
     // std::cerr << "sig.back() that takes its place = "<< alivesigma.back() << '\n';
     alivesigma[rn] = alivesigma[current_popsize-1];
     current_popsize--; //so that next time rn interval is reduced
-    
+
     cell[sigtorm].SetTargetArea(0);
     cell[sigtorm].Apoptose(); //set alive to false
     CPM->RemoveCell(&cell[sigtorm] ,par.min_area_for_life,cell[sigtorm].meanx,cell[sigtorm].meany);

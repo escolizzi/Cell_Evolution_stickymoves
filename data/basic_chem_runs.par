@@ -1,7 +1,7 @@
 #
 ### Max time (max # monte carlo steps) ###
 # takes about 1hour per 100000 timesteps
-mcs = 50000
+mcs = 150000
 #mcs = 50000
 
 ### grid size ###
@@ -33,11 +33,11 @@ lambda2 = 0
 # mu is now changed depending on metabolism
 startmu = 3.
 persduration = 50 #50
-init_chemmu = 4.
+init_chemmu = 32.
 
 #Jtable = ../data/Jcellevol.dat  THIS IS NOT USED ANY MORE, USE KEYLOCK FILE INSTEAD
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_39.dat
-keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
+#keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_6.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_somethinglessthan24.dat
@@ -47,23 +47,25 @@ keylock_list_filename =  ../data/KLcellevol_pp25_12_12.dat
 #keylock_list_filename =  ../data/KL_chemo_16_24_g4.dat
 #keylock_list_filename =  ../data/KL_chemo_11_30_g-4.dat
 #keylock_list_filename =  ../data/KLcellevol_pp25_12_24.dat
+keylock_list_filename =  ../data/newKL_14_16_g6.dat
+#keylock_list_filename =  ../data/newKL_14_36_g-4.dat
 
 #lookup table for J val with medium:
 # e.g if I get 10o4_3_2_1 -> J(tau,medium) = 10 + sum(4*key[0],3*key[1],2*key[2],1*key[3])
-Jmed_rule_input = 10o5_4_3_1_1_1
+Jmed_rule_input = 8o4_3_2_1_1_1
 
-key_lock_length = 25
+key_lock_length = 24
 
 # initial conditions (create a "blob" of cells in the middle)
 howmany_makeit_for_nextgen = 1
-popsize = 100
+popsize = 50
 
-n_init_cells = 100
-size_init_cells = 50
+n_init_cells = 50
+size_init_cells = 25
 #size_init_cells = 20000
 
 #radius of the box for cells that make it to next generation
-the_line = 90
+the_line = 50
 
 #leave division to 0, this seems buggy
 divisions = 0

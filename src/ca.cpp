@@ -332,10 +332,11 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 //
    /*cell migration */
   //Joost's method
-  double ax, ay;
+  double ax, ay, vx,vy, hyphyp;
+  double smeanx, smeany;
    if((*cell)[sxy].getMu()>0.0001 || (*cell)[sxyp].getMu()>0.0001){
-       double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-       double smeany = (*cell)[sxy].getYpos();
+       smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+       smeany = (*cell)[sxy].getYpos();
 
        if(par.periodic_boundaries){
          if( (x-smeanx)>0 && (x-smeanx)>(smeanx-(x-(par.sizex-2))) ) {
@@ -375,8 +376,8 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
 
 //Similarly to Joost's method, a bias due to chemokine gradient
     if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
-        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-        double smeany = (*cell)[sxy].getYpos();
+        smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+        smeany = (*cell)[sxy].getYpos();
 
         if(par.periodic_boundaries){
           if( (x-smeanx)>0 && (x-smeanx)>(smeanx-(x-(par.sizex-2))) ) {
@@ -400,15 +401,13 @@ int CellularPotts::DeltaHWithMedium(int x,int y, PDE *PDEfield)
           }
         }
 
-        double vx=(*cell)[sxy].getChemXvec();
-        double vy=(*cell)[sxy].getChemYvec();
-        double hyphyp=hypot(vx,vy);
-        if (hyphyp>0.00001){
-          vx/=hyphyp;
-          vy/=hyphyp;
+        vx=(*cell)[sxy].getChemXvec();
+        vy=(*cell)[sxy].getChemYvec();
+        hyphyp=(*cell)[sxy].getChemVecLength();
+        if (hyphyp>0.00000001){
           ax=x-smeanx;
           ay=y-smeany;
-          DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vy + ay*vy)/hypot(ax,ay);
+          DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
         }
 
 
@@ -661,10 +660,8 @@ double ax, ay, vx, vy,smeanx,smeany,spmeanx,spmeany,hyphyp;
 
         vx=(*cell)[sxy].getChemXvec();
         vy=(*cell)[sxy].getChemYvec();
-        hyphyp=hypot(vx,vy);
-        if (hyphyp>0.00001){
-          vx/=hyphyp;
-          vy/=hyphyp;
+        hyphyp=(*cell)[sxy].getChemVecLength();
+        if (hyphyp>0.00000001){
           ax=x-smeanx;
           ay=y-smeany;
           DH+=(*cell)[sxy].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
@@ -699,10 +696,8 @@ double ax, ay, vx, vy,smeanx,smeany,spmeanx,spmeany,hyphyp;
          //ay=y-(*cell)[sxyp].getYpos(); //returns meany
          vx=(*cell)[sxyp].getChemXvec();
          vy=(*cell)[sxyp].getChemYvec();
-         hyphyp=hypot(vx,vy);
-         if (hyphyp>0.00001){
-           vx/=hyphyp;
-           vy/=hyphyp;
+         hyphyp=(*cell)[sxyp].getChemVecLength();
+         if (hyphyp>0.00000001){
            ax=x-spmeanx;
            ay=y-spmeany;
            DH-=(*cell)[sxyp].getChemMu()*hyphyp*(ax*vx + ay*vy)/hypot(ax,ay);
@@ -2262,10 +2257,10 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //   int sigmaneigh;
 //   // for the cell directions
 //   Dir *celldir=0;
-// 
+//
 //   // Allocate space for divisionflags
 //   vector<int> divflags( cell->size()*2 + 5 ); // automatically initialised to zero
-// 
+//
 //   //curious: here it also complains when which_cells contains as many cells as the whole cell vector
 //   //but further down, it will just divide all cells if which_cells is empty...
 //   // the comment above really is not true
@@ -2278,7 +2273,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //     celldir=FindCellDirections3(); //find cell directions here
 //     //celldir=FindCellDirections2();  // notice that this is called once, the first time any cell is divided
 //     //celldir=FindCellDirections(); BUGGY in two ways: doesn't handle division plane across boundaries at all, it misplaces the normal one as well.
-// 
+//
 //     for (int i=1;i<sizex-1;i++) for (int j=1;j<sizey-1;j++)
 //       if (sigma[i][j]>0) // i.e. not medium and not border state (-1)
 //       {
@@ -2287,7 +2282,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //         // the pointer will be lost...
 //         Cell *motherp=&((*cell)[sigma[i][j]]); //mother points to the cell holding this pixel
 //         Cell *daughterp;
-// 
+//
 //         // Divide if NOT medium and if DIV bit set or divide_always is set
 //         // if which_cells is given, di+nx>0 && i+nx[k]<sizex-1 divide only if the cell
 //         // is marked in which_cells.
@@ -2296,7 +2291,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //           //if first time we get this mother then divflags at pos mother_sigma is 0
 //           if( !(divflags[ motherp->Sigma() ]) ){
 //             // add daughter cell, copying states of mother
-// 
+//
 //             //we first check if we can recycle some position already exisiting in the vector
 //             //such position would come from a cell that has previously apoptosed
 //             vector<Cell>::iterator c;
@@ -2321,7 +2316,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //               // renew pointer to mother (because after push_back memory might be relocated)
 //               motherp=&((*cell)[sigma[i][j]]);
 //             }
-// 
+//
 //             divflags[ motherp->Sigma() ]=daughterp->Sigma(); //daughtersigma is set to newest sigma in ConstructorBody of Cell
 //             delete daughterp;
 //             // array may be relocated after "push_back"
@@ -2332,7 +2327,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //           }else{
 //             daughterp=&( (*cell)[ divflags[motherp->Sigma()] ] );
 //           }
-// 
+//
 //           // if site is below the minor axis of the cell: sigma of new cell
 //           // to properly choose this we have to check where this pixel is
 //           int checki=i;
@@ -2341,7 +2336,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //             //Check if this pixel is closer to mean pos when wrapped, we wrap it
 //             double meanx=celldir[motherp->sigma].meanx;
 //             double meany=celldir[motherp->sigma].meany;
-// 
+//
 //             if( (checki-meanx)>0 && (checki-meanx)>(meanx-(checki-(par.sizex-2))) ) {
 //               checki-=(par.sizex-2);
 //               //cerr<<"celldiv passb1"<<endl;
@@ -2363,12 +2358,12 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //             motherp->DecrementArea();
 //             motherp->DecrementTargetArea();
 //             motherp->RemoveSiteFromMoments(i,j);
-// 
+//
 //             sigma[i][j]=daughterp->Sigma();  // WHERE is daughterp->Sigma() defined?
 //             daughterp->IncrementArea();
 //             daughterp->IncrementTargetArea();
 //             daughterp->AddSiteToMoments(i,j);
-// 
+//
 //             //go through neighbourhood to update contacts
 //             // to new daughter contacts we now pass duration from mother
 //             // sigma[i][j] is daughter, sigmaneigh can be daughter, mother, medium, someone else
@@ -2387,8 +2382,8 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //                   continue;
 //                 }
 //               }
-// 
-// 
+//
+//
 //               sigmaneigh = sigma[ neix ][ neiy ];
 //               //if sigmaneigh is not sigma, we update the contact of daughter cell with it,
 //               //and the contact of that cell with daughter (provided it is not medium)
@@ -2399,7 +2394,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //                 //take duration from mother iff sigmaneigh is not mother
 //                 if(sigmaneigh!=motherp->Sigma() && sigmaneigh!=MEDIUM)
 //                   (*cell)[sigma[i][j]].SetNeighbourDurationFromMother(sigmaneigh, motherp->returnDuration(sigmaneigh) );
-// 
+//
 //                 //cerr<<"Hello 0.2"<<endl;
 //                 //also cell to which sigmaneigh belongs must be updated, if it is not medium
 //                 if(sigmaneigh){
@@ -2436,7 +2431,7 @@ void CellularPotts::ShowDirections(Graphics &g, const Dir *celldir) const
 //   }
 //   if (celldir)
 //     delete[] (celldir);
-// 
+//
 //   return divflags;
 // }
 
@@ -2838,7 +2833,7 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
 {
     int count=0;
     int a_little_bit=2;
-    
+
     int smaller_dimension=( par.sizex < par.sizey)?par.sizex:par.sizey;
     int sqrt_n_cells = 1+sqrt(n_cells);
     //to avoid having 49 cells when you want 50, I'm rounding sqrt(n_cells) to +1
@@ -2849,12 +2844,12 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
 
     // int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     // int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
-    
+
     int beginx = (par.sizex -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
     int endx =   (par.sizex +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
     int beginy = (par.sizey -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
     int endy =   (par.sizey +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
-    
+
     int step = ( sqrt(size_cells) + a_little_bit );
 
     int avrg_area=0;

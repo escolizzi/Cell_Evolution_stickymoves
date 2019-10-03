@@ -121,6 +121,7 @@ void Cell::CellBirth(Cell &mother_cell) {
   chemmu=mother_cell.chemmu;
   chemvecx=mother_cell.chemvecx;
   chemvecy=mother_cell.chemvecy;
+  chemveclength=mother_cell.chemveclength;
 
   grad[0]=mother_cell.grad[0];
   grad[1]=mother_cell.grad[1];
@@ -242,7 +243,7 @@ void Cell::ConstructorBody(int settau,int setrecycledsigma) {
 
   chemvecx=0.;
   chemvecy=0.;
-
+  chemmu=par.init_chemmu;
   persdur=0;
   perstime=0;
   if(par.n_chem){
