@@ -734,7 +734,7 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // also- the 1+ part of the equation could go...
     // or even better counter balanced by a lesser gradient in the variable part
     //final formula:
-    double dfood = par.gradscale*((double)sizey/100.) * (1. - dist_from_peak/(double)sizey); //this the usable line
+    double dfood = 1.+ par.gradscale*((double)sizey/100.) * (1. - dist_from_peak/(double)sizey); //this the usable line
 
     int maxfood = (int)dfood;
     if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise

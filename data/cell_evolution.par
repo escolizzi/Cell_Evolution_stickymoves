@@ -95,8 +95,8 @@ periodic_boundaries = false
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)
 #mut_rate = 0.01
 mut_rate = 0.02
-evolsim = 0
-evolreg = 0
+evolsim = 1
+evolreg = 1
 
 # PDE parameters (irrelevant for this simulation)
 n_chem = 0

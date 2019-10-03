@@ -182,6 +182,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -backupfile path/to/backupfile # to start simulation from backup"<<endl;
   cerr<<" -season [INT_NUMBER] # season duration"<<endl;
   cerr<<" -foodinflux [FLOAT_NUMBER] # howmuchfood"<<endl;
+  cerr<<" -gradscale [FLOAT_NUMBER] slope of the gradient (in percent units)"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -337,6 +338,13 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       foodinflux = atof( argv[i] );
       cerr<<"New value for foodinflux: "<<mut_rate<<endl;
+    }else if( 0==strcmp(argv[i],"-gradscale") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in gradscale?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      gradscale = atof( argv[i] );
+      cerr<<"New value for gradscale: "<<gradscale<<endl;
     }else
       return 1;
   }
