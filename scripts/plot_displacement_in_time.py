@@ -23,9 +23,9 @@ import numpy as np
 ###                   ###
 #########################
 
-colours=["firebrick","royalblue", "darkgoldenrod", "green", "salmon", "lightskyblue","orchid"]
+colours=[(0.7,0.13,0.),"royalblue", "darkgoldenrod", (0.,0.5,0.2), "salmon", "lightskyblue","orchid"]
 filename=""
-fig, (ax0, ax1) = plt.subplots(ncols=2)
+fig, (ax0, ax1) = plt.subplots(ncols=2,sharey=True)
 #fig, ax0 = plt.subplots()
 # av_xpos=[[],[],[]]
 # av_ypos=[[],[],[]]
@@ -120,10 +120,10 @@ for filename in sys.argv[2:]:
     # if 1:
     if printthis:
         #disregard last time point because algotirthm above exsits by then
-        ax0.plot( ltime[:-1],av_ypos, c= colours[index], lw=0.2  )
-        ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.2  )
+        ax0.plot( ltime[:-1],av_ypos, c= colours[index], lw=0.5  )
+        ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.25  )
     if not printthis:
-        ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.2  )
+        ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.25  )
         if not c1_pos:
             c1_pos = av_ypos
             howmany1c=1
@@ -135,7 +135,7 @@ for filename in sys.argv[2:]:
                 ltime_1c = ltime[:]
             
 try:
-  ax0.plot( ltime_1c[:-1],[x/float(howmany1c) for x in c1_pos], c= colours[4], lw=1  )
+  ax0.plot( ltime_1c[:-1],[x/float(howmany1c) for x in c1_pos], c= colours[4], lw=0.5  )
 except:
     pass
 
@@ -162,6 +162,9 @@ except:
 # ax1.set_xlim(0., 20000.)
 # 
 
-
+ax0.set_xlim([0,150000])
+ax0.set_ylim([0,None])
+ax1.set_xlim([0,150000])
+ax1.set_ylim([0,None])
 fig.savefig(figname, bbox_inches='tight')
 # plt.show()
