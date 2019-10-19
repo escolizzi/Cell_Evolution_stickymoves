@@ -415,9 +415,10 @@ int main(int argc, char *argv[]) {
     // Open file where initial key locks are specified, and assigns them to cells
     par.Read_KeyLock_list_fromfile(par.keylock_list_filename);
 
-    cerr<<endl<<"WARNING, THIS VERSION IS ***NOT*** SUITABLE FOR PDE FIELD!!!"<<endl;
+    cerr<<endl<<"Warning, this version is ***NOT*** suitable for pde field!!!"<<endl;
     //Depends on this: AddSiteToMoments (and Remove), FindCellDirections2, etc...
     cerr<<endl<<"WARNING, use wrapped boundaries if cells are A LOT smaller than sizex and sizey"<<endl<<endl;
+    cerr<<endl<<"WARNING: DO NOT EVOLVE CHEMMU, or if you do, change the replication function (where it is always reset to init_chemmu)"<<endl<<endl;
 
     //check if directory for movies exists, create it if not, exit otherwise
     DoesDirExistsIfNotMakeit(par.datadir);  //see output.cpp
