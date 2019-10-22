@@ -109,11 +109,13 @@ Parameter::Parameter() {
   init_k_mf_P = 0.;
   init_k_mf_C = 0.;
 
-  init_k_ext_0 = 0.5;
+  init_k_ext_0 = 1.0;
   init_k_ext_A = 0.;
   init_k_ext_P = 0.;
   init_k_ext_C = 0.;
-
+  init_k_ext_0t =0.;
+  init_k_ext_Pt =0.;
+  
   init_weight_for_chemotaxis=0.;
   init_k_chem_0 = 0.5;
   init_k_chem_A = 0.;
@@ -462,6 +464,8 @@ void Parameter::Read(const char *filename) {
   zero_persistence_past_theline = bgetpar(fp,"zero_persistence_past_theline",false, true);
   season_experiment= bgetpar(fp,"season_experiment",false, true);
   season_duration= igetpar(fp, "season_duration", 1, true);
+  init_k_ext_0t = fgetpar(fp, "init_k_chem_0t", 0., true);
+  init_k_ext_Pt = fgetpar(fp, "init_k_chem_Pt", 0., true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -700,6 +704,8 @@ void Parameter::Write(ostream &os) const {
   os<< " zero_persistence_past_theline = " << zero_persistence_past_theline << endl;
   os<< " season_experiment = " << season_experiment << endl;
   os<< " season_duration = " << season_duration << endl;  
+  os<< " init_k_ext_0t = " << init_k_ext_0t << endl;
+  os<< " init_k_ext_Pt = " << init_k_ext_Pt << endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

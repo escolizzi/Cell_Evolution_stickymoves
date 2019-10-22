@@ -112,7 +112,7 @@ public:
   void CellMigration(void);
   //find cells that ate enough and let them grow; divide big cells and kill small cells
   void CellGrowthAndDivision2(void);
-  void UpdateCellParameters(void);
+  void UpdateCellParameters(int Time);
   int CheckWhoMadeitLinear(void);
   int CheckWhoMadeitRadial(void);
   

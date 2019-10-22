@@ -148,6 +148,8 @@ init_k_ext_0 = 1.
 init_k_ext_A = 0.
 init_k_ext_P = 0.
 init_k_ext_C = 0.
+init_k_ext_0t = 0.
+init_k_ext_Pt = 0.
 
 #regulation for chemotaxis
 init_k_chem_0 = 1.

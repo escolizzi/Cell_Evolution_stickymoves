@@ -211,7 +211,7 @@ TIMESTEP {
 
       //dish->Predate(); //ALREADY SCALED //this does not changes neighs, only target areas!!!
 
-      dish->UpdateCellParameters(); // SCALED//this changes neighs (via DivideCells)
+      dish->UpdateCellParameters(i); // SCALED//this changes neighs (via DivideCells)
       //dish->CellGrowthAndDivision2(); // SCALED//this changes neighs (via DivideCells)
 
       //Recalculate the all vs. all J table.
@@ -240,6 +240,7 @@ TIMESTEP {
             //reproduce people based on fitness criterion
             //remove random cells until popsize is back to normal
             //reset food and gradient
+            std::cerr << "Time = "<<i << '\n';
             std::cerr << "End of season: there are "<< dish->CountCells() <<" cells" << '\n';
             dish->ReproduceEndOfSeason();
             std::cerr << "After reproduction there are "<< dish->CountCells() <<" cells" << '\n';

@@ -142,6 +142,9 @@ void Cell::CellBirth(Cell &mother_cell) {
   k_ext_A = mother_cell.k_ext_A;
   k_ext_P = mother_cell.k_ext_P;
   k_ext_C = mother_cell.k_ext_C;
+  k_ext_0t= mother_cell.k_ext_0t;
+  k_ext_Pt= mother_cell.k_ext_Pt;
+
 
   weight_for_chemotaxis = mother_cell.weight_for_chemotaxis;
   k_chem_0=mother_cell.k_chem_0;
@@ -154,6 +157,9 @@ void Cell::CellBirth(Cell &mother_cell) {
   jlock = mother_cell.jlock;
   jkey = mother_cell.jkey;
   vJ = mother_cell.vJ;
+  
+  time_since_birth=0;
+  mother_cell.SetTimeSinceBirth(0);
 }
 
 
@@ -223,6 +229,9 @@ void Cell::ConstructorBody(int settau,int setrecycledsigma) {
   k_ext_A = par.init_k_ext_A;
   k_ext_P = par.init_k_ext_P;
   k_ext_C = par.init_k_ext_C;
+  k_ext_0t = par.init_k_ext_0t;
+  k_ext_Pt = par.init_k_ext_Pt;
+  
 
   weight_for_chemotaxis=0.;
   k_chem_0=par.init_k_chem_0;
@@ -242,7 +251,9 @@ void Cell::ConstructorBody(int settau,int setrecycledsigma) {
 
   chemvecx=0.;
   chemvecy=0.;
-
+  
+  time_since_birth=0;
+  
   persdur=0;
   perstime=0;
   if(par.n_chem){

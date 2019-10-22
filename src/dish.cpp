@@ -1162,7 +1162,7 @@ void Dish::CellGrowthAndDivision2(void)
 
 
 //Function that checks and changes cell parameters
-void Dish::UpdateCellParameters(void)
+void Dish::UpdateCellParameters(int Time)
 {
    //cout<<"Hello beginning CellGrowthAndDivision2 "<<endl;
   vector<bool> which_cells(cell.size()); //which cells will divide
@@ -1176,6 +1176,7 @@ void Dish::UpdateCellParameters(void)
 
     for( c=cell.begin(), ++c; c!=cell.end(); ++c){
       if( c->AliveP() ){
+        c->time_since_birth++;
 
         //in this version, maintenance_fraction is a function of evolvable parameters:
         // m = k0 + Area * kA/Division area + particles * kP/50 + <J contact>/length
@@ -1188,10 +1189,12 @@ void Dish::UpdateCellParameters(void)
         // and for all those in contact with this guy)
 
         //same function, be careful which parameters you pass
-        c->extprotexpress_fraction = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_ext_0,c->k_ext_A,c->k_ext_P,c->k_ext_C);
-
+        //c->extprotexpress_fraction = c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_ext_0,c->k_ext_A,c->k_ext_P,c->k_ext_C);
+        // double time_in_season = Time%par.season_duration;
+        c->extprotexpress_fraction = c->Calculate_ExtProtExpr_Fraction();
+        
         //same function for regulation of chemotaxis
-        c->weight_for_chemotaxis =  c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
+        c->weight_for_chemotaxis =  1.; //c-> CalculateMaintenance_or_ExtProtExpr_Fraction(c->k_chem_0,c->k_chem_A,c->k_chem_P,c->k_chem_C);
 
         //c->mu = par.startmu;
         //c->chemmu = par.init_chemmu;
@@ -1525,8 +1528,8 @@ void Dish::ReproduceEndOfSeason(void)
       c->particles = 0;
       
       c->mu = par.startmu;  
-      c->chemmu = par.init_chemmu;
-      
+      c->chemmu = par.init_chemmu; //this is the reason why I can't evolve chemmu
+      c->time_since_birth=0;
       if(par.zero_persistence_past_theline ) c->setPersDur(par.persduration); //de-zero persistence so they can move again
                                                                               // might have to randomzie this
       counter++;
@@ -1852,6 +1855,7 @@ int Dish::CountCells(void) const {
   vector<Cell>::const_iterator i;
   for ( (i=cell.begin(),++i); i!=cell.end(); ++i) {
     if (i->AliveP()) {
+      // cerr<<"Time since birth: "<<i->time_since_birth<<endl;
       amount++;
     } //else {
       //cerr << "Dead cell\n";
@@ -1940,14 +1944,8 @@ int Dish::SaveData(int Time)
     ofs<< icell->getXpos()<<" "<<icell->getYpos()<<" ";
     ofs<<icell->getXvec()<<" "<<icell->getYvec()<<" ";
     ofs<<icell->getChemXvec()<<" "<<icell->getChemYvec()<<" ";
-    //date of birth is not a simple thing.
-    // DateOfBirth() returns date_of_birth,
-    // which is assigned at cell birth (i.e. in the function CellBirth() ) from owner->Time()
-    // owner is dish, and in dish there is the function Time()
-    // which returns the dish variable thetime
-    // which is increased in the function AmoebaeMove2() in ca.cpp
     // ... and all this seems to work fine. except here...
-    ofs << icell->DateOfBirth() << " "; // date of birth
+    ofs << icell->GetTimeSinceBirth() << " "; // used to be date of birth, now it's time since birth
     for( auto x: icell->getJkey() ) ofs<<x; //key
     ofs << " ";
     for( auto x: icell->getJlock() ) ofs<<x; //lock
@@ -1969,14 +1967,21 @@ int Dish::SaveData(int Time)
     ofs << icell->k_mf_P << " ";
     ofs << icell->k_mf_C << " ";
 
-    ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_ext_0,
-                                                               icell->k_ext_A,
-                                                               icell->k_ext_P,
-                                                               icell->k_ext_C) << " ";
+    // ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_ext_0,
+    //                                                            icell->k_ext_A,
+    //                                                            icell->k_ext_P,
+    //                                                            icell->k_ext_C) << " ";
+    
+    ofs << icell->Calculate_ExtProtExpr_Fraction() << " ";
     ofs << icell->k_ext_0 << " ";
     ofs << icell->k_ext_A << " ";
     ofs << icell->k_ext_P << " ";
     ofs << icell->k_ext_C << " ";
+    ofs << icell->k_ext_0t << " ";
+    ofs << icell->k_ext_Pt << " ";
+    // std::cerr << "Writing extprot pars: " << icell->k_ext_0 <<" "<< icell->k_ext_A <<" "<< icell->k_ext_P <<" "<< icell->k_ext_C <<" ";
+    // std::cerr << icell->k_ext_0t <<" "<< icell->k_ext_Pt <<" " << icell->Calculate_ExtProtExpr_Fraction() << '\n';
+
 
     ofs << icell->CalculateMaintenance_or_ExtProtExpr_Fraction(icell->k_chem_0,
                                                                icell->k_chem_A,
@@ -1986,8 +1991,7 @@ int Dish::SaveData(int Time)
     ofs << icell->k_chem_A << " ";
     ofs << icell->k_chem_P << " ";
     ofs << icell->k_chem_C << " ";
-
-
+    
     // YOU SHOULD KEEP THIS AT THE LAST, because it's not constant
     for( auto i: icell->neighbours){
       int thisj=icell->getVJ()[ i.first ];

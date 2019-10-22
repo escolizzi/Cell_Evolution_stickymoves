@@ -1503,7 +1503,7 @@ void CellularPotts::ConstructInitCells(Dish &beast){
   //initialises mean x and y to some values, does not matter what,
   // as long as meanx and y get a defined number BEFORE we calculate MeasureCellSize()
   // which, in turn, if periodic_boundaries = true, depends on meanx and y
-  for (vector<Cell>::iterator c=cell->begin(); c!=cell->end();c++) {
+  for(vector<Cell>::iterator c=cell->begin(); c!=cell->end();c++){
     c->InitMeanX(sizex/2.);
     c->InitMeanY(sizey/2.);
   }

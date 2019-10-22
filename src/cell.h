@@ -129,6 +129,8 @@ public:
     k_ext_A = src.k_ext_A;
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
+    k_ext_0t= src.k_ext_0t;
+    k_ext_Pt = src.k_ext_Pt;
 
     weight_for_chemotaxis = src.weight_for_chemotaxis;
     k_chem_0=src.k_chem_0;
@@ -148,7 +150,7 @@ public:
         chem[ch]=src.chem[ch];
     }
 
-
+    time_since_birth=src.time_since_birth;
   }
 
   /*! \brief Add a new cell to the dish.
@@ -225,6 +227,9 @@ public:
     k_ext_A = src.k_ext_A;
     k_ext_P = src.k_ext_P;
     k_ext_C = src.k_ext_C;
+    k_ext_0t= src.k_ext_0t;
+    k_ext_Pt = src.k_ext_Pt;
+
 
     weight_for_chemotaxis = src.weight_for_chemotaxis;
     k_chem_0=src.k_chem_0;
@@ -239,6 +244,8 @@ public:
     chem = new double[par.n_chem];
     for (int ch=0;ch<par.n_chem;ch++)
       chem[ch]=src.chem[ch];
+    
+    time_since_birth=src.time_since_birth;
 
     return *this;
 
@@ -491,6 +498,19 @@ public:
   inline double GetExtProtExpress_Fraction(void){
     return extprotexpress_fraction;
   }
+  
+  // Now I am not using the same function any more,
+  // write custom function
+  double Calculate_ExtProtExpr_Fraction(void){
+    double extfr = k_ext_0 + 
+                   k_ext_P * particles + 
+                   k_ext_0t * time_since_birth + 
+                   k_ext_Pt * particles * time_since_birth;
+    if(extfr > 1.) extfr=1.;
+    else if (extfr < 0.) extfr=0.;
+    return extfr;
+  }
+  
   // inline void MutateMaintenanceFraction(void){
   //   maintenance_fraction += (RANDOM() -0.5)/20.;
   //   if(maintenance_fraction<0) maintenance_fraction= -maintenance_fraction;
@@ -508,10 +528,12 @@ public:
 
   inline void MutateExtProtFractionParameters(void){
     // if(RANDOM() < par.mut_rate){
-      k_ext_0 += (RANDOM() -0.5)/10.;
+      k_ext_0 += (RANDOM() -0.5)/100.;
       // k_ext_A += (RANDOM() -0.5)/10.;
-      k_ext_P += (RANDOM() -0.5)/10.;
+      k_ext_P += (RANDOM() -0.5)/100.;
       // k_ext_C += (RANDOM() -0.5)/10.;
+      k_ext_0t += (RANDOM() -0.5)/100.; // these have to be a lot finer, I wonder if this is fine enough
+      k_ext_Pt += (RANDOM() -0.5)/100.;
     // }
   }
 
@@ -1062,7 +1084,13 @@ private:
   inline int SetAreaToTarget(void) {
     return area=target_area;
   }
-
+  inline void SetTimeSinceBirth(int t){
+    time_since_birth=t;
+  }
+  inline int GetTimeSinceBirth(void){
+    return time_since_birth;
+  }
+  
   //! Called whenever a cell is constructed, from constructor
   void ConstructorBody(int settau=1,int setrecycledsigma=-1);
 
@@ -1159,6 +1187,8 @@ protected:
   double k_ext_A;
   double k_ext_P;
   double k_ext_C;
+  double k_ext_0t;  // time dependent variables
+  double k_ext_Pt;
 
   double weight_for_chemotaxis;
   double k_chem_0;
@@ -1185,6 +1215,8 @@ protected:
   long int sum_xx;
   long int sum_yy;
   long int sum_xy;
+  
+  int time_since_birth;
 
   const Dish *owner; // pointer to owner of cell
 
