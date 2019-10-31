@@ -129,6 +129,9 @@ llJmed=[]
 llJcel=[]
 lmeanJc=[]
 lmeanJm=[]
+print "llabels", llabel
+print "filenames", lfilename
+
 #some smart looping to get season and filename
 for label,filename in zip(llabel,lfilename):
     #we get season from label
@@ -138,16 +141,18 @@ for label,filename in zip(llabel,lfilename):
     lasttime = int(output.split(' ')[0])
     # by the way, data is saved every 10000
     # so if the season is 10000 or less we take the last 10 time steps and that's it
-    if season<=10000:
-        ltime = [lasttime - i*10000 for i in range(10)]
-    #else, we should take a time point for each of the last 10 seasons
-    # which one? ... the middle one!
-    # BUT WHAT IF SEASON / 2 is not divisible by 10000? -> should get closest point to that...
-    # so instead of middle one we do trimmed_lasttime - 100000
-    else:
-        trimmed_lasttime = lasttime - lasttime%season 
-        timepoint = trimmed_lasttime - 10000
-        ltime = [lasttime - i*season for i in range(10)]
+    
+    # if season<=10000:
+    #     ltime = [lasttime - i*10000 for i in range(10)]
+    # 
+    # #else, we should take a time point for each of the last 10 seasons
+    # # which one? ... the middle one!
+    # # BUT WHAT IF SEASON / 2 is not divisible by 10000? -> should get closest point to that...
+    # # so instead of middle one we do trimmed_lasttime - 100000
+    # else:
+    trimmed_lasttime = lasttime - lasttime%season 
+    timepoint = trimmed_lasttime - 10000
+    ltime = [lasttime - i*season for i in range(10)]
     # print ltime
     # Now we go get the date
     lJmed=[]
@@ -183,24 +188,33 @@ for label,filename in zip(llabel,lfilename):
     # ax.boxplot(lJcel, positions=[math.log(season)])
 
 #sets flier properties    
-# flierprops = dict(marker='o', markerfacecolor='b', markersize=12,linestyle='none', markeredgecolor='g')
-flierprops = dict(marker='.', markerfacecolor='k', markersize=1,linestyle='none')
+#flierprops = dict(marker='.', markerfacecolor='k', markersize=1,linestyle='none') <- this works perfectly, I just don't want to show fliers any more, because nothing Changes
+
 position_offset = 1000 # so that Jc and Jm don't overlap
-labels=[label[:-3] for label in llabel ]
+labels=[int(label[:-3]) for label in llabel ]
+print "labels:", labels
 
-ax.boxplot(llJcel, labels=labels, positions=[int(x)-position_offset for x in llabel], widths=(2000), flierprops=flierprops, medianprops=dict(color='royalblue') )
+ax.boxplot(llJcel, positions=[int(x)-2.5*position_offset if i==llabel.index(x) else int(x)+1.25*position_offset  for i,x in enumerate(llabel)], widths=(2000), showfliers=False, medianprops=dict(color='royalblue') )
 lmeanJc= [ np.mean(lJcel) for lJcel in llJcel]
-ax.plot(llabel,lmeanJc,color='royalblue')
+# ax.plot(llabel,lmeanJc,color='royalblue')
+ax.plot(llabel,lmeanJc,linestyle = 'None',marker='o', markerfacecolor='None', markeredgecolor='royalblue', markersize = 1)
 
-ax.boxplot(llJmed, labels=labels, positions=[int(x)+position_offset for x in llabel], widths=(2000), flierprops=flierprops, medianprops=dict(color='darkgoldenrod') )
+ax.boxplot(llJmed, positions=[int(x)-1.25*position_offset if i==llabel.index(x) else int(x)+2.5*position_offset  for i,x in enumerate(llabel)], widths=(2000), showfliers=False, medianprops=dict(color='darkgoldenrod') )
 lmeanJm= [ np.mean(lJm) for lJm in llJmed]
-ax.plot(llabel,lmeanJm,color='darkgoldenrod')
+# ax.plot(llabel,lmeanJm,color='darkgoldenrod')
+ax.plot(llabel,lmeanJm,linestyle = 'None',marker='o', markerfacecolor='None', markeredgecolor='darkgoldenrod', markersize = 1)
 
-ax.plot(llabel , [ jm-jc/2. for jc,jm in zip(lmeanJc,lmeanJm)], color='seagreen')
+# ax.plot(llabel , [ jm-jc/2. for jc,jm in zip(lmeanJc,lmeanJm)], color='seagreen')
+ax.plot(llabel , [ jm-jc/2. for jc,jm in zip(lmeanJc,lmeanJm)], linestyle = 'None',marker='o', markerfacecolor='None', markeredgecolor='seagreen', markersize = 1)
 ax.plot(llabel,[0. for _ in llabel], lw = 0.5, color='seagreen')
 
+ax.set_xticklabels(labels)
+ax.set_xticks([int(label) for label in llabel ])
+
 ax.set_xlabel('$\\tau_s$ [$\cdot 10^3$ mcs]', fontsize=12)
+
 ax.set_xlim([0,160000])
+
 # plt.show()    
 plt.savefig(figname)
 

@@ -234,12 +234,41 @@ with open(filename,"r") as fin:
         maintf=float(line[14])  #fraction of resources to maintenance
                         
         km0,kmA,kmP,kmC = [ float(x) for x in line[15:19] ]  # maint vs movement
-        Jfract=float(line[19]) #fraction of own j val expressed
-        kj0,kjA,kjP,kjC,kj0t,kjPt = [ float(x) for x in line[20:26] ] # expression of J val
-        cfract=[float(line[26])] #fraction of movement dedicated to gradient following
-        kc0,kcA,kcP,kcC = [ float(x) for x in line[27:31] ] # chemotaxis
+                
+        # Now, I made a mistake and forgot the space between Jfract and k0
+        # Jfract can be 0, 1, or 0.something
+        # k0 is always a number like 0-or1.something 
         
-        contacts=line[31:]
+        bla = line[19] 
+        dots = bla.count('.')
+        if dots == 0:
+            if len(bla)==2:
+                Jfract=float(bla[0])
+                kj0=float(bla[1])
+            #else let's move on
+        elif dots == 1: 
+            pos =bla.find('.')
+            #then it can be 0.something1
+            if pos==1:
+                Jfract=float(bla[0:-1])
+                kj0=float(bla[-1])
+            #or 01.something or 11.somehin
+            if pos==2:
+                Jfract=float(bla[0])
+                kj0=float(bla[1:])
+            #else I don't know
+                
+        elif dots==2:
+            lpos=[i for i,x in enumerate(bla) if x=='.' ]
+            Jfract=float(bla[: lpos[1]-1 ])
+            kj0=float(bla[ lpos[1]-1 :])
+            
+        
+        kjA,kjP,kjC,kj0t,kjPt = [ float(x) for x in line[20:25] ] # expression of J val
+        cfract=[float(line[25])] #fraction of movement dedicated to gradient following
+        kc0,kcA,kcP,kcC = [ float(x) for x in line[26:30] ] # chemotaxis
+        
+        contacts=line[30:]
         
         if time != ltime[-1]: 
           #calculate statistics
