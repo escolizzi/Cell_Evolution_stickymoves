@@ -228,14 +228,17 @@ void X11Graphics::GenerateColorTable(XColor *cols)
   // these 50 colors are for food, when no predators are on top
   // start from yellow, go to red ("hot"-like color map, moving on the surface of the cube)
   // steps are 250/50 =5 long
-  int r=254,g=254,b=50;
+  int r=254,g=254,b=100;
   int step = 5;
   for(i=10;i<60;i++){
     //make colors
+    // r-= 1;
+    
     g-=step;
-    r-=step/4;
+    
+    b-=step*1/5;
 
-    cols[i].red =  r ;
+    cols[i].red =  r;
     cols[i].green= g;
     cols[i].blue=  b;
   }

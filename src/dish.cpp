@@ -556,7 +556,7 @@ void Dish::FoodPlot(Graphics *g)
 {
   // cpm->sigma[x][y] returns sigma, which I can use to indicise the vector of cells... can I? yes_
   double maxfood = 1.+ par.gradscale*((double)par.sizey/100.);
-  double food_to_index_convfact = 20./maxfood;
+  double food_to_index_convfact = 28./maxfood;
   
   // suspend=true suspends calling of DrawScene
   for(int x=1;x<par.sizex-1;x++)
