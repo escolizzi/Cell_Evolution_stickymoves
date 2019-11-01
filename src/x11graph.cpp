@@ -207,10 +207,10 @@ void X11Graphics::GenerateColorTable(XColor *cols)
   // all colors have to be sufficiently different even when you exclude ag
 
   //DOES THIS DO IT ??? YEP - more or less !!!
-  //            w,   blk, r,  blu,   y    c    g    m    br
-  int ar[10] = {254, 0, 200, 0, 254,   50,  90,  245, 100, 180};
-  int ag[10] = {254, 0, 30,  51, 210,  206, 254, 10,  50,  180};
-  int ab[10] = {254, 0, 30,  102, 50, 250, 180, 200, 0,   180};
+  //            whi,blk,red,blu,yllw,cyan, green,magnt,brwn,grey
+  int ar[10] = {254, 0, 200, 0,  254, 50,  90,   245,  100, 180};
+  int ag[10] = {254, 0, 30,  51, 210, 206, 254,  10,   50,  180};
+  int ab[10] = {254, 0, 30,  102,50,  250, 180,  200,  0,   180};
   int i;
 
 
@@ -228,11 +228,12 @@ void X11Graphics::GenerateColorTable(XColor *cols)
   // these 50 colors are for food, when no predators are on top
   // start from yellow, go to red ("hot"-like color map, moving on the surface of the cube)
   // steps are 250/50 =5 long
-  int r=254,g=254,b=0;
+  int r=254,g=254,b=50;
   int step = 5;
   for(i=10;i<60;i++){
     //make colors
     g-=step;
+    r-=step/4;
 
     cols[i].red =  r ;
     cols[i].green= g;

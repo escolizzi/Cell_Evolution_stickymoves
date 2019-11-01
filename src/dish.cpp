@@ -550,25 +550,26 @@ void Dish::PrintCellParticles(void)
   }
 }
 
+// Colors for food are indicised from 10 to 60, with some simple calculations it should be easy
+// to make them pretty
 void Dish::FoodPlot(Graphics *g)
 {
-  // cpm->sigma[x][y] returns sigma, which I can use to indicise the vector of cells... can I?
-
+  // cpm->sigma[x][y] returns sigma, which I can use to indicise the vector of cells... can I? yes_
+  double maxfood = 1.+ par.gradscale*((double)par.sizey/100.);
+  double food_to_index_convfact = 20./maxfood;
+  
   // suspend=true suspends calling of DrawScene
   for(int x=1;x<par.sizex-1;x++)
     for(int y=1;y<par.sizey-1;y++)
-
-  //for(int x=0;x<par.sizex;x++)
-  //  for(int y=0;y<par.sizey;y++)
-      //if (cpm->Sigma(x,y)==0) {
+      
       if(Food->Sigma(x,y) != 0){
         if(CPM->Sigma(x,y)==0){
           // Make the pixel four times as large
           // to fit with the CPM plane
-          g->Point(10+Food->Sigma(x,y),2*x,2*y);
-          g->Point(10+Food->Sigma(x,y),2*x+1,2*y);
-          g->Point(10+Food->Sigma(x,y),2*x,2*y+1);
-          g->Point(10+Food->Sigma(x,y),2*x+1,2*y+1);
+          g->Point(10+food_to_index_convfact*Food->Sigma(x,y),2*x,2*y);
+          g->Point(10+food_to_index_convfact*Food->Sigma(x,y),2*x+1,2*y);
+          g->Point(10+food_to_index_convfact*Food->Sigma(x,y),2*x,2*y+1);
+          g->Point(10+food_to_index_convfact*Food->Sigma(x,y),2*x+1,2*y+1);
         }else{
           ;
           // it's getting a bit cumbersome to look at this, for now I'll do without

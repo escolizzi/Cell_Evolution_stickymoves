@@ -127,10 +127,14 @@ for filename in sys.argv[4:]:
           modulus_mov1 = math.sqrt(colmov1**2 + rowmov1**2)
           if modulus_mov1<0.0001: continue
           
-          flow_col[ int(0.5+(field_size/2)/float(binsize)) , int(0.5+(field_size/2)/float(binsize)) ] += colmov1
-          flow_row[ int(0.5+(field_size/2)/float(binsize)), int(0.5+(field_size/2)/float(binsize)) ] += rowmov1
-          flow_howmany[ int(0.5+(field_size/2)/float(binsize)),int(0.5+(field_size/2)/float(binsize)) ] += 1
+          flow_center_row =  int(0.5+(field_size/2)/float(binsize))
+          flow_center_col = flow_center_row
           
+          print "center row,col:", flow_center_row, flow_center_col
+          flow_col[ flow_center_row , flow_center_col ] += colmov1
+          flow_row[ flow_center_row, flow_center_col ] += rowmov1
+          flow_howmany[flow_center_row,flow_center_col ] += 1
+          continue
           cos_phi = colmov1 / modulus_mov1 # for cells going left this should be about -1
           sin_phi = rowmov1 / modulus_mov1 # and this 0
           # print "Angle: ",360*math.atan2( cos_phi,sin_phi)/(2.*math.pi) 
@@ -214,7 +218,7 @@ for filename in sys.argv[4:]:
   print flow_row[(field_size/2)/binsize, (field_size/2)/binsize]
   
   fig, ax = plt.subplots()
-  bla= ax.quiver(C,R, flow_col, flow_row,  flow_howmany, cmap=plt.get_cmap('viridis_r'), scale = 0.2,scale_units='xy',  norm=mpl.colors.LogNorm())
+  bla= ax.quiver(C,R, flow_col, flow_row,  flow_howmany, cmap=plt.get_cmap('viridis_r'), scale = 0.2,angles='xy',scale_units='xy',  norm=mpl.colors.LogNorm())
   fig.colorbar(bla)
   # ax.quiver(X,Y, flow_col, flow_row, scale = 1)
   # ax.set_xlim([(field_size/3)/binsize , (2*field_size/3)/binsize])
