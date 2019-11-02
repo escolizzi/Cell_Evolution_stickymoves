@@ -186,6 +186,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -foodinflux [FLOAT_NUMBER] # howmuchfood"<<endl;
   cerr<<" -gradscale [FLOAT_NUMBER] slope of the gradient (in percent units)"<<endl;
   cerr<<" -chemmu [FLOAT_NUMBER] scaling factor for chemotaxis in the Hamiltonian"<<endl;
+  cerr<<" -target_area [INT_NUMBER] that (initial) target area of cells"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -355,6 +356,13 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       init_chemmu = atof( argv[i] );
       cerr<<"New value for chemmu: "<<init_chemmu<<endl;
+    }else if( 0==strcmp(argv[i],"-target_area") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in target_area?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      target_area = atoi( argv[i] );
+      cerr<<"New value for target_area: "<<target_area<<endl;
     }else
       return 1;
   }

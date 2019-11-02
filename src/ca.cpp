@@ -2838,6 +2838,8 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
     
     // each x,y point denotes the upper left corner of a cell
     // with i,j we run through the cell
+    // for(int x = endx ; x > beginx ; x -= step ){
+    //   for(int y = endy ; y > beginy ; y -= step ){
     for(int x = beginx ; x < endx ; x += step ){
       for(int y = beginy ; y < endy ; y += step ){
         //std::cerr << "Cell will be placed at: "<< x<<","<<y << '\n';

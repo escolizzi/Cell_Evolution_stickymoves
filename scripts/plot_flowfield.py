@@ -94,19 +94,19 @@ for filename in sys.argv[4:]:
         count=0
         timepoint=int(line[0])
       if timepoint==time0:
-          if int(line[31])==0:
-            rowpos[-1].append(-1.)
-            colpos[-1].append(-1.)
-          else:
+          # if int(line[31])==0:
+          #   rowpos[-1].append(-1.)
+          #   colpos[-1].append(-1.)
+          # else:
             rowpos[-1].append(float(line[3]))
             colpos[-1].append(float(line[4]))
       else:
-          if int(line[31])!=0:
+          # if int(line[31])!=0:
               rowpos[-1][int(line[1])-1]=float(line[3])
               colpos[-1][int(line[1])-1]=float(line[4])
-          else:
-              rowpos[-1][int(line[1])-1]=-1
-              colpos[-1][int(line[1])-1]=-1
+          # else:
+          #     rowpos[-1][int(line[1])-1]=-1
+          #     colpos[-1][int(line[1])-1]=-1
       count+=1
 
   ####################################
@@ -116,7 +116,7 @@ for filename in sys.argv[4:]:
   nrcells=len(colpos[0])
   print "maxint=",maxint
   deltapos = 5 # when we do x_later - x_now, delta says how many positions back we look
-  for i in range(500,maxint,100): #skip first time step, which is weird
+  for i in range(500,maxint,20): #skip first time step, which is weird
     count=0
     count2=0
     xn=[]      
@@ -130,11 +130,11 @@ for filename in sys.argv[4:]:
           flow_center_row =  int(0.5+(field_size/2)/float(binsize))
           flow_center_col = flow_center_row
           
-          print "center row,col:", flow_center_row, flow_center_col
+          # print "center row,col:", flow_center_row, flow_center_col
           flow_col[ flow_center_row , flow_center_col ] += colmov1
           flow_row[ flow_center_row, flow_center_col ] += rowmov1
           flow_howmany[flow_center_row,flow_center_col ] += 1
-          continue
+          # continue
           cos_phi = colmov1 / modulus_mov1 # for cells going left this should be about -1
           sin_phi = rowmov1 / modulus_mov1 # and this 0
           # print "Angle: ",360*math.atan2( cos_phi,sin_phi)/(2.*math.pi) 

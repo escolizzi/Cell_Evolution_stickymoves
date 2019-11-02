@@ -473,7 +473,7 @@ int main(int argc, char *argv[]) {
     X11Graphics g(par.sizex*2,par.sizey*2);
     int t;
 
-    for(t=0;t<par.mcs;t++){
+    for(t=0;t<=par.mcs;t++){
       //cerr<<"Time: "<<t<<endl;
       g.TimeStep();
 
