@@ -30,7 +30,7 @@ fig, (ax0, ax1) = plt.subplots(ncols=2)
 #fig, ax0 = plt.subplots()
 
 if len(sys.argv) <3:
-  print "This is the program 'plot_MSD.py'"
+  print "This is the program 'plot_MSD2.py'"
   print "Usage: ./plot_MSD.py <figure name> <nr of tracks to plot> <filename(s)> "
   sys.exit(1)
 else:
@@ -78,7 +78,7 @@ for filename in sys.argv[3:]:
         xpos[-1][int(line[1])-1]=float(line[3])
         ypos[-1][int(line[1])-1]=float(line[4])
       count+=1
-
+  print "Done reading, now calculating MSD"
   ##calculate MSD and standard error
   maxint=len(xpos)
   nrcells=len(xpos[0])
@@ -105,7 +105,7 @@ for filename in sys.argv[3:]:
     SDEV.append(math.sqrt(sd/float(count2)))
 
   #center cell track start at 0,0  
-
+  print "Done that, now cell tracks"
   for i in range(1,len(xpos)):
     for j in range(len(xpos[0])):
       if xpos[i][j]>-1: 

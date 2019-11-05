@@ -41,8 +41,8 @@ filename=""
 #fig, ax0 = plt.subplots()
 
 if len(sys.argv) <3:
-  print "This is the program 'plot_angle_correlations.py'"
-  print "Usage: ./plot_flowfield.py <figure name> <cell targetarea> <binsize [pix]> <filename> "
+  print "This is the program 'plot_flowfield.py'"
+  print "Usage: ./plot_flowfield.py <figure name> <cell targetarea> <binsize [pix]> <filename> <filename> <filename> ..."
   sys.exit(1)
 else:
   figname=sys.argv[1]
@@ -53,28 +53,29 @@ macoldist=0
 filecounter=0
 
 
-for filename in sys.argv[4:]:
+field_size = 2*500
 
-  print filename
-  # avangle=[0.]*200*int(binmult)   #1 bin is binsize celldiam 
-  # binamount=[0]*200*int(binmult)  #to keep track of how many in each bin
-  # angles=[[] for x in range(200*int(binmult))]
+binsize=10 #8 is roughly 2 radiuses
+dimensions_flowfield = field_size/binsize 
+# flow_field = np.array((512,512), dtype=[0,0,0])
+flow_col = np.zeros((dimensions_flowfield,dimensions_flowfield), dtype= float)
+flow_row = np.zeros((dimensions_flowfield,dimensions_flowfield), dtype= float)
+flow_howmany = np.zeros((dimensions_flowfield,dimensions_flowfield), dtype= float)
+
+
+
+for filename in sys.argv[4:]:
   colpos=[]
   rowpos=[]
   xn=[]
   colpos.append([])
   rowpos.append([])
   count=0
-  
-  field_size = 2*500
-  
-  binsize=10 #8 is roughly 2 radiuses
-  dimensions_flowfield = field_size/binsize 
-  # flow_field = np.array((512,512), dtype=[0,0,0])
-  flow_col = np.zeros((dimensions_flowfield,dimensions_flowfield), dtype= float)
-  flow_row = np.zeros((dimensions_flowfield,dimensions_flowfield), dtype= float)
-  flow_howmany = np.zeros((dimensions_flowfield,dimensions_flowfield), dtype= float)
-  
+
+  print filename
+  # avangle=[0.]*200*int(binmult)   #1 bin is binsize celldiam 
+  # binamount=[0]*200*int(binmult)  #to keep track of how many in each bin
+  # angles=[[] for x in range(200*int(binmult))]
   
   ##################################################
   ##read data from file: store raw cell positions##
@@ -115,8 +116,9 @@ for filename in sys.argv[4:]:
   maxint=len(colpos)
   nrcells=len(colpos[0])
   print "maxint=",maxint
-  deltapos = 5 # when we do x_later - x_now, delta says how many positions back we look
-  for i in range(500,maxint,20): #skip first time step, which is weird
+  deltapos = 100 # when we do x_later - x_now, delta says how many positions back we look
+  for i in range(500,maxint,50): #skip first time steps, not to include initial conditions and also so that i>deltapos
+    if i*50<deltapos: continue
     count=0
     count2=0
     xn=[]      
@@ -191,41 +193,41 @@ for filename in sys.argv[4:]:
           flow_col[       flow_rowbin , flow_colbin ] += colmov2_rot
           flow_howmany[ flow_rowbin , flow_colbin ] += 1
       # sys.exit(1)  
-  print "Done operations, now plotting"
-  print "x,y for printing :",(field_size/2)/binsize
-  print flow_col[(field_size/2)/binsize, (field_size/2)/binsize] 
-  print flow_row[(field_size/2)/binsize, (field_size/2)/binsize]
-  print flow_howmany[(field_size/2)/binsize, (field_size/2)/binsize]
-  # sys.exit(1)
-  
-  # flow_col = np.divide(flow_col,flow_howmany, out=np.zeros_like(flow_col), where=flow_howmany!=0) #returns zero where it divides by zero, because there is no flow
-  # flow_row = np.divide(flow_row,flow_howmany, out=np.zeros_like(flow_row), where=flow_howmany!=0)
-  flow_col = np.divide(flow_col,flow_howmany, out=np.zeros_like(flow_col), where=flow_howmany>50) #returns zero where it divides by zero, because there is no flow
-  flow_row = np.divide(flow_row,flow_howmany, out=np.zeros_like(flow_row), where=flow_howmany>50) #also returns zero if there aren't enough values to make an evarge
-  
-  # for r,c in np.ndindex(flow_col.shape):
-  #   if flow_col[r,c]<0.00001 and flow_row[r,c]<0.00001:
-  #       flow_col[r,c]=np.nan
-  #       flow_row[r,c]=np.nan
-  # 
-  r = np.linspace(0,dimensions_flowfield,dimensions_flowfield)
-  c = np.linspace(0,dimensions_flowfield,dimensions_flowfield)
-  
-  C,R = np.meshgrid(c,r)
-  
-  print "After some filtering: "
-  print flow_col[(field_size/2)/binsize, (field_size/2)/binsize] 
-  print flow_row[(field_size/2)/binsize, (field_size/2)/binsize]
-  
-  fig, ax = plt.subplots()
-  bla= ax.quiver(C,R, flow_col, flow_row,  flow_howmany, cmap=plt.get_cmap('viridis_r'), scale = 0.2,angles='xy',scale_units='xy',  norm=mpl.colors.LogNorm())
-  fig.colorbar(bla)
-  # ax.quiver(X,Y, flow_col, flow_row, scale = 1)
-  # ax.set_xlim([(field_size/3)/binsize , (2*field_size/3)/binsize])
-  # ax.set_ylim([(field_size/3)/binsize , (2*field_size/3)/binsize])
-  ax.set_aspect('equal')
-  plt.show()
-  sys.exit(1)
+print "Done operations, now plotting"
+print "x,y for printing :",(field_size/2)/binsize
+print flow_col[(field_size/2)/binsize, (field_size/2)/binsize] 
+print flow_row[(field_size/2)/binsize, (field_size/2)/binsize]
+print flow_howmany[(field_size/2)/binsize, (field_size/2)/binsize]
+# sys.exit(1)
+
+# flow_col = np.divide(flow_col,flow_howmany, out=np.zeros_like(flow_col), where=flow_howmany!=0) #returns zero where it divides by zero, because there is no flow
+# flow_row = np.divide(flow_row,flow_howmany, out=np.zeros_like(flow_row), where=flow_howmany!=0)
+flow_col = np.divide(flow_col,flow_howmany, out=np.zeros_like(flow_col), where=flow_howmany>50*len(sys.argv[4:])) #returns zero where it divides by zero, because there is no flow
+flow_row = np.divide(flow_row,flow_howmany, out=np.zeros_like(flow_row), where=flow_howmany>50*len(sys.argv[4:])) #also returns zero if there aren't enough values to make an evarge
+
+# for r,c in np.ndindex(flow_col.shape):
+#   if flow_col[r,c]<0.00001 and flow_row[r,c]<0.00001:
+#       flow_col[r,c]=np.nan
+#       flow_row[r,c]=np.nan
+# 
+r = np.linspace(0,dimensions_flowfield,dimensions_flowfield)
+c = np.linspace(0,dimensions_flowfield,dimensions_flowfield)
+
+C,R = np.meshgrid(c,r)
+
+print "After some filtering: "
+print flow_col[(field_size/2)/binsize, (field_size/2)/binsize] 
+print flow_row[(field_size/2)/binsize, (field_size/2)/binsize]
+
+fig, ax = plt.subplots()
+bla= ax.quiver(C,R, flow_col, flow_row,  flow_howmany, cmap=plt.get_cmap('viridis_r'), scale = 10./binsize,angles='xy',scale_units='xy',  norm=mpl.colors.LogNorm())
+fig.colorbar(bla)
+# ax.quiver(X,Y, flow_col, flow_row, scale = 1)
+ax.set_xlim([(field_size/3)/binsize , (2*field_size/3)/binsize])
+ax.set_ylim([(field_size/3)/binsize , (2*field_size/3)/binsize])
+ax.set_aspect('equal')
+plt.show()
+sys.exit(1)
   
   
   
