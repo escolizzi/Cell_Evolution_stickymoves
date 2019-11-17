@@ -172,6 +172,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -seed INT_NUMBER # for random number generator"<<endl;
   cerr<<" -maxtime INT_NUMBER"<<endl;
   // cerr<<" -halfdiv_area_predator INT_NUMBER"<<endl;
+  cerr<<" -persmu FLOAT_NUMBER [ > 0 ], strength of persistent random walk"<<endl;
   cerr<<" -persduration INT_NUMBER"<<endl;
   cerr<<" -mutrate FLOAT_NUMBER [0,1) # mutation rate for key and lock"<<endl;
   cerr<<" -casize INT_NUMBER INT_NUMBER # dimensions of the CA"<<endl;
@@ -363,6 +364,13 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       target_area = atoi( argv[i] );
       cerr<<"New value for target_area: "<<target_area<<endl;
+    }else if( 0==strcmp(argv[i],"-persmu") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in persmu?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      startmu = atof( argv[i] );
+      cerr<<"New value for persmu: "<<startmu<<endl;
     }else
       return 1;
   }

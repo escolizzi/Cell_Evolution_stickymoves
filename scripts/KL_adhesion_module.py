@@ -1,6 +1,6 @@
 
 '''
-contains standard adhesion module for cell evolution type experimentsself.
+contains standard adhesion module for cell evolution type experiments.
 In the future it should also be able to read par files
 '''
 
@@ -8,6 +8,8 @@ import sys,math,os,subprocess
 import numpy as np
 
 lenkl=24
+
+MIN_Jval_withmedium = 8
 lookuptable_Jmedium=[4,3,2,1,1,1]
 keypos_formedium=len(lookuptable_Jmedium)
 
@@ -16,8 +18,8 @@ def Distance(current,target):
 
 # in this new version we just use the lookup table    
 def ReverseKeyForMedium(hjm,lenkl,lookuptable_Jmedium):
-  if hjm<10 or hjm>25:
-    print "hjm out of range [10,25]"
+  if hjm<MIN_Jval_withmedium or hjm>MIN_Jval_withmedium+sum(lookuptable_Jmedium):
+    print "Error, value for J(cell,medium) ",hjm," is out of range [",MIN_Jval_withmedium,MIN_Jval_withmedium+sum(lookuptable_Jmedium),"]"
     sys.exit(1)
   
   key=lenkl*[0]
@@ -35,7 +37,7 @@ def JWithMedium(key,lookuptable_Jmedium):
   #for i,j in xrange(len(lookuptable_Jmedium)):
     #Jval += int(key[i])*pow(2,keypos_formedium-i-1); #so that zeroth bit is most significant
   Jval = sum( [ x*y  for x,y in  zip( key[:len(lookuptable_Jmedium)] , lookuptable_Jmedium  ) ]  )
-  Jval += 8; #so that interaction with medium can't be 0
+  Jval += MIN_Jval_withmedium; #so that interaction with medium can't be 0
   return Jval
 
 ####   GENERALISED FORMULA   ####
@@ -56,3 +58,14 @@ def RandomKL(lenkl):
   rk1=[ 1 if np.random.rand()<0.5 else 0 for _ in range(lenkl) ] # randomises everything
   rk1=[ 1 if np.random.rand()<0.5 else 0 for _ in range(lenkl) ]
   return rk1,rl1
+
+def RandomiseKL(k1,l1,k2,l2,mutrate):
+
+  rk1=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(k1) ] # randomises everything
+  rk2=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(k2) ] # randomises everything
+  #rk1=[ 1-x if (np.random.rand()<mutrate and i>=keypos_formedium) else x for i,x in enumerate(k1) ]
+  #rk2=[ 1-x if (np.random.rand()<mutrate and i>=keypos_formedium) else x for i,x in enumerate(k2) ]
+  
+  rl1=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(l1) ]
+  rl2=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(l2) ]
+  return rk1,rl1,rk2,rl2

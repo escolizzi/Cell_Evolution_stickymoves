@@ -69,30 +69,27 @@ def PrintResult(target,current,k1,l1,k2,l2):
     #i-=1
   #return key
 
-
-def RandomiseKL(k1,l1,k2,l2,mutrate):
-
-  rk1=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(k1) ] # randomises everything
-  rk2=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(k2) ] # randomises everything
-  #rk1=[ 1-x if (np.random.rand()<mutrate and i>=keypos_formedium) else x for i,x in enumerate(k1) ]
-  #rk2=[ 1-x if (np.random.rand()<mutrate and i>=keypos_formedium) else x for i,x in enumerate(k2) ]
-  
-  rl1=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(l1) ]
-  rl2=[ 1-x if np.random.rand()<mutrate else x for i,x in enumerate(l2) ]
-  return rk1,rl1,rk2,rl2
-
 #######################################
 ####### BEGIN STUFF ###################
 #######################################
 
+if len(sys.argv) != 6:
+    print 
+    print "*******************************************************************************"
+    print " This is  ***   jvals_2_kl_optim_varl_takesvals_hj1m_j11_j12_hj2m_j22.py   *** "
+    print "*******************************************************************************"
+    print 
+    print "Arguments: J(cell1,medium) J(cell1,cell1) J(cell1,cell2) J(cell2,medium) J(cell2,cell2)"
+    print "All arguments are necessary, bye!"
+    sys.exit(1)
+
 argi=0
 hj1m = int( sys.argv[1]) #10 #up to 15
 j11 = int( sys.argv[2]) #6 # to 41 #int(sys.argv[1])  # variable of interest
-
 j12 = int( sys.argv[3]) #8 # to 14  #high adh with prey - always
-hj2m = hj1m
+hj2m = int( sys.argv[4])
 j21 = j12
-j22 = int( sys.argv[4]) #38 # up to 41
+j22 = int( sys.argv[5]) #38 # up to 41
 
 #while j11<43:
     #sys.stderr.write("j11="+str(j11)+"\n")
@@ -113,8 +110,8 @@ k2=klam.lenkl*[0]
 k1=klam.ReverseKeyForMedium(hj1m,klam.lenkl,klam.lookuptable_Jmedium)
 k2=klam.ReverseKeyForMedium(hj2m,klam.lenkl,klam.lookuptable_Jmedium)
 
-k1=[ int(2.*np.random.rand()) if i>=keypos_formedium else x for i,x in enumerate(k1) ]
-k2=[ int(2.*np.random.rand()) if i>=keypos_formedium else x for i,x in enumerate(k2) ]
+k1=[ int(2.*np.random.rand()) if i>=klam.keypos_formedium else x for i,x in enumerate(k1) ]
+k2=[ int(2.*np.random.rand()) if i>=klam.keypos_formedium else x for i,x in enumerate(k2) ]
 
 l1=[ int(2.*np.random.rand()) for _ in range(klam.lenkl) ]
 l2=[ int(2.*np.random.rand()) for _ in range(klam.lenkl) ]

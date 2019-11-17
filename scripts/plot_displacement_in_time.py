@@ -63,13 +63,10 @@ for filename in sys.argv[2:]:
     lxpos=[]
     lypos=[]
     c1_pos=[]
-    ## super dumb way of checking the first time step
-    with open(filename,"r") as fin:
-        for line in fin:
-            line=line.split()
-            time = int(line[0])
-            ltime.append(time)
-            break
+    
+    # read time in the first line
+    output = subprocess.Popen(['head', '-1', filename], stdout=subprocess.PIPE).communicate()[0]
+    time = int(output.split(' ')[0])
             
     with open(filename,"r") as fin:
         #read first line first to get the first time point (could probably more clever, but hey)

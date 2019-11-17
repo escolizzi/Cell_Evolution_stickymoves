@@ -2838,8 +2838,7 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
     
     // each x,y point denotes the upper left corner of a cell
     // with i,j we run through the cell
-    // for(int x = endx ; x > beginx ; x -= step ){
-    //   for(int y = endy ; y > beginy ; y -= step ){
+    
     for(int x = beginx ; x < endx ; x += step ){
       for(int y = beginy ; y < endy ; y += step ){
         //std::cerr << "Cell will be placed at: "<< x<<","<<y << '\n';
@@ -2848,6 +2847,7 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
         for(int i=0; i<sqrt(size_cells); i++){
           for(int j=0; j<sqrt(size_cells); j++){
             if(sigma[x+i][y+j]){
+              std::cerr << "Sigma = "<< sigma[x+i][y+j] << '\n';
               std::cerr << "Grid point "<< x+i <<","<< y+j <<" is already occupied" << '\n';
               exit(1);
             }

@@ -107,7 +107,7 @@ n_chem = 0
 # notice that nowhere zeroes foodinflux
 food_influx_location = specified_experiment
 #food_influx_location = boundarygradient
-gradnoise = 0.9
+gradnoise = 0.8
 gradscale = 1.0
 
 # only used in specified_experiment, if true it puts 1 food randomly, with probability foodinflux = 0.05
@@ -180,6 +180,6 @@ save_backup_period = 100000
 backupdir = backup
 
 #if readcolortable is true, it reads the color table from "colortable_filename", otherwise it generates a pretty one internally
-readcolortable = true
+readcolortable = false
 colortable_filename = ../data/circular.ctb
 #derived from circular colormap "twilight" on github

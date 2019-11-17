@@ -78,6 +78,13 @@ for filename in sys.argv[3:]:
         xpos[-1][int(line[1])-1]=float(line[3])
         ypos[-1][int(line[1])-1]=float(line[4])
       count+=1
+  
+  #I should eliminate the initial data, because it is initial condition
+  toremove=len(timepoints)/4
+  xpos = xpos[toremove:]
+  ypos = ypos[toremove:]
+  timepoints=timepoints[: -toremove ] #this has to be like this because timepoints is also used as x axis
+  
   print "Done reading, now calculating MSD"
   ##calculate MSD and standard error
   maxint=len(xpos)
@@ -121,28 +128,48 @@ for filename in sys.argv[3:]:
 
   ##start plotting##
 
+  print "timepoints: ", timepoints
+  print "MSD:", MSD
   
-  #ax0.plot(timepoints,MSD)
-  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=100)
+  # ax0.set_xscale('log')
+  # ax0.set_yscale('log')
+  #to linear interpolation of log log transformed data, 
+  # to get exponent
+  log_t=timepoints[:]
+  log_MSD=MSD[:]
+  if log_t[0]==0:
+      log_t=log_t[1:]
+      log_MSD=log_MSD[1:]
+  
+  log_t = [np.log(x) for x in log_t]
+  log_MSD = [np.log(x) for x in log_MSD]
+  m_and_b = np.polyfit(log_t, log_MSD, 1)
+  poly1d_fn = np.poly1d(m_and_b) # CAREFUL HERE: poly1d_fn is now a function which takes in x and returns an estimate for y
+  print "filename: ", filename, "m,b:", m_and_b
+  ax0.plot(timepoints,MSD)
+  ax1.plot(log_t,log_MSD, 'yo', log_t, poly1d_fn(log_t), '--k')
+  
+  # ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=100)
+  
   #ax0.set_yscale('log')
 
 
-  #plot cell tracks
-  #invert position matrices for plotting (each row is 1 cell instead of 1 timepoint)
-  xx=zip(*xpos)
-  yy=zip(*ypos)
-  toplot=range(0,len(xx))
-  random.shuffle(toplot)
-  #for el in toplot[:tracknr]:
-  #  print el
-
-  count=0
-  count2=0
-  for xrow,yrow in zip(xx,yy):
-    if count in toplot[:tracknr]:
-      ax1.plot(xrow,yrow, lw=0.5 ,c=colours[filecounter])
-      count2+=1
-    count+=1
+  # #plot cell tracks
+  # #invert position matrices for plotting (each row is 1 cell instead of 1 timepoint)
+  # xx=zip(*xpos)
+  # yy=zip(*ypos)
+  # toplot=range(0,len(xx))
+  # random.shuffle(toplot)
+  # #for el in toplot[:tracknr]:
+  # #  print el
+  # 
+  # count=0
+  # count2=0
+  # for xrow,yrow in zip(xx,yy):
+  #   if count in toplot[:tracknr]:
+  #     ax1.plot(xrow,yrow, lw=0.5 ,c=colours[filecounter])
+  #     count2+=1
+  #   count+=1
 
   filecounter+=1
 
