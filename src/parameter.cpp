@@ -490,8 +490,8 @@ void Parameter::Read(const char *filename) {
   zero_persistence_past_theline = bgetpar(fp,"zero_persistence_past_theline",false, true);
   season_experiment= bgetpar(fp,"season_experiment",false, true);
   season_duration= igetpar(fp, "season_duration", 1, true);
-  init_k_ext_0t = fgetpar(fp, "init_k_chem_0t", 0., true);
-  init_k_ext_Pt = fgetpar(fp, "init_k_chem_Pt", 0., true);
+  init_k_ext_0t = fgetpar(fp, "init_k_ext_0t", 0., true);
+  init_k_ext_Pt = fgetpar(fp, "init_k_ext_Pt", 0., true);
   init_cell_config = igetpar(fp, "init_cell_config", 0, true);
 }
 
