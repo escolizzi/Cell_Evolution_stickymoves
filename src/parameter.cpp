@@ -380,7 +380,7 @@ int Parameter::ReadArguments(int argc, char *argv[])
         return 1;  //check if end of arguments, exit with error in case
       }
       init_cell_config = atoi( argv[i] );
-      cerr<<"New value for init_cell_config: "<<target_area<<endl;
+      cerr<<"New value for init_cell_config: "<<init_cell_config<<endl;
     }else
       return 1;
   }
