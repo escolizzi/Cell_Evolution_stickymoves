@@ -151,9 +151,9 @@ while True:
           
           counter+=1
           #Randomise 
-          rk1,rl1 = klam.RandomiseKL(k1,l1,mutrate)
+          rk1,rl1 = RandomiseKL(k1,l1,mutrate)
           while (rk1,rl1) == (k1,l1):
-            rk1,rl1 = klam.RandomiseKL(k1,l1,mutrate)
+            rk1,rl1 = RandomiseKL(k1,l1,mutrate)
           rcurrentJ = [ klam.JWithMedium(rk1,klam.lookuptable_Jmedium), 
                       klam.JWithOtherTau(( rk1,rl1 ),( rk1,rl1 ))
                       ]

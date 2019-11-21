@@ -2838,10 +2838,42 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
     
     // each x,y point denotes the upper left corner of a cell
     // with i,j we run through the cell
+    // for different initial conditions we will have oders of putting the cells
+    //this is quite extendable
+    vector<int> v_order_x;
+    vector<int> v_order_y;
     
-    for(int x = beginx ; x < endx ; x += step ){
-      for(int y = beginy ; y < endy ; y += step ){
-        //std::cerr << "Cell will be placed at: "<< x<<","<<y << '\n';
+    switch( par.init_cell_config ){
+      case 0: {
+        for(int x = beginx ; x < endx ; x += step ) v_order_x.push_back( x );
+        for(int y = beginy ; y < endy ; y += step ) v_order_y.push_back( y );
+        }
+        break;
+      case 1: {
+        for(int x = endx ; x > beginx ; x -= step ) v_order_x.push_back( x );
+        for(int y = beginy ; y < endy ; y += step ) v_order_y.push_back( y );
+        }
+        break;
+      case 2: {
+        for(int x = beginx ; x < endx ; x += step ) v_order_x.push_back( x );
+        for(int y = endy ; y > beginy ; y -= step ) v_order_y.push_back( y );
+        }
+        break;
+      case 3: {
+        for(int x = endx ; x > beginx ; x -= step ) v_order_x.push_back( x );
+        for(int y = endy ; y > beginy ; y -= step ) v_order_y.push_back( y );
+        }
+        break;
+      default:
+        std::cerr << "PlaceCellsOrderly(): Error. Got an unusable value for par.init_config" << '\n';
+        exit(1);
+    }
+    
+    for(auto x: v_order_x){
+      for(auto y: v_order_y){
+    // for(int x = beginx ; x < endx ; x += step ){
+    //   for(int y = beginy ; y < endy ; y += step ){
+        // std::cerr << "Cell will be placed at: "<< x<<","<<y << '\n';
         count++;
         int this_area=0;
         for(int i=0; i<sqrt(size_cells); i++){

@@ -130,6 +130,7 @@ class Parameter {
   
   bool season_experiment;
   int season_duration;
+  int init_cell_config;
   
   struct key_lock_pair{
     int tau;

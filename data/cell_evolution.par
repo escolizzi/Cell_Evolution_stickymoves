@@ -90,6 +90,9 @@ neighbours = 2
 #periodic_boundaries = true
 periodic_boundaries = false
 
+#Initial configuration of cells, see ca.cpp placecellsorderly()
+init_cell_config = 0
+
 # Evolution parameters
 #mutrate, typical length of key and lock is 10+10 -> 20*0.01=0.2 one mutation every 5 replications...
 #these days k+l=50 -> 50*0.01=0.5 (one mutation every two replications)

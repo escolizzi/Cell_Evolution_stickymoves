@@ -35,7 +35,8 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #include "parse.h"
 
 
-//parameter constructor - initialise default?
+//parameter constructor - initialise default
+// these are the values things takes when par file or command line does not specify them
 Parameter::Parameter() {
 
   T = 50.;
@@ -130,6 +131,7 @@ Parameter::Parameter() {
   zero_persistence_past_theline=false;
   season_experiment = true;
   season_duration = 100000;
+  init_cell_config = 0;
 }
 
 Parameter::~Parameter() {
@@ -188,6 +190,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -gradscale [FLOAT_NUMBER] slope of the gradient (in percent units)"<<endl;
   cerr<<" -chemmu [FLOAT_NUMBER] scaling factor for chemotaxis in the Hamiltonian"<<endl;
   cerr<<" -target_area [INT_NUMBER] that (initial) target area of cells"<<endl;
+  cerr<<" -init_cell_config [0-3] initial configuration of cells, see ca.cpp"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -371,6 +374,13 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       startmu = atof( argv[i] );
       cerr<<"New value for persmu: "<<startmu<<endl;
+    }else if( 0==strcmp(argv[i],"-init_cell_config") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in init_cell_config?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      init_cell_config = atoi( argv[i] );
+      cerr<<"New value for init_cell_config: "<<target_area<<endl;
     }else
       return 1;
   }
@@ -482,6 +492,7 @@ void Parameter::Read(const char *filename) {
   season_duration= igetpar(fp, "season_duration", 1, true);
   init_k_ext_0t = fgetpar(fp, "init_k_chem_0t", 0., true);
   init_k_ext_Pt = fgetpar(fp, "init_k_chem_Pt", 0., true);
+  init_cell_config = igetpar(fp, "init_cell_config", 0, true);
 }
 
 //creates a rule for lookup table, by setting values,
@@ -722,6 +733,7 @@ void Parameter::Write(ostream &os) const {
   os<< " season_duration = " << season_duration << endl;  
   os<< " init_k_ext_0t = " << init_k_ext_0t << endl;
   os<< " init_k_ext_Pt = " << init_k_ext_Pt << endl;
+  os<< " init_cell_config = "<< init_cell_config << endl;
 }
 
 ostream &operator<<(ostream &os, Parameter &p) {

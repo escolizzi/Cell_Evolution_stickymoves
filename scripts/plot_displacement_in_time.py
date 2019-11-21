@@ -39,6 +39,10 @@ else:
   figname=sys.argv[1]
   #tracknr=int(sys.argv[2])
 
+peakx = 500
+peaky = 0
+print "Calculating distance from peak at (row,col) = ", peakx,peaky
+
 filecounter=0
 for filename in sys.argv[2:]:
 
@@ -63,11 +67,14 @@ for filename in sys.argv[2:]:
     lxpos=[]
     lypos=[]
     c1_pos=[]
+    ldist=[]
+    av_dist=[]
+    min_dist=[]
     
     # read time in the first line
     output = subprocess.Popen(['head', '-1', filename], stdout=subprocess.PIPE).communicate()[0]
     time = int(output.split(' ')[0])
-            
+    ltime = [time]        
     with open(filename,"r") as fin:
         #read first line first to get the first time point (could probably more clever, but hey)
         for line in fin:
@@ -76,6 +83,7 @@ for filename in sys.argv[2:]:
             time = int(line[0])
             xpos = float(line[3])
             ypos = float(line[4])
+            dist = np.hypot( xpos-peakx,ypos-peaky )
             # print xpos,ypos
             #if time of this line different from time of previous line
             # we do aggreagate statistics
@@ -89,36 +97,53 @@ for filename in sys.argv[2:]:
                 min_ypos.append( min(lypos) )
                 lypos=[] 
                 
+                av_dist.append( np.mean(ldist) )
+                min_dist.append( min(ldist))
+                ldist=[]
+                
                 #print ltime[-1], min_xpos[-1],av_xpos[-1]
                 ltime.append(time)
               
             lxpos.append(xpos)
             lypos.append(ypos)
+            ldist.append(dist)
           
     printthis=0
+    
     #colouring and data handling
-    if 'CE_g-4' in filename: 
+    # if 'CE_g-4' in filename: 
+    #     index=0
+    #     printthis=1
+    # elif 'CE_g0' in filename: 
+    #     index=1
+    #     printthis=1
+    # elif 'CE_g4' in filename: 
+    #     index=2
+    #     printthis=1
+    # elif 'CE_g6' in filename: 
+    #     index=3
+    #     printthis=1
+    # else: 
+    #     index=4
+    #     printthis = 0 # zeeeeeroooooo
+    # 
+    if 'g6_1c_f1000' in filename: 
         index=0
         printthis=1
-    elif 'CE_g0' in filename: 
+    elif 'g6_50c_f1000' in filename:
         index=1
         printthis=1
-    elif 'CE_g4' in filename: 
-        index=2
-        printthis=1
-    elif 'CE_g6' in filename: 
-        index=3
-        printthis=1
-    else: 
-        index=4
-        printthis = 0 # zeeeeeroooooo
-        
-        
     # if 1:
     if printthis:
         #disregard last time point because algotirthm above exsits by then
-        ax0.plot( ltime[:-1],av_ypos, c= colours[index], lw=0.5  )
-        ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.25  )
+        
+        # ax0.plot( ltime[:-1],av_ypos, c= colours[index], lw=0.5  )
+        # ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.25  )
+        # 
+        ax0.plot( ltime[:-1],av_dist, c= colours[index], lw=0.5  )
+        ax1.plot( ltime[:-1],min_dist, c= colours[index], lw=0.25  )
+    
+    
     if not printthis:
         ax1.plot( ltime[:-1],min_ypos, c= colours[index], lw=0.25  )
         if not c1_pos:
