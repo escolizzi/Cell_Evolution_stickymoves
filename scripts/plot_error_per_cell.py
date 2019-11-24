@@ -37,23 +37,23 @@ fig, (ax,ax1) = plt.subplots(nrows=2)
 
 #fig, ax0 = plt.subplots()
 
-if len(sys.argv) <3:
-  print "This is the program 'plot_flowfield_fromCM.py'"
-  print "Usage: ./plot_flowfield_fromCM.py <figure name> <cell targetarea> <binsize [pix]> <filename> <filename> <filename> ..."
+if len(sys.argv) <5:
+  print "This is the program 'plot_error_....py'"
+  print "Usage: ./plot_error_....py <output figure name> <cell targetarea> <peak_row> <peak_col> <filename> <filename> <filename> ..."
   sys.exit(1)
 else:
   figname=sys.argv[1]
   cell_tarsize=float(sys.argv[2])
-  binsize=int(sys.argv[3])
-  
+  peak_row=int(sys.argv[3])
+  peak_col=int(sys.argv[4])
+
+# print "# WARNING: " 
+# print "Warning, distance uses only column, for linear gradient"
+# print "# WARNING: "
 macoldist=0
 filecounter=0
-
-
-field_size = 2*500
-
-
-for filename in sys.argv[4:]:
+l_tot_hist=[]
+for filename in sys.argv[5:]:
   rowpos=[]  #this is an empty list, evaulates to False
   colpos=[]  
   rowgrad=[]
@@ -122,12 +122,12 @@ for filename in sys.argv[4:]:
       
       # vector from cm to 250,0 is the perfect measurment of the gradient
       # the dot product of meansured gradient with the perfect direction is the quality of the measure
-      peak_row=250
-      peak_col=0
+      
       delta_rp=[peak_row-x for x in rp]
       delta_cp=[peak_col-x for x in cp]    #because minus zero
       
       dist_from_peak = np.hypot(delta_rp,delta_cp) #this is a vector
+      # dist_from_peak = delta_cp #this is a vector
       # print dist_from_peak
       # sys.exit(1)
       # my_check = np.mean( np.hypot(rowgrad,colgrad) ) #this was just to check that hypot of grad vector is 1 - it is!
@@ -156,7 +156,7 @@ for filename in sys.argv[4:]:
       av_col_chemvec=0.
       howmany_contact=0
       
-      if True:
+      if False:
       # for period in range(period_lookingback+1): 
           # print "period :", period
           period=0
@@ -209,10 +209,11 @@ for filename in sys.argv[4:]:
   # print "Avrg. quality of measure =", np.mean([np.mean(x) for x in l_correct_grad])
   # sys.exit(1)
   
+  howmany_bins = 100
   #histogram of correctness of chemvec, for one cell over time
-  hist1, bin_edges1 = np.histogram([[correctness[0] for correctness in l_correct_grad]], bins =250, density=True) 
+  hist1, bin_edges1 = np.histogram([[correctness[0] for correctness in l_correct_grad]], bins =howmany_bins, density=True) 
   #histogram of all measures of all cells at one time point
-  hist3, bin_edges3 = np.histogram([x for subs in l_correct_grad for x in subs] ,bins =250, density=True) 
+  hist3, bin_edges3 = np.histogram([x for subs in l_correct_grad for x in subs] ,bins =howmany_bins, density=True) 
   ax.plot(bin_edges1[:-1], hist1,label="One cell, all times")
   ax.plot(bin_edges3[:-1], hist3,label="All cell, all times")
   
@@ -221,8 +222,14 @@ for filename in sys.argv[4:]:
   # ax1.plot(bin_edges2[:-1], hist2,label='<chem vec row>')
   # ax1.plot(bin_edges4[:-1], hist4,label='<chem vec col>')
   
-  hist5, bin_edges5 = np.histogram( [x for y in l_av_accuracy for x in y] , bins =250, density=True) 
-  ax1.plot(bin_edges5[:-1], hist5,label='<accuracy angle>')
+  bin_edges = np.linspace(0. , 2.*np.pi, howmany_bins)
+  hist5, bin_edges5 = np.histogram( [x for y in l_av_accuracy for x in y] , bins =bin_edges, density=True) 
+  print "howmany_bins=",howmany_bins,"len bins is ", len(bin_edges5)
+  if len(l_tot_hist) !=0:
+      l_tot_hist = [x+y for x,y in zip (l_tot_hist,hist5)]
+  else: 
+      l_tot_hist = hist5
+  # ax1.plot(bin_edges5[:-1], hist5,label='<accuracy angle>')
   
   # ax1.plot([0,0],[0,2])
   
@@ -245,15 +252,23 @@ for filename in sys.argv[4:]:
   # ax.plot([0, len(l_correct_grad) ], 2*[np.mean([np.mean(x) for x in l_correct_grad])])
   # 
   
-  # fig.savefig(figname)
-  ax.set_xticks([0, np.pi/2, np.pi, 3*np.pi/2., 2*np.pi])
-  ax.set_xticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3\pi}{2}$', r'$2\pi$'])
-  ax.legend()
-  ax1.legend()
-  plt.show()
+# fig.savefig(figname)
+ax.set_xticks([0, np.pi/2, np.pi, 3*np.pi/2., 2*np.pi])
+ax.set_xticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3\pi}{2}$', r'$2\pi$'])
+ax.set_ylim([0,0.2])
+ax.legend()
+
+print bin_edges5[:-1]
+print l_tot_hist
+ax1.plot(bin_edges5[:-1], [x/float(len(sys.argv[5:])) for x in l_tot_hist],label='<accuracy angle>')
+ax1.set_xticks([0, np.pi/2, np.pi, 3*np.pi/2., 2*np.pi])
+ax1.set_xticklabels(['$0$', r'$\frac{\pi}{2}$', r'$\pi$', r'$\frac{3\pi}{2}$', r'$2\pi$'])
+ax1.legend()
+fig.savefig(figname)
+plt.show()
   
-  # print np.mean(rowgrad_cm),np.mean(colgrad_cm)
-  sys.exit(1)
+# print np.mean(rowgrad_cm),np.mean(colgrad_cm)
+sys.exit(1)
   
   
   

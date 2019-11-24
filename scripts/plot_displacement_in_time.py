@@ -133,6 +133,9 @@ for filename in sys.argv[2:]:
     elif 'g6_50c_f1000' in filename:
         index=1
         printthis=1
+    else:
+        index=-1
+        printthis=1
     # if 1:
     if printthis:
         #disregard last time point because algotirthm above exsits by then

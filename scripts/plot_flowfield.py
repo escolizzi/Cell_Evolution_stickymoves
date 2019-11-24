@@ -116,7 +116,7 @@ for filename in sys.argv[4:]:
   maxint=len(colpos)
   nrcells=len(colpos[0])
   print "maxint=",maxint
-  deltapos = 5 # when we do x_later - x_now, delta says how many positions back we look
+  deltapos = 1 # when we do x_later - x_now, delta says how many positions back we look
   for i in range(500,maxint,100): #skip first time steps, not to include initial conditions and also so that i>deltapos
     if i*50<deltapos: continue
     count=0

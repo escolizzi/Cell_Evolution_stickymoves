@@ -147,9 +147,10 @@ for filename in sys.argv[3:]:
   poly1d_fn = np.poly1d(m_and_b) # CAREFUL HERE: poly1d_fn is now a function which takes in x and returns an estimate for y
   print "filename: ", filename, "m,b:", m_and_b
   ax0.plot(timepoints,MSD)
-  ax1.plot(log_t,log_MSD, 'yo', log_t, poly1d_fn(log_t), '--k')
+  ax1.plot(log_t,log_MSD, 'yo', markersize=0.5) 
+  ax1.plot(log_t, poly1d_fn(log_t), '--k')
   
-  # ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=100)
+  ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=100)
   
   #ax0.set_yscale('log')
 
@@ -177,9 +178,9 @@ ax0.set_xlabel('time (MCS)')
 ax0.set_ylabel('MSD (pix^2)')
 ax0.set_title('Mean squared displacement')
 
-ax1.set_xlabel('x position')
-ax1.set_ylabel('y position')
-ax1.set_title('Re-centered cell tracks')
+ax1.set_xlabel('log(time)')
+ax1.set_ylabel('log(MSD)')
+ax1.set_title('log-log-plot(MSD/time)')
 
 fig.savefig(figname, bbox_inches='tight')
 #plt.show()
