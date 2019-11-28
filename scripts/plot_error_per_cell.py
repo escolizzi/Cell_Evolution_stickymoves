@@ -156,7 +156,7 @@ for filename in sys.argv[5:]:
       av_col_chemvec=0.
       howmany_contact=0
       
-      if False:
+      if True:
       # for period in range(period_lookingback+1): 
           # print "period :", period
           period=0
@@ -191,7 +191,6 @@ for filename in sys.argv[5:]:
                   accuracy = (math.atan2(delta_cp, delta_rp) - math.atan2(cg1,rg1))%(2*np.pi)
                   av_accuracy += accuracy
                 
-              
               av_row_chemvec/=float(howmany_contact)
               av_col_chemvec/=float(howmany_contact)
               l_av_row_chemvec_thistime[j] += av_row_chemvec

@@ -116,7 +116,7 @@ for filename in sys.argv[4:]:
   maxint=len(colpos)
   nrcells=len(colpos[0])
   print "maxint=",maxint
-  deltapos = 1 # when we do x_later - x_now, delta says how many positions back we look
+  deltapos = 5 # when we do x_later - x_now, delta says how many positions back we look
   for i in range(500,maxint,100): #skip first time steps, not to include initial conditions and also so that i>deltapos
     if i*50<deltapos: continue
     count=0
@@ -239,7 +239,8 @@ ax.set_title('deltapos ='+str(deltapos))
 a = ax.get_xticks().tolist()
 ax.set_xticklabels([int(x) -50 for x in a], ha="left")
 
-plt.show()
+fig.savefig(figname)
+# plt.show()
 sys.exit(1)
   
   
