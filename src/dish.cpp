@@ -655,14 +655,15 @@ void Dish::Plot(Graphics *g, int colour) {
     //std::cerr << "miny,maxy " << miny <<" "<< maxy<< '\n';
     
     // return;
+    // DO NOT DRAW THE LINE - it's ugly and you should add grad isoclines later in Python
     // Draw the_line, but only if it's inside the field
-    for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
-      if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders, or beyond them
-      int dx = peakx - i;
-      int dy = peaky - j;
-      double dist = hypot(dx,dy);
-      if(par.the_line - 0.5 < dist && dist < par.the_line+0.5) g->Point(1,2*i,2*j);
-    }
+    // for(int i=minx-1; i<=maxx+1;++i) for(int j=miny-1; j<=maxy+1;++j){
+    //   if(i>=par.sizex -1 || i<=1 || j>=par.sizey-1 || j<=1) continue; //don't draw on the borders, or beyond them
+    //   int dx = peakx - i;
+    //   int dy = peaky - j;
+    //   double dist = hypot(dx,dy);
+    //   if(par.the_line - 0.5 < dist && dist < par.the_line+0.5) g->Point(1,2*i,2*j);
+    // }
 
  }
 
