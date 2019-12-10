@@ -167,6 +167,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<"Usage is: "<<endl;
   cerr<<"./cell_evolution path/to/data [optional arguments]"<<endl;
   cerr<<"Arguments: "<<endl;
+  cerr<<" -name path/to/name_for_all_output # gives a name to all output, alternative to -datafile -datadir -backupdir" <<endl;
   cerr<<" -datafile path/to/datafile # output file" <<endl;
   cerr<<" -datadir path/to/datadir # output movie dir"<<endl;
   cerr<<" -backupdir path/to/backupdir # output backup dir"<<endl;
@@ -188,6 +189,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -season [INT_NUMBER] # season duration"<<endl;
   cerr<<" -foodinflux [FLOAT_NUMBER] # howmuchfood"<<endl;
   cerr<<" -gradscale [FLOAT_NUMBER] slope of the gradient (in percent units)"<<endl;
+  cerr<<" -gradnoise [FLOAT_NUMBER] chances that any grid point has gradient, rather than being empty"<<endl;
   cerr<<" -chemmu [FLOAT_NUMBER] scaling factor for chemotaxis in the Hamiltonian"<<endl;
   cerr<<" -target_area [INT_NUMBER] that (initial) target area of cells"<<endl;
   cerr<<" -init_cell_config [0-3] initial configuration of cells, see ca.cpp"<<endl;
@@ -381,6 +383,61 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       init_cell_config = atoi( argv[i] );
       cerr<<"New value for init_cell_config: "<<init_cell_config<<endl;
+    }else if( 0==strcmp(argv[i],"-gradnoise") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in gradnoise?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      gradnoise = atof( argv[i] );
+      cerr<<"New value for gradnoise: "<<gradnoise<<endl;
+    }else if( 0==strcmp( argv[i],"-name") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in name?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      // I'm just going to work in c++ strings - a lot easier
+      free(datafile);
+      free(datadir);
+      free(backupdir);
+      
+      string maybepath_and_name(argv[i]);
+      size_t botDirPos = maybepath_and_name.find_last_of("/");
+      string dir(""); 
+      string name;
+      if(botDirPos != std::string::npos){
+        // then there is a character '/' in name, which means that 
+        // we are going to save data in some path, hence
+        // we have to split where this is happening
+        dir = maybepath_and_name.substr(0, botDirPos+1);
+        name = maybepath_and_name.substr(botDirPos+1, maybepath_and_name.length());
+      }else{
+        name = maybepath_and_name;
+      }
+      
+      string name_outfile = dir; //will this contain the last '/''
+      name_outfile.append("data_");
+      name_outfile.append(name);
+      name_outfile.append(".txt");
+      
+      string name_moviedir = dir;
+      name_moviedir.append("movie_");
+      name_moviedir.append(name);
+      
+      string name_backupdir = dir;
+      name_backupdir.append("backup_");
+      name_backupdir.append(name);
+      
+      std::cerr << "New value for output filename: "<< name_outfile<< '\n';
+      std::cerr << "New value for name_moviedir: "<< name_moviedir<< '\n';
+      std::cerr << "New value for name_backupdir: "<< name_backupdir<< '\n';
+      
+      datafile = (char *)malloc( 50+strlen(argv[i])*sizeof(char) ); //strlen(argv[i]) is ok because argv[i] is null terminated
+      datadir = (char *)malloc( 50+strlen(argv[i])*sizeof(char) ); 
+      backupdir = (char *)malloc( 50+strlen(argv[i])*sizeof(char) );
+      datafile = strdup(name_outfile.c_str()); 
+      datadir = strdup(name_moviedir.c_str());
+      backupdir = strdup(name_backupdir.c_str());
+      // this took a while to code :P
     }else
       return 1;
   }
