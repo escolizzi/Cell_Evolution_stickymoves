@@ -2825,11 +2825,13 @@ int CellularPotts::PlaceCellsOrderly(int n_cells,int size_cells)
     
     // int begin = (smaller_dimension-  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
     // int end = (smaller_dimension +  sqrt(n_cells)*(sqrt(size_cells) + a_little_bit))/2;
+    int offset_y = 0;//par.sizey/3; //to start sims a bit off the center, so that they can move for longer
+    if(offset_y != 0) std::cerr << "\nPlaceCellsOrderly(): Warning. Blob initialised with offset_y = " << offset_y<< "\n\n";
     
     int beginx = (par.sizex -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
     int endx =   (par.sizex +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
-    int beginy = (par.sizey -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
-    int endy =   (par.sizey +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
+    int beginy = offset_y + (par.sizey -  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
+    int endy = offset_y + (par.sizey +  sqrt_n_cells*(sqrt(size_cells) + a_little_bit))/2;
     
     
     int step = ( sqrt(size_cells) + a_little_bit );

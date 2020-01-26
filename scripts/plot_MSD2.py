@@ -4,7 +4,7 @@
 Plot the MSD over time for one or more simulations.
 Plot some selected cell tracks, centered at 0,0
 '''
-
+import scipy
 import sys,math,os,subprocess,random
 #from PIL import Image
 import matplotlib as mpl
@@ -81,26 +81,39 @@ for filename in sys.argv[3:]:
   
   #I should eliminate the initial data, because it is initial condition
   toremove=len(timepoints)/4
+  step=5
   xpos = xpos[toremove:]
+  xpos = xpos[::step]
   ypos = ypos[toremove:]
+  ypos = ypos[::step]
   timepoints=timepoints[: -toremove ] #this has to be like this because timepoints is also used as x axis
+  timepoints=timepoints[::step]
   
   print "Done reading, now calculating MSD"
   ##calculate MSD and standard error
-  maxint=len(xpos)
+  maxint=len(xpos) 
   nrcells=len(xpos[0])
-  print maxint
+  print "maxint",maxint
   for i in range(maxint):
     count=0
     count2=0
     MSD.append(0.0)
     sd=0.0
     xn=[]
-    while (count+i<maxint):
+    while( i+count < maxint):
       
       for c in range(nrcells):  #problem when cells die...
         if xpos[count+i][c]>-1:
+          # try:
           xn.append((xpos[count+i][c]-xpos[count][c])*(xpos[count+i][c]-xpos[count][c])+(ypos[count+i][c]-ypos[count][c])*(ypos[count+i][c]-ypos[count][c]))
+          # except:
+          #   print c
+          #   print count+i
+          #   print xpos[count][c]
+          #   print xpos[count+i][c]
+          #   # print 
+          #   print "This is an error"
+          #   sys.exit(1)
           MSD[-1]+=xn[-1]
           count2+=1
         else:
@@ -128,8 +141,8 @@ for filename in sys.argv[3:]:
 
   ##start plotting##
 
-  print "timepoints: ", timepoints
-  print "MSD:", MSD
+  #print "timepoints: ", timepoints
+  #print "MSD:", MSD
   
   # ax0.set_xscale('log')
   # ax0.set_yscale('log')
@@ -147,8 +160,8 @@ for filename in sys.argv[3:]:
   poly1d_fn = np.poly1d(m_and_b) # CAREFUL HERE: poly1d_fn is now a function which takes in x and returns an estimate for y
   print "filename: ", filename, "m,b:", m_and_b
   ax0.plot(timepoints,MSD)
-  ax1.plot(log_t,log_MSD, 'yo', markersize=0.5) 
-  ax1.plot(log_t, poly1d_fn(log_t), '--k')
+  ax1.plot(log_t,log_MSD, 'o',c=colours[filecounter], markersize=0.5) 
+  ax1.plot(log_t, poly1d_fn(log_t), '--',c=colours[filecounter])
   
   ax0.errorbar(timepoints,MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=100)
   

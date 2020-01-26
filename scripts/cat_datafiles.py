@@ -11,6 +11,12 @@ import sys,math,os,subprocess,random
 #from PIL import Image
 import numpy as np
 
+if len(sys.argv) < 3:
+  print "cat_datafiles.py. Properly concatenates lines of data_cellevol.txt files"
+  print "Usage: ./cat_datafiles.py <outputfile name> <file1> <file2> ..."
+  sys.exit(1)
+  
+
 outputfile=open(sys.argv[1],"w")
 
 lastpoint=99999999

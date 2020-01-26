@@ -105,7 +105,8 @@ for filename in sys.argv[5:]:
       colpos[-1].append(float(line[4]))
       rowgrad[-1].append(float(line[7]))
       colgrad[-1].append(float(line[8]))
-      
+         
+  print "Done reading", filename
   # Center of mass
   # row_cm = [np.mean(rows) for rows in rowpos]
   # col_cm = [np.mean(cols) for cols in colpos]
@@ -236,7 +237,8 @@ for filename in sys.argv[5:]:
               av_col_chemvec+=cg1
               howmany_contact+=1
               
-              
+              sum_row_pushchem=0.
+              sum_col_pushchem=0.
               for r2,c2,rg2,cg2 in zip(rowpos[i-period],colpos[i-period],rowgrad[i-period],colgrad[i-period]):
                   if np.hypot(r1-r2,c1-c2) > contact_distance: continue
                   if r1==r2 and c1==c2: continue
@@ -254,18 +256,22 @@ for filename in sys.argv[5:]:
                   # accuracy = (math.atan2(delta_cp, delta_rp) - math.atan2(cg1,rg1))%(2*np.pi)
                   # av_accuracy += accuracy
                   
-                  #make vector between pos1 and pos2
+                  #make vector (pos2,pos1) in this order.  
+                  # p1       p2
+                  # . <----- .
+                  #         / chem vector
+                  #       |/_
+                  #
                   d_dist=np.hypot(r2-r1,c2-c1)
                   dr=(r2-r1)/d_dist
                   dc=(c2-c1)/d_dist
-                  print
-                  print
-                  print "Finish this: the correct dot product between chem vector and cell distances"
-                  print
-                  print
-                  sys.exit(1)
+                  dotp = dr*rg2 + dc*cg2  #dot product between chem vector and direction vector between two cells
+                  dr *=dotp
+                  dc *=dotp
+                  sum_row_pushchem += dr
+                  sum_col_pushchem += dc
                   
-                
+                  
               l_sum_row_chemvec_thistime[j] += av_row_chemvec    # the sum of the vectors
               l_sum_col_chemvec_thistime[j] += av_col_chemvec
               av_row_chemvec/=float(howmany_contact)            # the average

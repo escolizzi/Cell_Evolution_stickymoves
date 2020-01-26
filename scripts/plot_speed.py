@@ -91,7 +91,7 @@ for filename in sys.argv[3:]:
   totav=0.
   cellstdev=[0.0]*nrcells
   
-  b_centerofmass = True
+  b_centerofmass = False
   lcmx = []
   lcmy = []
   lcmspeed =[]
@@ -194,7 +194,7 @@ ax0.set_xlabel('time (MCS)')
 ax0.set_ylabel('average cell speed (pix/MCS)')
 ax0.set_title('Average speed through simulation')
 if not b_centerofmass:
-    ax0.set_xlim(0., 20000.)
+    ax0.set_xlim(0., 5000.)
 
 ax1.set_xlabel('lag (MCS)')
 ax1.set_ylabel('autocorrelation')

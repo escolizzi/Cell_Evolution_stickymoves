@@ -33,18 +33,20 @@ fig, (ax0, ax1) = plt.subplots(ncols=2,sharey=True)
 
 if len(sys.argv) <3:
   print "This is the program 'plot_diplacement_in_time'"
-  print "Usage: ./plot_speed.py <figure name> filename"
+  print "Usage: ./plot_displ.....py <figure name> <peak_row> <peak_col> <filename1> ..."
   sys.exit(1)
 else:
   figname=sys.argv[1]
+  peakx=int(sys.argv[2])
+  peaky=int(sys.argv[3])
   #tracknr=int(sys.argv[2])
 
-peakx = 500
-peaky = 0
+# peakx = 500
+# peaky = 0
 print "Calculating distance from peak at (row,col) = ", peakx,peaky
 
 filecounter=0
-for filename in sys.argv[2:]:
+for bla,filename in enumerate(sys.argv[4:]):
 
     print "reading file ",filename
     # timepoints=[]
@@ -127,15 +129,20 @@ for filename in sys.argv[2:]:
     #     index=4
     #     printthis = 0 # zeeeeeroooooo
     # 
-    if 'g6_1c_f1000' in filename: 
-        index=0
-        printthis=1
-    elif 'g6_50c_f1000' in filename:
-        index=1
-        printthis=1
-    else:
-        index=-1
-        printthis=1
+    
+    
+    # if 'g6_1c_f1000' in filename: 
+    #     index=0
+    #     printthis=1
+    # elif 'g6_50c_f1000' in filename:
+    #     index=1
+    #     printthis=1
+    # else:
+    #     index=-1
+    #     printthis=1
+    index=bla%len(colours)
+    printthis=1
+    
     # if 1:
     if printthis:
         #disregard last time point because algotirthm above exsits by then
