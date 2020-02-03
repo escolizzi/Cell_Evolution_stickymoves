@@ -109,12 +109,12 @@ for filename in sys.argv[2:]:
   
   # ax0.hist(avspeed)
   howmany_bins = 50
-  bin_edges = np.linspace(0. , 0.25, howmany_bins)
+  bin_edges = np.linspace(0. , 0.20, howmany_bins)
   hist, bin_edges = np.histogram( avspeed, bins=bin_edges, density=True) #average speed hist
   ax0.plot(bin_edges[:-1],hist)
   # ax0.fill_between(timepoints[burn:burn+howmany-1],[ x-y for x,y in zip(avspeed,stdevspeed)],[ x+y for x,y in zip(avspeed,stdevspeed)], alpha=0.5)
-  howmany_bins = 50
-  bin_edges = np.linspace(0. , 0.25, howmany_bins)
+  howmany_bins = 26
+  bin_edges = np.linspace(0. , 0.26, howmany_bins)
   hist2, bin_edges2 = np.histogram( [s[5] for s in speed] , bins=bin_edges, density=True) #indiv cells hist
   ax1.plot(bin_edges2[:-1],hist2)
   # ax1.plot(timepoints[burn:burn+howmany-1], [s[5] for s in speed],lw=0.5)

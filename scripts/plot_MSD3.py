@@ -108,7 +108,7 @@ for filename in sys.argv[3:]:
   count_toremove_fromtimepoints=0
   #we exclude the first time point because it is zero which would give a timeinterval and step size of zero
   # we axclude later time points, where we do not have much data (much is at least 5...not so much)
-  max_interval=timepoints[-1]/(5*timeresolution)
+  max_interval=timepoints[-1]/int(timeresolution)
   min_interval=50/timeresolution    #50 is how often we change persistence
                                     # THIS HAS TO BE AT LEAST 1
   all_sd=[]
@@ -120,7 +120,7 @@ for filename in sys.argv[3:]:
       count2=0  #just a counter in case some cells have died
       stepsize=timeinterval/timeresolution
       #we use i to iterate over xpos indexes
-      for i in range( 0,len_xpos, stepsize ):
+      for i in range( 0,len_xpos, stepsize/2 ):
           for c in range(nrcells):
               try:
                   a=xpos[i+stepsize][c]
@@ -141,13 +141,14 @@ for filename in sys.argv[3:]:
       
       for el in xn:
         sd+=(el-MSD[-1])**2.
-      SDEV.append(math.sqrt(sd/float(count2)))
+      SDEV.append( math.sqrt(sd/float(count2)) )   # if divided by sqrt(count2) -> std error of the mean, else stdev
   
   ax0.plot(timepoints[min_interval:max_interval],MSD,'o',c=colours[filecounter], markersize=0.5)
   ax0.errorbar(timepoints[min_interval:max_interval],MSD, yerr=SDEV, fmt='', c=colours[filecounter],errorevery=500)
   # print all_sd[::500],timepoints[min_interval:max_interval:500]
   # ax0.boxplot(all_sd[filecounter*250::500], positions=timepoints[min_interval+filecounter*250:max_interval:500], widths=500,showfliers=False)
-  
+  print "Error bars standard error of the mean = standard dev / sqrt(how many data points) "
+  print "howmany data points = ", len(xpos[0])
   log_t=timepoints[min_interval:max_interval]
   log_MSD=MSD[:]
   if log_t[0]==0:
@@ -156,8 +157,11 @@ for filename in sys.argv[3:]:
   
   log_t = [np.log(x) for x in log_t]
   log_MSD = [np.log(x) for x in log_MSD]
+  
   #PLOTS LOG LOG DATA
-  ax1.plot(log_t,log_MSD, 'o',c=colours[filecounter], markersize=0.5) 
+  print "Uncomment this if you want scatter plot of loglog data"
+  # ax1.plot(log_t,log_MSD, 'o',c=colours[filecounter], markersize=0.5) 
+  
   
   #Plot normal, but in log log scale
   # ax1.plot(timepoints[min_interval:max_interval],MSD,'o',c=colours[filecounter], markersize=0.5)
@@ -188,15 +192,22 @@ for filename in sys.argv[3:]:
       # ltime=timepoints[min_interval:max_interval]
       # tck1=interpolate.splrep(ltime, MSD, s=0.0)
       # ynew1 = interpolate.splev(ltime, tck1, der=0)
-      yhat = savgol_filter(log_MSD, 11, 2) # window size 51, polynomial order 3
-      
-      tck2=interpolate.splrep(log_t, yhat, s=1.0)
-      xnew = np.arange(4,10,0.05)
+      yhat = savgol_filter(log_MSD, 5, 3) # window size, polynomial order
+      # tck2=interpolate.splrep(log_t, yhat, s=1.0)
+      tck2=interpolate.splrep(log_t, yhat, s=0.)
+      # xnew = np.arange(4,10,0.05)
+      xnew = np.arange(log_t[0],log_t[-1],0.05)
       ynew2 = interpolate.splev(xnew, tck2, der=0)
-      yhat = savgol_filter(ynew2, 101, 2) # window size 51, polynomial order 3
+      # ax1.plot(xnew,ynew2)
+      
+      yhat = savgol_filter(ynew2, 21, 2) # window size 51, polynomial order 3
       print "Hello"
-      tck2=interpolate.splrep(xnew, yhat, s=1.0)
-      xnew = np.arange(4,10,0.1)
+      tck2=interpolate.splrep(xnew, yhat, s=0.1)
+      # xnew = np.arange(4,10,0.1)
+      ynew2 = interpolate.splev(xnew, tck2, der=0)
+      # ax1.plot(xnew,ynew2)
+      
+      xnew = np.arange(log_t[0],log_t[-1],0.05)
       ynew2 = interpolate.splev(xnew, tck2, der=1)
       
       
@@ -256,19 +267,24 @@ for filename in sys.argv[3:]:
       print "Watning, more files than colours"
 
 #No interpolation - just a 45 degree line to see what grows faster than 1
-ax1.plot( [log_t[0], log_t[-1] ] , [log_MSD[0]-log_t[0]+log_t[0], log_MSD[0]-log_t[0]+log_t[-1] ] )
-ax1.plot( [log_t[0], log_t[-1] ] , [log_MSD[0]-log_t[0]+log_t[0], log_MSD[0]-log_t[0]+2.*log_t[-1] ] )
-ax1.plot( [log_t[0], log_t[-1] ] , [1,1 ] )
-ax1.plot( [log_t[0], log_t[-1] ] , [2,2 ] )
+# ax1.plot( [log_t[0], log_t[-1] ] , [log_MSD[0]-log_t[0]+log_t[0], log_MSD[0]-log_t[0]+log_t[-1] ] )
+# ax1.plot( [log_t[0], log_t[-1] ] , [log_MSD[0]-log_t[0]+log_t[0], log_MSD[0]-log_t[0]+2.*log_t[-1] ] )
+ax1.plot( [log_t[0], log_t[-1] ] , [1,1 ], 'k--' )
+# ax1.plot( [log_t[0], log_t[-1] ] , [2,2 ] )
 
-ax0.set_xlabel('time (MCS)')
+ax0.set_xlabel('time interval (MCS)')
 ax0.set_ylabel('MSD (pix^2)')
 ax0.set_title('Mean squared displacement')
-# ax0.set_aspect('equal')
-ax1.set_xlabel('log(time)')
-ax1.set_ylabel('log(MSD)')
-ax1.set_title('log-log-plot(MSD/time)')
+ax0.set_aspect('equal')
+ax1.set_xlabel('log(time interval)')
+ax1.set_ylabel('Derivative of log-log transformed (MSD/$\Delta t$)')
+ax1.set_title('Diffusive exponent')
 ax1.legend()
 ax1.set_aspect('equal')
+ax1.set_xticks([np.log(100), np.log(1000), np.log(10000)])
+ax1.set_xticklabels(['100', '1000', '10000'])
+ax1.set_ylim([0,2.5])
+ax1.set_yticks([0,1,2])
+ax1.set_yticklabels(['0', '1', '2'])
 fig.savefig(figname, bbox_inches='tight')
 plt.show()
