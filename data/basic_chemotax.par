@@ -173,7 +173,7 @@ subfield = 1.0
 relaxation = 0
 
 # output
-storage_stride = 50
+storage_stride = 5
 graphics = false
 store = true
 datadir = data_film2

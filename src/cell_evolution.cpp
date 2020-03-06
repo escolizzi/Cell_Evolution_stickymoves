@@ -244,7 +244,7 @@ TIMESTEP {
             std::cerr << "End of season: there are "<< dish->CountCells() <<" cells" << '\n';
             dish->ReproduceEndOfSeason();
             std::cerr << "After reproduction there are "<< dish->CountCells() <<" cells" << '\n';
-            dish->RemoveCellsUntilPopIs(par.popsize);
+            //dish->RemoveCellsUntilPopIs(par.popsize);
             std::cerr << "After remove there are "<< dish->CountCells() <<" cells" << '\n';
 
             dish->Food->IncreaseVal(*(dish->Food)); //this has to be last thing to do here
