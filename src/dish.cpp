@@ -1377,6 +1377,34 @@ double Dish::FitnessFunction(int particles, double meanx, double meany)
   return fitness_food*fitness_distance;
   
 }
+//for linear gradient, linear fitness evaluation
+double Dish::FitnessFunction2(int particles, double meanx, double meany)
+{
+  double dist;
+  
+  //get info where the peak is
+  int peakx = Food->GetPeakx();
+  int peaky = Food->GetPeaky();
+  
+  //don't forget that x stands for rows and y for columns
+  if( peakx == 1 ) dist = meanx-1; //and peaky== sizey/2
+  else if( peakx == par.sizex-1 ) dist = par.sizex-1 - meanx;
+  else if(peaky == 1) dist = meany-1;
+  else if( peaky == par.sizey-1 ) dist = par.sizey-1 - meany;
+  else{
+    cerr<<"FitnessFunction2(): Error. Weird!"<<endl;
+    exit(1);
+  }
+  // cerr<<"peak x,y = "<<peakx <<" "<<peaky<<", mean x,y = " << meanx<<" "<<meany<<", distance = "<< dist<<endl;
+  
+  double epsilon = 0.05;
+  double h_food = 10;
+  double h_dist = par.the_line;
+  
+  double fitness_food = ( particles + epsilon*h_food/(1.-2.*epsilon)  )/(particles + h_food/(1.-2.*epsilon)); //looks weird, it's not (if you plot it)
+  double fitness_distance = 1. / ( 1. + pow( dist/h_dist , 2.) );
+  return fitness_food*fitness_distance;  
+}
 
 //Based on ReproduceWhoMadeIt3, this reproduces all cells, 
 // with fitness dependent on food and distance from target
@@ -1389,15 +1417,34 @@ void Dish::ReproduceEndOfSeason(void)
   std::vector<double> fitness(cell.size(), 0.); //as many as there are cells (dead or alive), all with value 0.
   double tot_fitness = 0.;
   
-  for(auto &c : cell){
-    if(c.AliveP() && c.Sigma()>0){
-      double cell_fitness = FitnessFunction( c.particles, c.getXpos(), c.getYpos());
-      fitness[ c.Sigma() ] = cell_fitness;
-      tot_fitness += cell_fitness;
-      
-      c.mu = 0.;  //also the other mu? yes-
-      c.chemmu = 0.;
+  //this is to save some time :(
+  if(strcmp(par.food_influx_location,"specified_experiment") == 0){
+    for(auto &c : cell){
+      if(c.AliveP() && c.Sigma()>0){
+        double cell_fitness = FitnessFunction( c.particles, c.getXpos(), c.getYpos());
+        fitness[ c.Sigma() ] = cell_fitness;
+        tot_fitness += cell_fitness;
+        
+        c.mu = 0.;  //also the other mu? yes-
+        c.chemmu = 0.;
+      }
     }
+  }
+  else if(strcmp(par.food_influx_location,"boundarygradient_withswitch") == 0){
+    for(auto &c : cell){
+      if(c.AliveP() && c.Sigma()>0){
+        double cell_fitness = FitnessFunction2( c.particles, c.getXpos(), c.getYpos());
+        fitness[ c.Sigma() ] = cell_fitness;
+        tot_fitness += cell_fitness;
+        
+        c.mu = 0.;  //also the other mu? yes-
+        c.chemmu = 0.;
+      }
+    }  
+  }
+  else{
+    cerr<<"Error: You shouldn't be here, no evolution if you can't switch gradient"<<endl;
+    exit(1);
   }
   // std::cerr << "tot fitness: "<<tot_fitness << '\n';
   //for(auto &f:fitness) f/=tot_fitness;  <- what the hell?

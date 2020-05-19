@@ -117,6 +117,7 @@ public:
   int CheckWhoMadeitRadial(void);
   
   double FitnessFunction(int particles, double meanx, double meany);
+  double FitnessFunction2(int particles, double meanx, double meany);
   void ReproduceEndOfSeason(void);
   void RemoveCellsUntilPopIs(int popsize);
   
