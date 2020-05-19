@@ -314,6 +314,12 @@ void IntPlane::InitIncreaseVal(CellularPotts *cpm) {
     //     exit(1);
     ;
   }
+  else if(strcmp(par.food_influx_location,"boundarygradient_withswitch") == 0){
+    cerr<<"Hello, got food influx location: "<<par.food_influx_location<<endl;
+    IncreaseVal = std::bind(&IntPlane::IncreaseValBoundaryGradWithwSwitch, this, cpm);
+    //     exit(1);
+    ;
+  }
   else{
     cerr<<"INIT: Error. Got unidentified food influx location: "<<par.food_influx_location<<endl;
     exit(1);
@@ -658,9 +664,76 @@ void IntPlane::IncreaseValBoundaryGrad(CellularPotts *cpm)
     pfood_j = par.gradnoise;
     if(RANDOM() < pfood_j)  sigma[i][j]=maxfood;
   }
-
-
 }
+
+//a gradient emanating from one of the boundaries, with random switching of peak
+void IntPlane::IncreaseValBoundaryGradWithwSwitch(CellularPotts *cpm)
+{
+  int maxfood;
+  double pfood_j, dfood, dist_from_peak;
+  char peakdir; //North,South,East,West
+  
+  if(!par.evolsim){
+    peakx=sizex/2;
+    peaky=1;
+    peakdir = 'E';
+  }
+  else{
+    static int gradient_dir=-1;
+    // else we re-set the gradient to a random direction
+    int rn = (int)(4.*RANDOM());
+    while(rn == gradient_dir) rn = (int)(4.*RANDOM());
+    gradient_dir=rn;
+
+    switch (gradient_dir) {
+      case 0 : peakx = sizex/2;
+               peaky = 1;
+               peakdir = 'E';
+               break;
+      case 1 : peakx = sizex/2;
+               peaky = sizey-1;
+               peakdir = 'W';
+               break;
+      case 2 : peakx = 1;
+               peaky = sizey/2;
+               peakdir = 'N';
+               break;
+      case 3 : peakx = sizex-1;
+               peaky = sizey/2;
+               peakdir = 'S';
+               break;
+      default: peakx = sizex/2;
+               peaky = sizey/2;
+               peakdir = '\0';
+               cerr<<"IncreaseValBoundaryGradWithwSwitch(): Error. How could you possibly get an error here?"<<endl;
+               exit(1);
+               break;
+    }
+  }
+
+  for(int i=1;i<sizex-1;i++)for(int j=1;j<sizey-1;j++){
+    sigma[i][j]=0;
+    switch (peakdir){
+      case 'E': dist_from_peak = j-1;
+                break;
+      case 'W': dist_from_peak = sizey-1 - j;
+                break;
+      case 'N': dist_from_peak = i-1;
+                break;
+      case 'S': dist_from_peak = sizex-1 - i;
+                break;
+      default : cerr<<"IncreaseValBoundaryGradWithwSwitch(): Error in peakdir... ???"<<endl;
+                exit(1);
+    }
+    
+    double dfood = 1.+ par.gradscale*((double)sizey/100.) * (1. - dist_from_peak/(double)sizey); //this the usable line
+    maxfood=(int)dfood;
+    if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise
+    pfood_j = par.gradnoise;
+    if(RANDOM() < pfood_j)  sigma[i][j]=maxfood;
+  }
+}
+
 // I am going to change the direction of the gradient every so often
 void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
 {
@@ -734,7 +807,9 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
     // also- the 1+ part of the equation could go...
     // or even better counter balanced by a lesser gradient in the variable part
     //final formula:
-    double dfood = 1.+ par.gradscale*((double)sizey/100.) * (1. - dist_from_peak/(double)sizey); //this the usable line
+    //double dfood = 1.+ par.gradscale*((double)sizey/100.) * (1. - dist_from_peak/(double)sizey); //this the usable line
+    // however, max distance is not sizey, but sqrt(5/4) sizey, so
+    double dfood = 1.+ par.gradscale*(1.12*(double)sizey/100.) * (1. - dist_from_peak/(1.12*(double)sizey)); //this the usable line
 
     int maxfood = (int)dfood;
     if(RANDOM() < dfood - maxfood) maxfood++; //finer gradient made with a little unbiased noise
@@ -768,9 +843,9 @@ void IntPlane::IncreaseValSpecifiedExp(CellularPotts *cpm)
       if(RANDOM()<par.foodinflux) sigma[i][j]=-1; //food
     }
   }
-
+  
   // std::cerr << "peak x,y = " <<peakx <<", "<< peaky << endl;
-
+  // std::cerr << "peak x,y = " <<peakx <<", "<< peaky << ", F[peak] = " << sigma[peakx][peaky]<< ", F[1,1] = " <<sigma[1][1] <<", F[maxx,1] = "<< sigma[sizex-2][1] << endl;
   return;
 
 }

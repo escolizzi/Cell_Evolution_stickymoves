@@ -142,6 +142,7 @@ class IntPlane {
   void IncreaseValSelfGrowth(CellularPotts *cpm);
   void IncreaseValBoundaryGrad(CellularPotts *cpm);
   void IncreaseValSpecifiedExp(CellularPotts *cpm);
+  void IncreaseValBoundaryGradWithwSwitch(CellularPotts *cpm);
   void InitIncreaseVal(CellularPotts *cpm);// set if everywhere parameter
                                            //Set function pointer for food update,
                                            // pointer to cpm is not used if IncreaseVal
