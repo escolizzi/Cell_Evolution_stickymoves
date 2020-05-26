@@ -1205,7 +1205,8 @@ void Dish::UpdateCellParameters(int Time)
       }
       //check area:if cell is too small (whether alive or not) we remove its sigma
       // notice that this keeps the cell in the cell array, it only removes its sigma from the field
-      if(c->Area()< par.min_area_for_life){
+      // we add also the condition if (c->AliveP()) because otherwise it goes in 
+      if(c->AliveP() && c->Area()< par.min_area_for_life){
          c->SetTargetArea(0);
          c->Apoptose(); //set alive to false
          CPM->RemoveCell(&*c,par.min_area_for_life,c->meanx,c->meany);
