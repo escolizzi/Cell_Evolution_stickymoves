@@ -3196,7 +3196,12 @@ void CellularPotts::RemoveCell(Cell* thiscell,int min_area, int meanx, int meany
   int loopdepth=1;
   thissig=thiscell->Sigma();
   thisarea=thiscell->Area();
-
+  
+  if(thiscell->Area() == 0){
+    cerr<<"RemoveCell(): Warning. This cell already has zero area."<<endl;
+    return;
+  }
+  
 //   cerr<<"meanx: "<<meanx<<" meany: "<<meany<<endl;
 
   if(sigma[meanx][meany]==thissig){
@@ -3238,9 +3243,9 @@ void CellularPotts::RemoveCell(Cell* thiscell,int min_area, int meanx, int meany
       (*cell)[signeigh].setNeighbour(thissig,0,0);
       (*cell)[signeigh].updateNeighbourBoundary(0,blength);
     }
-    thiscell->setNeighbour(signeigh,0,0);
+    //thiscell->setNeighbour(signeigh,0,0); //this creates problems on Lisa, because removes the map while iterating it
   }
-
+  thiscell->clearNeighbours(); //so we clear thiscell's neighbours map after looping through the neighbours.
 
 //   cerr<<
 //   exit(1);

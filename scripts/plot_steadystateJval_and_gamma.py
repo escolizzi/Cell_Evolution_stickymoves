@@ -109,7 +109,7 @@ filename=""
 fig, ax = plt.subplots()
 if len(sys.argv) < 3:
   print "This is the program 'plot_steadysate...blabla.py'"
-  print "./plot_steadystate..blabla.py <output file name> <#timesteps from the last> <label1> <file1> <label2> <file2> <label3> <file3>  ..."
+  print "./plot_steadystate..blabla.py <output file name> <#timesteps from the last> <season dur1> <file1> <season dur2> <file2> <season dur3> <file3>  ..."
   sys.exit(1)
 else:
   figname=sys.argv[1]
@@ -219,72 +219,5 @@ ax.set_xlim([0,160000])
 plt.savefig(figname)
 
 sys.exit(1)
-        
-"""
 
 
-
-
-      #read first line first to get the first time point (could probably more clever, but hey)
-      for line in fin:
-        line=line.split()
-        timepoint=int(line[0])
-        startxpos+=float(line[3])
-        startypos+=float(line[4])
-        count+=1
-        break
-
-      #read rest of file, to find positions at beginning and end of period
-      for line in fin:
-        line=line.split()
-        if int(line[0])==timepoint:
-          startxpos+=float(line[3])
-          startypos+=float(line[4])
-          count+=1
-        elif int(line[0])==timepoint+period:
-          endxpos+=float(line[3])
-          endypos+=float(line[4])
-          count2+=1
-
-    #calculate average positions at beginning and end of period
-    startxpos/=float(count)
-    startypos/=float(count)
-    endxpos/=float(count2)
-    endypos/=float(count2)
-
-    xx=endxpos-startxpos
-    yy=endypos-startypos
-    
-    displace.append(math.sqrt(xx*xx+yy*yy))
-    
- 
-##start plotting##
-
-ax.scatter(offset,displace, c=colourset,alpha=0.5)
-ax.set_xlim([0,totalcounter+1])
-#custom xlabels
-my_labels=ax.get_xticks().tolist()
-counter=0
-newlab=[]
-for el in my_labels:
-  if el.is_integer() and counter<len(labelset) and el>0.001:
-    newlab.append(labelset[counter])
-    counter+=1
-  else:
-    newlab.append('')
-
-ax.set_xticklabels(newlab)
-#print my_labels
-#print labelset
-#print newlab
-
-plt.xlabel('simulation')
-ylab='displacement in time period '+str(period)
-plt.ylabel (ylab)
-fig.savefig(figname, bbox_inches='tight')
-#plt.show()
-
-
-
-
-"""

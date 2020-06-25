@@ -44,6 +44,10 @@ def AverageFrom_lg_lists(lg):
 ###                   ###
 #########################
 
+print
+print "Warning, data file name dependence is VERY brittle - this will likely print nothing"
+print
+
 colours=[(0.7,0.13,0.),"royalblue", "darkgoldenrod", (0.,0.5,0.2), "salmon", "lightskyblue","orchid"]
 filename=""
 fig, (ax0, ax1) = plt.subplots(ncols=2,sharey=True)
