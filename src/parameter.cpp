@@ -194,6 +194,7 @@ void Parameter::PrintWelcomeStatement(void)
   cerr<<" -target_area [INT_NUMBER] that (initial) target area of cells"<<endl;
   cerr<<" -init_cell_config [0-3] initial configuration of cells, see ca.cpp"<<endl;
   cerr<<" -food_influx_location [char*] distribution of gradient (only specified_experiment and boundarygradient_withswitch support evolution)"<<endl;
+  cerr<<" -the_line [INT] distance from peak at which fitness is half"<<endl;
   cerr<<endl<<"Will not execute if datafile and datadir already exist"<<endl;
   cerr<<"Also, parameter file and Jtable should be in the same directory (unless you used option -keylockfilename)"<<endl;
   cerr<<"Have fun!"<<endl;
@@ -391,6 +392,13 @@ int Parameter::ReadArguments(int argc, char *argv[])
       }
       gradnoise = atof( argv[i] );
       cerr<<"New value for gradnoise: "<<gradnoise<<endl;
+    }else if( 0==strcmp(argv[i],"-the_line") ){
+      i++; if(i==argc){
+        cerr<<"Something odd in the_line?"<<endl;
+        return 1;  //check if end of arguments, exit with error in case
+      }
+      the_line = atof( argv[i] );
+      cerr<<"New value for the_line: "<<the_line<<endl;
     }else if( 0==strcmp(argv[i],"-food_influx_location") ){
       i++; if(i==argc) {
         cerr<<"Something odd in food_influx_location?"<<endl;
