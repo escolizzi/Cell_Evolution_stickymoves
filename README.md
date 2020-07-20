@@ -8,3 +8,5 @@ Cells need food to maintain their mass, grow and divide, and to move. Division o
 may be regulated through cell contact, cell size and amount of resources available.
 Cell adhesion is governed by a key-lock mechanism that evolves, and the amount of sticking at any given moment can be regulated
 by the same factors as growth and movement in an evolvable manner.
+
+The branch ce_newregulation is the most up to date
