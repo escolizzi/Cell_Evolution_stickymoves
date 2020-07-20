@@ -1,6 +1,8 @@
 # Cell_Evolution_stickymoves
 TSTO rip-off ++
 
+use the ce_new_regulation branch, it is the only updated one.
+
 The code in its current form runs a simulation of cell evolution 
 to investigate the circumstances under which grouping (sticking) of cells occurs. 
 Cells eat food that is trickled in at random positions, either homogeneously or in patches.
