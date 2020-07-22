@@ -907,30 +907,13 @@ void Dish::CellsEat2(void)
     int count=0;
     double xv,yv;
     for(auto &c: cell){
-      if(c.sigma && ftotal[c.sigma]){
-        //calculate "food" vector with respect to cell mean pos
-        xv=fsumx[c.sigma]/(double)ftotal[c.sigma]-c.meanx;
-        yv=fsumy[c.sigma]/(double)ftotal[c.sigma]-c.meany;
+      if(c.sigma && c.AliveP()){
+        // In this version, cells move more when there is more signal
+        //  regardless of direction, so we use xv for storing avrg concentration
+        xv=ftotal[c.sigma]/(double)c.area;
+        yv = -1; // does not matter
 
-        double hyphyp=hypot(xv,yv);
-
-        // in a homogeneous medium, gradient is zero
-        // we then pick a random direction
-        if(hyphyp > 0.0001){
-          xv/=hyphyp;
-          yv/=hyphyp;
-          c.setChemVec(xv,yv);
-        }else{
-          double theta = 2.*M_PI*RANDOM();
-          c.setChemVec( cos(theta) , sin(theta) );
-        }
-      }else if(!ftotal[c.sigma]){
-        double theta = 2.*M_PI*RANDOM();
-        c.setChemVec( cos(theta) , sin(theta) );
-      }
-      if(c.chemvecx>1 || c.chemvecy>1){
-        std::cerr << ", vector: "<< c.chemvecx <<" "<< c.chemvecy  << '\n';
-        exit(1);
+        c.setChemVec(xv,yv);
       }
     }
 

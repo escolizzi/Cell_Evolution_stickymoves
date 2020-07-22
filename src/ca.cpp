@@ -622,67 +622,68 @@ double ax, ay;
 
   //Similar to Joost's method, but for chemotaxis (no persistence!)
     if((*cell)[sxy].getChemMu()>0.0001 || (*cell)[sxyp].getChemMu()>0.0001){
-      if(sxy!=MEDIUM){
+      if( /*sxy!=MEDIUM &&*/ sxyp==MEDIUM){
         //cerr<<"tvecx: "<<(*cell)[sxy].getXvec()<<", tvecy: "<< (*cell)[sxy].getYvec() <<endl;
-        double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-        double smeany = (*cell)[sxy].getYpos();
+  //       double smeanx = (*cell)[sxy].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+  //       double smeany = (*cell)[sxy].getYpos();
 
-        if(par.periodic_boundaries){
-          // if x is on the right and meanx is on the left
-          // and if by moving meanx to the right we diminish this distance
-          if( (x-smeanx)>0 && (x-smeanx)>(smeanx+(par.sizex-2)-x) ){
-            smeanx+=(par.sizex-2);
-            //cerr<<"dh s hello"<<endl;
-            //cerr<<"passb"<<endl;
-          }
-          else if( (smeanx-x)>0 && (smeanx-x)>(x+(par.sizex-2)-smeanx) ) {
-            smeanx-=(par.sizex-2);
-  //            cerr<<"dh s hello"<<endl;
-            //cerr<<"passb"<<endl;
-          }
-          if( (y-smeany)>0 && (y-smeany)>(smeany-(y-(par.sizey-2))) ){
-            smeany+=(par.sizey-2);
-            //cerr<<"passb"<<endl;
-          }
-          else if( (smeany-y)>0 && (smeany-y)>(y+(par.sizey-2)-smeany) ){
-            smeany-=(par.sizey-2);
-            //cerr<<"passb"<<endl;
-          }
-        }
+  //       if(par.periodic_boundaries){
+  //         // if x is on the right and meanx is on the left
+  //         // and if by moving meanx to the right we diminish this distance
+  //         if( (x-smeanx)>0 && (x-smeanx)>(smeanx+(par.sizex-2)-x) ){
+  //           smeanx+=(par.sizex-2);
+  //           //cerr<<"dh s hello"<<endl;
+  //           //cerr<<"passb"<<endl;
+  //         }
+  //         else if( (smeanx-x)>0 && (smeanx-x)>(x+(par.sizex-2)-smeanx) ) {
+  //           smeanx-=(par.sizex-2);
+  // //            cerr<<"dh s hello"<<endl;
+  //           //cerr<<"passb"<<endl;
+  //         }
+  //         if( (y-smeany)>0 && (y-smeany)>(smeany-(y-(par.sizey-2))) ){
+  //           smeany+=(par.sizey-2);
+  //           //cerr<<"passb"<<endl;
+  //         }
+  //         else if( (smeany-y)>0 && (smeany-y)>(y+(par.sizey-2)-smeany) ){
+  //           smeany-=(par.sizey-2);
+  //           //cerr<<"passb"<<endl;
+  //         }
+  //       }
 
-        ax=x-smeanx;
-        ay=y-smeany;
-        DH+=(*cell)[sxy].getChemMu()*(ax*(*cell)[sxy].getChemXvec() + ay*(*cell)[sxy].getChemYvec())/hypot(ax,ay);
+  //       ax=x-smeanx;
+  //       ay=y-smeany;
+
+        DH+=(*cell)[sxy].getChemMu() * (*cell)[sxy].getChemXvec();
       }
-      if(sxyp!=MEDIUM){
-         double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
-         double spmeany = (*cell)[sxyp].getYpos();
+      if( sxy == MEDIUM /*sxyp != MEDIUM*/){
+  //        double spmeanx = (*cell)[sxyp].getXpos(); //getXpos() returns meanx - which I have to wrap if pixel's on the other side
+  //        double spmeany = (*cell)[sxyp].getYpos();
 
-         if(par.periodic_boundaries){
-           if( (x-spmeanx)>0 && (x-spmeanx)>(spmeanx-(x-(par.sizex-2))) ){
-             spmeanx+=(par.sizex-2);
-  //            cerr<<"dh sp hello"<<endl;
-             //cerr<<"passb"<<endl;
-          }
-           else if( (spmeanx-x)>0 && (spmeanx-x)>(x+(par.sizex-2)-spmeanx) ) {
-             spmeanx-=(par.sizex-2);
-  //            cerr<<"dh sp hello"<<endl;
-             //cerr<<"passb"<<endl;
-           }
-           if( (y-spmeany)>0 && (y-spmeany)>(spmeany-(y-(par.sizey-2))) ){
-             spmeany+=(par.sizey-2);
-             //cerr<<"passb"<<endl;
-           }
-           else if( (spmeany-y)>0 && (spmeany-y)>(y+(par.sizey-2)-spmeany) ){
-             spmeany-=(par.sizey-2);
-             //cerr<<"passb"<<endl;
-           }
-         }
-         //ax=x-(*cell)[sxyp].getXpos(); //returns meanx
-         //ay=y-(*cell)[sxyp].getYpos(); //returns meany
-         ax=x-spmeanx;
-         ay=y-spmeany;
-         DH-=(*cell)[sxyp].getChemMu()*(ax*(*cell)[sxyp].getChemXvec() + ay*(*cell)[sxyp].getChemYvec())/hypot(ax,ay);
+  //        if(par.periodic_boundaries){
+  //          if( (x-spmeanx)>0 && (x-spmeanx)>(spmeanx-(x-(par.sizex-2))) ){
+  //            spmeanx+=(par.sizex-2);
+  // //            cerr<<"dh sp hello"<<endl;
+  //            //cerr<<"passb"<<endl;
+  //         }
+  //          else if( (spmeanx-x)>0 && (spmeanx-x)>(x+(par.sizex-2)-spmeanx) ) {
+  //            spmeanx-=(par.sizex-2);
+  // //            cerr<<"dh sp hello"<<endl;
+  //            //cerr<<"passb"<<endl;
+  //          }
+  //          if( (y-spmeany)>0 && (y-spmeany)>(spmeany-(y-(par.sizey-2))) ){
+  //            spmeany+=(par.sizey-2);
+  //            //cerr<<"passb"<<endl;
+  //          }
+  //          else if( (spmeany-y)>0 && (spmeany-y)>(y+(par.sizey-2)-spmeany) ){
+  //            spmeany-=(par.sizey-2);
+  //            //cerr<<"passb"<<endl;
+  //          }
+  //        }
+  //        //ax=x-(*cell)[sxyp].getXpos(); //returns meanx
+  //        //ay=y-(*cell)[sxyp].getYpos(); //returns meany
+  //        ax=x-spmeanx;
+  //        ay=y-spmeany;
+         DH-=(*cell)[sxyp].getChemMu() * (*cell)[sxyp].getChemXvec();
       }
     }
 //

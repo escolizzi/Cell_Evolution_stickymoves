@@ -173,7 +173,7 @@ start, end = ax0.get_xlim() # this and next changes axis location
   # ~ xmax=100000
   # ~ pass
   
-xmax = 200000
+xmax = 100000
 ax0.set_xlim([0,xmax])
 ax0.set_ylim([0,500])
 
