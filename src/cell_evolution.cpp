@@ -421,7 +421,7 @@ int main(int argc, char *argv[]) {
     cerr<<endl<<"WARNING, use wrapped boundaries if cells are A LOT smaller than sizex and sizey"<<endl<<endl;
     cerr<<endl<<"WARNING: DO NOT EVOLVE CHEMMU, or if you do, change the replication function (where it is always reset to init_chemmu)"<<endl<<endl;
     
-    cerr<<endl<<"MEGA WARNING !!! \n THIS VERSION IS SUPER HACKED AND CRAMMED, \n DO NOT USE FOR ANYTHING ELSE THAN CAMLEY'S CHEMOTAX + CIL"<<endl<<endl;
+    // cerr<<endl<<"MEGA WARNING !!! \n THIS VERSION IS SUPER HACKED AND CRAMMED, \n DO NOT USE FOR ANYTHING ELSE THAN CAMLEY'S CHEMOTAX + CIL"<<endl<<endl;
     
 
     //check if directory for movies exists, create it if not, exit otherwise
