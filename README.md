@@ -1,5 +1,5 @@
 # Cell_Evolution_stickymoves
-source code for the results of the artivle: 
+source code for the results of the article: 
 Evolution of multicellularity by collective integration of spatial information. 
 For publication see the eLife: https://elifesciences.org/articles/56349
 
