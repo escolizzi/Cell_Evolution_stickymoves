@@ -16,3 +16,11 @@ Cells move around by persistant random walk and chemotaxis.
 Cells can eat food that is trickled in at random positions, either homogeneously or in patches.
 Cells need food to maintain their mass, grow and divide, and to move. Division of resources among these tasks is evolvable and 
 may be regulated through cell contact, cell size and amount of resources available.
+
+The software requires the Qt libraries to compile (version 4 or higher). It's been extensively tested on Linux Ubuntu and other Linux distributions. 
+Once compiled run with: 
+Usage is: 
+./cell_evolution path/to/parameters.par [optional arguments]
+
+For a list of optional arguments type (note that you must always provide a valid path to a parameter file):
+./cell_evolution path/to/parameters.par ARGUMENTS
